@@ -213,15 +213,5 @@ NYU Data Science
 
 ---
 
-# 🔥 If you want next iteration
-
-I can upgrade this to:
-
-* 🔬 **research-paper-level README** (for grad apps / labs)
-* 🧪 include **ML pipeline diagrams + equations**
-* 🎯 tailor it for **MCM/ICM / portfolio / startup pitch**
-
-Just tell me what direction you want.
-
 [1]: https://www.nature.com/articles/s41597-026-06805-3?utm_source=chatgpt.com "A longitudinal dataset of physiological, hormonal ..."
 [2]: https://physionet.org/content/mcphases/view-dua/1.0.0/?utm_source=chatgpt.com "PhysioNet Restricted Health Data Use Agreement 1.5.0"
