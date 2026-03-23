@@ -1,11 +1,4 @@
-# female-health-wearable-data-monitor-platform
-Here’s a **clean, GitHub-ready README draft** tailored to your project (technical, structured, and aligned with research + product standards).
-
-You can paste this directly into `README.md`.
-
----
-
-# 🌸 Female Health Wearable Data Monitor Platform
+# 💪 Female Health Wearable Data Monitor Platform
 
 A full-stack system for analyzing, modeling, and visualizing menstrual health using multimodal physiological data from wearable devices and self-reports.
 
