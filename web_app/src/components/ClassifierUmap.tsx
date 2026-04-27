@@ -61,7 +61,7 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
     desc = "You feel internally stressed, but the algorithm sees low HR / high HRV and tells you that you are relaxed.";
   }
 
-  const userPoint = [{ x: userX, y: userY, type: 'You', color: '#ffffff' }];
+  const userPoint = [{ x: userX, y: userY, type: 'You', color: '#1e293b' }];
 
   return (
     <div className="container" style={{ margin: 'auto', maxWidth: '1000px', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -80,7 +80,7 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
               <XAxis type="number" dataKey="x" name="UMAP 1" hide domain={[-10, 10]} />
               <YAxis type="number" dataKey="y" name="UMAP 2" hide domain={[-10, 10]} />
               <ZAxis type="number" range={[50, 400]} />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background: 'var(--bg-dark)' }} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px' }} />
               
               <Scatter name="Population" data={popData} fill="#8884d8">
                 {popData.map((entry, index) => (
@@ -88,8 +88,8 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
                 ))}
               </Scatter>
               
-              <Scatter name="You" data={userPoint} fill="#ffffff">
-                <Cell key="user" fill="#ffffff" />
+              <Scatter name="You" data={userPoint} fill="#1e293b">
+                <Cell key="user" fill="#1e293b" />
               </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
@@ -102,7 +102,7 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
               transform: 'translate(-50%, -50%)',
               width: '40px', height: '40px', 
               borderRadius: '50%', 
-              border: '2px solid white', 
+              border: '2px solid #1e293b', 
               pointerEvents: 'none' 
             }} 
           />

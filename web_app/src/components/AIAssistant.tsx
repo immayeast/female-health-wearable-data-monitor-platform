@@ -81,7 +81,7 @@ const AIAssistant: React.FC = () => {
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px', background: 'rgba(0,0,0,0.3)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '16px', background: 'rgba(255,255,255,0.4)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Bot size={20} color="var(--primary-accent)" />
                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600 }}>mcPHASES Agent</h3>
@@ -97,8 +97,8 @@ const AIAssistant: React.FC = () => {
                 <div key={idx} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
                   <div style={{
                     padding: '10px 14px', borderRadius: '12px', fontSize: '0.95rem', lineHeight: 1.5,
-                    background: msg.role === 'user' ? 'linear-gradient(to right, var(--primary-accent), var(--secondary-accent))' : 'rgba(255,255,255,0.05)',
-                    color: 'white',
+                    background: msg.role === 'user' ? 'linear-gradient(to right, var(--primary-accent), var(--secondary-accent))' : 'rgba(255,255,255,0.8)',
+                    color: msg.role === 'user' ? '#ffffff' : 'var(--text-primary)',
                     borderBottomRightRadius: msg.role === 'user' ? '4px' : '12px',
                     borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '12px',
                   }}>
@@ -107,7 +107,7 @@ const AIAssistant: React.FC = () => {
                 </div>
               ))}
               {isTyping && (
-                <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.05)', padding: '10px 14px', borderRadius: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                <div style={{ alignSelf: 'flex-start', background: 'rgba(255,255,255,0.8)', padding: '10px 14px', borderRadius: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
                   Thinking...
                 </div>
               )}
@@ -115,14 +115,14 @@ const AIAssistant: React.FC = () => {
             </div>
 
             {/* Input Footer */}
-            <div style={{ padding: '16px', background: 'rgba(0,0,0,0.3)', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '8px' }}>
+            <div style={{ padding: '16px', background: 'rgba(255,255,255,0.4)', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '8px' }}>
               <input 
                 type="text" 
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSend()}
                 placeholder="Ask about the model..."
-                style={{ flex: 1, padding: '10px 14px', borderRadius: '20px', fontSize: '0.95rem', background: 'rgba(0,0,0,0.4)' }}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: '20px', fontSize: '0.95rem', background: 'rgba(255,255,255,0.7)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
               />
               <button 
                 className="btn btn-primary" 

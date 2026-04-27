@@ -80,8 +80,8 @@ const PhasePrediction: React.FC<PhasePredictionProps> = ({ userData, onNext }) =
                   <XAxis type="number" hide />
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)' }} />
                   <Tooltip 
-                    cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
-                    contentStyle={{ backgroundColor: 'var(--bg-dark)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}
+                    cursor={{ fill: 'rgba(168, 155, 220, 0.1)' }} 
+                    contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {factorData.map((entry, index) => (

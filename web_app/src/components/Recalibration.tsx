@@ -45,7 +45,7 @@ const Recalibration: React.FC<RecalibrationProps> = ({ userData, onRestart }) =>
               </defs>
               <XAxis dataKey="time" stroke="var(--text-secondary)" />
               <YAxis stroke="var(--text-secondary)" />
-              <Tooltip contentStyle={{ backgroundColor: 'var(--bg-dark)', border: '1px solid var(--glass-border)', borderRadius: '8px' }} />
+              <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', borderRadius: '8px', color: 'var(--text-primary)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} />
               <Area type="monotone" dataKey="raw" stroke="#fb7185" fillOpacity={1} fill="url(#colorRaw)" name="Uncalibrated Trajectory" />
               <Area type="monotone" dataKey="recalibrated" stroke="#34d399" fillOpacity={1} fill="url(#colorRecal)" name="mcPHASES Recalibrated Alignment" />
             </AreaChart>

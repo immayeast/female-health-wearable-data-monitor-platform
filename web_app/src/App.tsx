@@ -48,11 +48,11 @@ function App() {
       {/* Dynamic Background Elements */}
       <div 
         className="animate-pulse-slow" 
-        style={{ position: 'fixed', top: '-10%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(129, 140, 248, 0.15) 0%, rgba(0,0,0,0) 70%)', zIndex: 0, pointerEvents: 'none' }} 
+        style={{ position: 'fixed', top: '-10%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(168, 155, 220, 0.25) 0%, rgba(255,255,255,0) 70%)', zIndex: 0, pointerEvents: 'none' }} 
       />
       <div 
         className="animate-pulse-slow" 
-        style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(192, 132, 252, 0.1) 0%, rgba(0,0,0,0) 70%)', zIndex: 0, pointerEvents: 'none', animationDelay: '2s' }} 
+        style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(190, 180, 210, 0.2) 0%, rgba(255,255,255,0) 70%)', zIndex: 0, pointerEvents: 'none', animationDelay: '2s' }} 
       />
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
