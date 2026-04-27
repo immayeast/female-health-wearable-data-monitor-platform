@@ -132,7 +132,7 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
             Recalibrate Baseline <ArrowRight size={20} />
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
