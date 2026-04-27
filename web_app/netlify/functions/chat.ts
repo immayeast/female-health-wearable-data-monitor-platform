@@ -25,7 +25,7 @@ export const handler: Handler = async (event) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'nvidia/nemo', // Requested agentic model
+        model: 'nvidia/llama-3.1-nemotron-70b-instruct', // Requested agentic model
         messages: [
           {
             role: 'system',
