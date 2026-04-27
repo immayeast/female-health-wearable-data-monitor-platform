@@ -14,7 +14,7 @@ export const handler: Handler = async (event) => {
     }
 
     // Call OpenRouter
-    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "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"; // Fallback to provided key for prototype. Highly recommend removing from static code in prod.
+    const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "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"; // Fallback to provided key for prototype. Highly recommend removing from static code in prod.
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
