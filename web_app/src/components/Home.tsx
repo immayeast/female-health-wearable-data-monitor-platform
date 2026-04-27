@@ -46,7 +46,11 @@ const Home: React.FC<HomeProps> = ({ onNext }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
         
         {/* Large Chart Panel */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '400px' }}>
+        <motion.div 
+          whileHover={{ rotateX: 2, rotateY: -1, z: 15 }}
+          className="glass-panel" 
+          style={{ display: 'flex', flexDirection: 'column', height: '400px' }}
+        >
           <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <HeartPulse size={24} color="var(--primary-accent)" />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Heart Rate Variability (HRV) Trends</h3>
@@ -66,10 +70,14 @@ const Home: React.FC<HomeProps> = ({ onNext }) => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Small Bar Chart Panel */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', height: '400px' }}>
+        <motion.div 
+          whileHover={{ rotateX: 2, rotateY: 1, z: 15 }}
+          className="glass-panel" 
+          style={{ display: 'flex', flexDirection: 'column', height: '400px' }}
+        >
           <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Beaker size={24} color="var(--secondary-accent)" />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Phase Impact</h3>
@@ -77,6 +85,13 @@ const Home: React.FC<HomeProps> = ({ onNext }) => {
           <div style={{ flexGrow: 1, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={mockPhaseData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="var(--primary-accent)" stopOpacity={0.8} />
+                    <stop offset="50%" stopColor="var(--primary-accent)" stopOpacity={1} />
+                    <stop offset="100%" stopColor="var(--primary-accent)" stopOpacity={0.8} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--glass-border)" />
                 <XAxis dataKey="phase" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} dy={10} interval={0} angle={-30} textAnchor="end" height={60} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} />
@@ -84,11 +99,11 @@ const Home: React.FC<HomeProps> = ({ onNext }) => {
                   cursor={{ fill: 'rgba(168, 155, 220, 0.1)' }}
                   contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', borderRadius: '12px' }}
                 />
-                <Bar dataKey="value" fill="var(--primary-accent)" radius={[6, 6, 0, 0]} fillOpacity={0.8} />
+                <Bar dataKey="value" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Info Cards Grid */}

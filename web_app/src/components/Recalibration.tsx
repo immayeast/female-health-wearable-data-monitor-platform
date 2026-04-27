@@ -28,7 +28,11 @@ const Recalibration: React.FC<RecalibrationProps> = ({ userData, onRestart }) =>
         </p>
       </div>
 
-      <div className="glass-panel" style={{ marginBottom: '3rem' }}>
+      <motion.div 
+        whileHover={{ rotateX: 2, rotateY: 0, z: 20 }}
+        className="glass-panel" 
+        style={{ marginBottom: '3rem' }}
+      >
         <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Algorithm Coefficient Shifts</h3>
         <div style={{ height: '300px', width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -51,23 +55,31 @@ const Recalibration: React.FC<RecalibrationProps> = ({ userData, onRestart }) =>
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </motion.div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
-        <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <motion.div 
+          whileHover={{ z: 10, scale: 1.02 }}
+          className="glass-panel" 
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
+        >
           <CheckCircle color="var(--success)" size={32} />
-          <div>
+          <div className="z-3d-card">
             <h4 style={{ fontWeight: 600, fontSize: '1.1rem' }}>HRV Offset (+12%)</h4>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Compensating for Progesterone driven suppression.</p>
           </div>
-        </div>
-        <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        </motion.div>
+        <motion.div 
+          whileHover={{ z: 10, scale: 1.02 }}
+          className="glass-panel" 
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
+        >
           <CheckCircle color="var(--success)" size={32} />
-          <div>
+          <div className="z-3d-card">
             <h4 style={{ fontWeight: 600, fontSize: '1.1rem' }}>HR Threshold Shift (-4 bpm)</h4>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Shifting baseline up to prevent false 'stressed' reads.</p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div style={{ textAlign: 'center' }}>

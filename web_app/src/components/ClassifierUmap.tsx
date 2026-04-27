@@ -73,18 +73,26 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
         </p>
       </div>
 
-      <div className="glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '3rem', alignItems: 'center' }}>
+      <motion.div 
+        whileHover={{ rotateX: 3, rotateY: -3, z: 20 }}
+        className="glass-panel" 
+        style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '3rem', alignItems: 'center' }}
+      >
         <div style={{ height: '400px', width: '100%', position: 'relative' }}>
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
               <XAxis type="number" dataKey="x" name="UMAP 1" hide domain={[-10, 10]} />
               <YAxis type="number" dataKey="y" name="UMAP 2" hide domain={[-10, 10]} />
-              <ZAxis type="number" range={[50, 400]} />
+              <ZAxis type="number" range={[100, 600]} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px' }} />
               
               <Scatter name="Population" data={popData} fill="#8884d8">
                 {popData.map((entry, index) => (
-                  <Cell key={`pop-${index}`} fill={entry.color} opacity={0.4} />
+                  <Cell 
+                    key={`pop-${index}`} 
+                    fill={entry.color} 
+                    opacity={0.3 + (entry.x + 10) / 40} 
+                  />
                 ))}
               </Scatter>
               
@@ -99,11 +107,12 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
               position: 'absolute', 
               top: `${50 - (userY * 5)}%`, 
               left: `${50 + (userX * 5)}%`, 
-              transform: 'translate(-50%, -50%)',
+              transform: 'translate(-50%, -50%) translateZ(40px)',
               width: '40px', height: '40px', 
               borderRadius: '50%', 
               border: '2px solid #1e293b', 
-              pointerEvents: 'none' 
+              pointerEvents: 'none',
+              boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
             }} 
           />
         </div>

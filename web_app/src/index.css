@@ -36,6 +36,7 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  perspective: 1200px;
 }
 
 /* Glassmorphic Components */
@@ -45,8 +46,22 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+  box-shadow: 
+    0 10px 30px rgba(31, 38, 135, 0.05),
+    0 1px 2px rgba(255, 255, 255, 0.8) inset;
   padding: 24px;
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: 
+    0 20px 40px rgba(31, 38, 135, 0.08),
+    0 1px 2px rgba(255, 255, 255, 0.9) inset;
+}
+
+.z-3d-card {
+  transform: translateZ(20px);
 }
 
 /* Base Utility Classes */
