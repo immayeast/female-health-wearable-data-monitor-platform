@@ -3,6 +3,9 @@
 *.tsv
 *.xml
 *.json
+!web_app/package.json
+!web_app/package-lock.json
+!web_app/tsconfig*.json
 data/
 export.xml
 apple_health_export/
