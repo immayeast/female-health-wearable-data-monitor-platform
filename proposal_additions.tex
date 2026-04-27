@@ -1,0 +1,52 @@
+\section{Expanded Workflow: Personalized Recalibration of Wearable Scores for Menstrual Health}
+
+\subsection{Motivation}
+Current wearable-derived stress and sleep scores are typically calibrated against broad population baselines and may fail to reflect phase-dependent physiological shifts in female users. In this project, we seek to contextualize wearable outputs by incorporating menstrual phase, physiological state, and self-reported experience into a personalized recalibration framework. Rather than treating raw wearable scores as fixed ground truth, we model them as baseline proxies that can be adjusted using biological and behavioral context.
+
+\subsection{System Design}
+The final system is envisioned as an interactive user interface that accepts wearable and self-report inputs and returns personalized analytics. The interface has four primary functions:
+\begin{enumerate}
+    \item visual analytics of health trends, including heart rate, HRV, sleep, temperature, and activity;
+    \item menstrual phase prediction using multi-feature physiological inputs;
+    \item user stratification into alignment bins based on the degree to which wearable scores agree with self-assessed fatigue or stress;
+    \item recalibration of wearable stress and sleep scores using phase-aware and physiology-aware adjustments.
+\end{enumerate}
+
+\subsection{Modeling Strategy}
+Our modeling pipeline builds on the existing merged daily dataset and feature engineering framework. The current codebase already constructs daily stress, sleep, resting heart rate, activity, glucose, and HRV aggregates, then merges them with hormones and participant metadata for downstream modeling fileciteturn1file8. It also uses within-person centered physiological variables, symptom composites, and phase interaction terms as core engineered features fileciteturn1file3 fileciteturn1file4.
+
+The expanded workflow introduces two additional modeling tasks.
+
+\paragraph{1. Alignment-bin prediction.}
+We define an ``alignment'' target describing whether self-assessed fatigue or stress is concordant with the wearable-derived stress score. This target may be represented either as a binary label (aligned vs. misaligned) or as a multi-bin label (e.g., underestimation, agreement, overestimation). We then train supervised classification models to predict the user’s alignment bin from physiological and contextual features.
+
+Two parallel versions of the model are evaluated:
+\begin{itemize}
+    \item a \textbf{blind-context model}, which excludes the wearable stress score and represents the setting in which the participant has not yet seen the device’s score;
+    \item a \textbf{score-aware model}, which includes the wearable stress score and represents the setting in which the participant has already seen the device output and is reflecting on whether it matches their own perceived state.
+\end{itemize}
+
+By comparing these two versions, we test whether perceived alignment is primarily predictable from physiology alone or whether the wearable’s displayed score materially changes the reflection process.
+
+\paragraph{2. Recalibration of stress and sleep scores.}
+We then estimate a recalibration coefficient or adjustment vector that modifies the raw wearable stress or sleep score using physiological features, phase context, and optionally cluster-based latent state. This recalibration is intended to improve contextual validity, not to reverse-engineer the proprietary wearable algorithm exactly. In other words, the adjusted score should better reflect what is expected for a specific user in a specific physiological context.
+
+\subsection{Correlation-Based Diagnostic Layer}
+Before training predictive models, we compute Pearson correlations between self-assessed fatigue or stress and the wearable-derived stress score. These correlations are evaluated both globally and, where useful, within individuals or subgroups. The purpose is to quantify the baseline degree of concordance between subjective and wearable-based measurements before any calibration. Pearson correlation is then recomputed after recalibration to test whether contextual adjustment improves alignment.
+
+\subsection{Validation Strategy}
+The study uses participant-level validation rather than random row-level validation in order to avoid leakage across repeated measurements from the same participant. The current codebase already uses a participant split of 30 train, 6 validation, and 6 test participants drawn from interval 1 data fileciteturn1file4. For the expanded workflow, we retain participant-level separation and evaluate model performance on held-out participants. Where appropriate, jackknife-style or leave-one-participant-out analysis may be added to stress-test generalization over the cohort of 42 participants.
+
+To strengthen robustness under limited sample size, synthetic data generation may be used as an auxiliary exploratory tool. Synthetic augmentation is not intended to replace real observations, but rather to probe the stability of the learned decision boundaries or recalibration trends under plausible variation.
+
+\subsection{Behavioral and Practical Objective}
+The behavioral objective of this system is to help users interpret their own physical and emotional readiness more realistically. A raw stress or sleep score may not have the same meaning across all phases of the menstrual cycle or across all physiological states. By integrating phase prediction, latent-state stratification, self-reported experience, and recalibration, the system aims to help users avoid overexertion and better contextualize how they feel relative to what their body is signaling.
+
+\subsection{Deliverables}
+The expanded project produces two new code modules in addition to the existing pipeline:
+\begin{enumerate}
+    \item a machine learning script that builds and compares alignment-bin prediction models with and without the wearable stress score as an input, while also reporting Pearson correlation diagnostics;
+    \item a recalibration script that learns adjustment terms from physiological context and applies them to generate adjusted stress and sleep scores for new data.
+\end{enumerate}
+
+Together, these additions move the project from phase-aware analysis toward a deployable personalized decision-support system for female wearable health interpretation.
