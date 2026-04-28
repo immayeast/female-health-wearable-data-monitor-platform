@@ -14,6 +14,8 @@ export type UserData = {
   hrv: number;
   sleep: number;
   steps: number;
+  perceivedStress: number;
+  phase?: string;
 };
 
 export type AppStep = 'home' | 'upload' | 'sorry' | 'phase' | 'umap' | 'recalibration';
@@ -21,12 +23,31 @@ export type AppStep = 'home' | 'upload' | 'sorry' | 'phase' | 'umap' | 'recalibr
 function App() {
   const [step, setStep] = useState<AppStep>('home');
   const [userData, setUserData] = useState<UserData>({
-    sex: '',
+    sex: 'female',
     restingHR: 60,
     hrv: 45,
     sleep: 7.5,
-    steps: 8000
+    steps: 8000,
+    perceivedStress: 5
   });
+
+  // Load real data from trajectory if available
+  useEffect(() => {
+    fetch('/user_trajectory.json')
+      .then(res => res.json())
+      .then(json => {
+        const latest = json.user_trajectory[json.user_trajectory.length - 1];
+        if (latest) {
+          setUserData(prev => ({
+            ...prev,
+            restingHR: 60, 
+            hrv: latest.rmssd || prev.hrv,
+            perceivedStress: Math.round(latest.stress),
+            phase: latest.phase
+          }));
+        }
+      });
+  }, []);
 
   const nextStep = (s: AppStep) => setStep(s);
 

@@ -48,9 +48,9 @@ RENAME_MAP = {
 
 df = df.rename(columns=RENAME_MAP)
 
-# Phase: lowercase + fertility → ovulation
-df["phase"] = df["phase"].str.strip().str.lower().replace("fertility", "ovulation")
-PHASE_ORDER = ["menstrual", "follicular", "ovulation", "luteal"]
+# Phase: lowercase 
+df["phase"] = df["phase"].str.strip().str.lower()
+PHASE_ORDER = ["menstrual", "follicular", "fertility", "luteal"]
 df = df[df["phase"].isin(PHASE_ORDER)]
 
 # Stress self-report is already numeric (0–5 int) — no Likert conversion needed

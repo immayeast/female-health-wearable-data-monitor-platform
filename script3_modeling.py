@@ -57,21 +57,21 @@ warnings.filterwarnings("ignore")
 sns.set_theme(style="whitegrid", palette="muted")
 plt.rcParams["figure.dpi"] = 130
 
-DATA_DIR = "./data"
+DATA_DIR = "/Users/kikkiliu/physionet.org/files/mcphases/data"
 OUT_DIR  = "./eda_outputs/script3_modeling"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 RANDOM_STATE = 42
 np.random.seed(RANDOM_STATE)
 
-PHASE_ORDER  = ["menstrual", "follicular", "ovulation", "luteal"]
+PHASE_ORDER  = ["menstrual", "follicular", "fertility", "luteal"]
 PHASE_COLORS = {"menstrual": "#e07b7b", "follicular": "#7bafd4",
-                "ovulation": "#f5c06a", "luteal":     "#a8c5da"}
+                "fertility": "#f5c06a", "luteal": "#a8c5da"}
 
 TARGETS = {
-    "stress_score" : "Fitbit Stress Score",
-    "rmssd"        : "HRV (RMSSD)",
-    "overall_score": "Sleep Score",
+    "stress": "Self-Reported Stress (Truth)",
+    "stress_score": "Fitbit Stress Score (Wearable)",
+    "rmssd": "HRV (RMSSD)",
 }
 
 def savefig(name):
@@ -147,6 +147,13 @@ daily_sleep   = sleep_sc[JOIN_KEYS + ["overall_score",
 daily_rhr     = (resting_hr[JOIN_KEYS + ["value"]]
                  .rename(columns={"value": "resting_hr"}))
 
+# Raw Heart Rate — get daily volatility (spikes)
+if os.path.exists("./data/daily_hr_volatility.csv"):
+    daily_hr_vol = pd.read_csv("./data/daily_hr_volatility.csv")
+else:
+    daily_hr_vol = daily_agg(load("heart_rate.csv"),
+                              {"bpm": ["mean", "max", "std", "min"]})
+
 daily_active  = daily_agg(active_min,
                            {"sedentary": "mean", "lightly":   "mean",
                             "moderately":"mean", "very":      "mean"})
@@ -161,7 +168,7 @@ daily_glucose = daily_agg(glucose_df,
 
 # HRV — aggregate to daily (recorded during sleep)
 daily_hrv = daily_agg(hrv_df,
-                       {"rmssd":          "mean",
+                       {"rmssd":          ["mean", "max", "std", "min"],
                         "coverage":       "mean",
                         "low_frequency":  "mean",
                         "high_frequency": "mean"})
@@ -203,6 +210,7 @@ master = (
     .merge(daily_steps,   on=JOIN_KEYS, how="left")
     .merge(daily_glucose, on=JOIN_KEYS, how="left")
     .merge(daily_hrv,     on=JOIN_KEYS, how="left")
+    .merge(daily_hr_vol,  on=JOIN_KEYS, how="left")
     .merge(daily_wtemp,   on=JOIN_KEYS, how="left")
     .merge(comp_temp_d,   on=JOIN_KEYS, how="left")
     .merge(resp_d,        on=JOIN_KEYS, how="left")
@@ -221,10 +229,10 @@ print("\n" + "="*60)
 print("1. PARTICIPANT SPLIT  (30 train / 6 val / 6 test)")
 print("="*60)
 
-# Use ONLY Interval 1 for the split to avoid data leakage.
-# Interval 2 (same participants, 2 yr later) can be used for
+# Use ONLY Interval 2022 for the split to avoid data leakage.
+# Interval 2024 (same participants, 2 yr later) can be used for
 # out-of-distribution / longitudinal robustness checks later.
-all_ids = master[master["study_interval"] == 1]["id"].unique()
+all_ids = master[master["study_interval"] == 2022]["id"].unique()
 all_ids = np.random.permutation(all_ids)
 
 assert len(all_ids) >= 42, (
@@ -241,7 +249,7 @@ print(f"  Test : {len(test_ids)}  participants")
 
 def split_df(df, ids):
     return df[df["id"].isin(ids) &
-              (df["study_interval"] == 1)].copy()
+              (df["study_interval"] == 2022)].copy()
 
 train_df = split_df(master, train_ids)
 val_df   = split_df(master, val_ids)
@@ -265,29 +273,35 @@ print("="*60)
 # This is fitted on train only, then applied to val/test (no leakage).
 
 CENTER_COLS = [
-    "resting_hr", "calories", "steps", "distance",
+    "resting_hr", "bpm_mean", "bpm_max", "bpm_std", "calories", "steps", "distance",
     "sedentary", "lightly", "moderately", "very",
     "glucose_value_mean", "glucose_value_std",
     "temperature_diff_from_baseline", "nightly_temperature",
     "full_sleep_breathing_rate", "demographic_vo2_max",
     "lh", "estrogen", "pdg",
+    "rmssd_mean", "rmssd_max", "rmssd_std", "rmssd_min",
 ]
 
-person_means = (train_df.groupby("id")[CENTER_COLS]
-                         .mean()
-                         .add_suffix("_pmean"))
+person_stats = train_df.groupby("id")[CENTER_COLS].agg(["mean", "std"])
+# Flatten MultiIndex columns
+person_stats.columns = [f"{col}_{stat}" for col, stat in person_stats.columns]
 
-def center_by_person(df, person_means):
-    df = df.merge(person_means.reset_index(), on="id", how="left")
+def center_and_scale_by_person(df, person_stats):
+    df = df.merge(person_stats.reset_index(), on="id", how="left")
     for col in CENTER_COLS:
         if col in df.columns:
-            df[f"{col}_c"] = df[col] - df[f"{col}_pmean"]
-    df = df.drop(columns=[c for c in df.columns if c.endswith("_pmean")])
+            # Centered (Mean difference)
+            df[f"{col}_c"] = df[col] - df[f"{col}_mean"]
+            # Scaled (Z-score) to handle different baseline standard deviations
+            # Add small epsilon to prevent division by zero
+            # This directly solves the issue: "assign different Standard deviation for what's considered as irregular if some people are used to stress"
+            df[f"{col}_z"] = df[f"{col}_c"] / (df[f"{col}_std"].replace(0, 1e-6).fillna(1e-6))
+    df = df.drop(columns=[c for c in df.columns if c.endswith("_mean") or c.endswith("_std")])
     return df
 
-train_df = center_by_person(train_df, person_means)
-val_df   = center_by_person(val_df,   person_means)
-test_df  = center_by_person(test_df,  person_means)
+train_df = center_and_scale_by_person(train_df, person_stats)
+val_df   = center_and_scale_by_person(val_df,   person_stats)
+test_df  = center_and_scale_by_person(test_df,  person_stats)
 
 # ── 2b. Phase one-hot encoding ────────────────────────────────────────────────
 for phase in PHASE_ORDER:
@@ -298,8 +312,9 @@ for phase in PHASE_ORDER:
 # These capture "how much does stress/activity/etc. deviate from norm
 # specifically when in phase X" — the core of your hypothesis.
 INTERACTION_SIGNALS = [
-    "resting_hr_c", "calories_c", "moderately_c", "very_c",
-    "glucose_value_mean_c", "temperature_diff_from_baseline_c",
+    "resting_hr_z", "calories_z", "moderately_z", "very_z",
+    "glucose_value_mean_z", "temperature_diff_from_baseline_z",
+    "rmssd_mean_z", "bpm_max_z", "rmssd_min_z" # Adding volatility Z-scores as interactions
 ]
 INTERACTION_SIGNALS = [s for s in INTERACTION_SIGNALS
                         if s in train_df.columns]
@@ -318,11 +333,25 @@ SOMATIC_COLS = ["headaches", "cramps", "sorebreasts", "fatigue", "bloating"]
 MOOD_COLS    = ["moodswing", "stress", "sleepissue"]
 CRAVING_COLS = ["foodcravings", "appetite", "indigestion"]
 
+LIKERT_MAP = {
+    "Not at all": 0,
+    "Very Low/Little": 1, "Very Low": 1,
+    "Low": 2,
+    "Moderate": 3,
+    "High": 4,
+    "Very High": 5
+}
+
 for df in [train_df, val_df, test_df]:
-    avail = lambda cols: [c for c in cols if c in df.columns]
-    df["somatic_score"]  = df[avail(SOMATIC_COLS)].mean(axis=1)
-    df["mood_score"]     = df[avail(MOOD_COLS)].mean(axis=1)
-    df["craving_score"]  = df[avail(CRAVING_COLS)].mean(axis=1)
+    avail_cols = list(set(SOMATIC_COLS + MOOD_COLS + CRAVING_COLS))
+    for col in avail_cols:
+        if col in df.columns and df[col].dtype == object:
+            df[col] = df[col].replace(LIKERT_MAP)
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    
+    df["somatic_score"]  = df[[c for c in SOMATIC_COLS if c in df.columns]].mean(axis=1)
+    df["mood_score"]     = df[[c for c in MOOD_COLS if c in df.columns]].mean(axis=1)
+    df["craving_score"]  = df[[c for c in CRAVING_COLS if c in df.columns]].mean(axis=1)
 
 print("  Symptom composites created: somatic_score, mood_score, craving_score")
 
@@ -337,7 +366,7 @@ print("="*60)
 # Candidate feature pool
 PHASE_FEATURES    = [f"phase_{p}" for p in PHASE_ORDER]
 INTERACTION_FEATS = [c for c in train_df.columns if c.startswith("ix_")]
-CENTERED_FEATS    = [c for c in train_df.columns if c.endswith("_c")]
+CENTERED_FEATS    = [c for c in train_df.columns if c.endswith("_c") or c.endswith("_z")]
 STATIC_FEATS      = ["age", "bmi", "age_of_first_menarche"]
 HORMONE_FEATS     = ["lh", "estrogen", "pdg"]
 COMPOSITE_FEATS   = ["somatic_score", "mood_score", "craving_score"]
@@ -417,6 +446,10 @@ for target, label in TARGETS.items():
     # Drop rows where target is NaN
     mask = ytr.notna()
     Xtr, ytr = Xtr[mask], ytr[mask]
+    
+    # Ensure only numeric columns are used (SimpleImputer with median requires numeric)
+    Xtr = Xtr.select_dtypes(include=[np.number]).dropna(axis=1, how='all')
+    feat_cols_used = Xtr.columns.tolist()
 
     # Impute missing features with column median (train only)
     imp = SimpleImputer(strategy="median")
@@ -429,15 +462,15 @@ for target, label in TARGETS.items():
     lasso_cv = LassoCV(cv=5, max_iter=5000, random_state=RANDOM_STATE)
     lasso_cv.fit(Xtr_scaled, ytr)
 
-    selected = [feat_cols[i] for i, coef in enumerate(lasso_cv.coef_)
+    selected = [feat_cols_used[i] for i, coef in enumerate(lasso_cv.coef_)
                 if coef != 0]
     lasso_selected[target] = selected
-    print(f"\n  [{label}] Lasso selected {len(selected)}/{len(feat_cols)} features "
+    print(f"\n  [{label}] Lasso selected {len(selected)}/{len(feat_cols_used)} features "
           f"(alpha={lasso_cv.alpha_:.4f})")
 
     # Coefficient plot
     coef_df = pd.DataFrame({
-        "feature": feat_cols,
+        "feature": feat_cols_used,
         "coef"   : lasso_cv.coef_
     }).query("coef != 0").sort_values("coef")
 
@@ -512,8 +545,8 @@ def prepare_Xy(df, features, target):
     sub  = df[features + [target]].copy()
     mask = sub[target].notna()
     sub  = sub[mask]
-    y    = sub[target].values
-    X    = sub[features].values
+    X    = sub[features].copy()
+    y    = sub[target].copy()
     return X, y, sub.index
 
 def build_preprocessor(X_train):
@@ -556,27 +589,35 @@ for target, label in TARGETS.items():
         print("  ⚠️  Target not in data — skipping")
         continue
 
-    # Use Lasso-selected features for this target (fall back to corr-filtered)
-    features = lasso_selected.get(target, features_after_corr)
+    # Use Lasso-selected features for this target (fall back to corr-filtered if Lasso is empty)
+    features = lasso_selected.get(target, [])
+    if not features:
+        features = features_after_corr
+    
     features = [f for f in features if f != target and f in train_df.columns]
 
     Xtr, ytr, _  = prepare_Xy(train_df, features, target)
     Xvl, yvl, _  = prepare_Xy(val_df,   features, target)
 
+    # Filter to numeric and drop all-NaN columns
+    Xtr = Xtr.select_dtypes(include=[np.number]).dropna(axis=1, how='all')
+    Xvl = Xvl[Xtr.columns]
+
     imp, sc      = build_preprocessor(Xtr)
-    Xtr_s        = apply_prep(Xtr, imp, sc)
-    Xvl_s        = apply_prep(Xvl, imp, sc)
+    Xtr_s, Xvl_s = apply_prep(Xtr, imp, sc), apply_prep(Xvl, imp, sc)
 
     val_results[target]   = {}
     fitted_models[target] = {}
 
-    for mname, model in MODELS.items():
+    from sklearn.base import clone
+    for mname, m_orig in MODELS.items():
         try:
+            model = clone(m_orig)
             model.fit(Xtr_s, ytr)
             ypred_vl = model.predict(Xvl_s)
             m = metrics(yvl, ypred_vl, label=f"{mname:<10}")
             val_results[target][mname] = m
-            fitted_models[target][mname] = (model, imp, sc, features)
+            fitted_models[target][mname] = (model, imp, sc, Xtr.columns.tolist())
         except Exception as e:
             print(f"  [{mname}] FAILED: {e}")
 
@@ -709,11 +750,10 @@ for target, label in TARGETS.items():
             model, imp, sc, features = fitted_models[target][best_name]
             Xte, yte, _ = prepare_Xy(test_df, features, target)
             Xte_s = apply_prep(Xte, imp, sc)
-            pi = permutation_importance(model, Xte_s, yte,
-                                         n_repeats=20,
-                                         random_state=RANDOM_STATE)
-            imp_df = (pd.DataFrame({"feature": features,
-                                    "importance": pi.importances_mean})
+            r = permutation_importance(model, Xte_s, yte, n_repeats=10, random_state=RANDOM_STATE)
+            print(f"    DEBUG SHAP: target={target}, features len={len(features)}, importance len={len(r.importances_mean)}")
+            imp_df = (pd.DataFrame({"feature": list(features),
+                                    "importance": r.importances_mean})
                         .sort_values("importance", ascending=False)
                         .head(20))
             fig, ax = plt.subplots(figsize=(8, 5))

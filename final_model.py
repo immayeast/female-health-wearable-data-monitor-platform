@@ -12,8 +12,8 @@ warnings.filterwarnings('ignore')
 # ============================================================
 # 1. 核心配置 (CONFIG)
 # ============================================================
-OLD_DATA_DIR = "/Users/ryan/Desktop/mcphase_data"   # 旧数据文件夹路径 (训练集)
-NEW_DATA_PATH = "/Users/ryan/Desktop/synthetic_mcphases_fullschema.csv" # 新数据文件路径 (测试集)
+OLD_DATA_DIR = "/Users/kikkiliu/physionet.org/files/mcphases/data"   # 旧数据文件夹路径 (训练集)
+NEW_DATA_PATH = "/Users/kikkiliu/physionet.org/files/mcphases/data/synthetic_mcphases_fullschema.csv" # 新数据文件路径 (测试集)
 WINDOW_SIZE = 7                                     # 锁定 7天 滑窗
 RANDOM_STATE = 42
 
@@ -30,7 +30,7 @@ def add_day_in_cycle(df):
         phases = person['phase'].values
         cycle_day = 1
         for i in range(len(phases)):
-            if i > 0 and phases[i] == 'Menstrual' and phases[i-1] != 'Menstrual':
+            if i > 0 and phases[i].lower() == 'menstrual' and phases[i-1].lower() != 'menstrual':
                 cycle_day = 1
             df.loc[person.index[i], 'day_in_cycle'] = cycle_day
             cycle_day += 1
@@ -120,6 +120,7 @@ def load_and_align_datasets():
     
     # 基础与自述数据
     df_old = pd.read_csv(os.path.join(OLD_DATA_DIR, 'hormones_and_selfreport.csv')).dropna(subset=['phase'])
+    df_old['phase'] = df_old['phase'].str.strip().str.lower()
     ordinal_map = {'Not at all': 0, 'Very Low/Little': 1, 'Low': 2, 'Moderate': 3, 'High': 4, 'Very High': 5}
     symptom_cols = ['appetite', 'exerciselevel', 'headaches', 'cramps', 'sorebreasts', 'fatigue', 'sleepissue', 'moodswing', 'stress', 'foodcravings', 'indigestion', 'bloating']
     for col in symptom_cols:
@@ -152,6 +153,7 @@ def load_and_align_datasets():
     print("STAGE 2: Loading & Cleaning New Data (Test Set)")
     print("=" * 60)
     df_new = pd.read_csv(NEW_DATA_PATH).dropna(subset=['phase'])
+    df_new['phase'] = df_new['phase'].str.strip().str.lower()
     df_new['phase_encoded'] = le.transform(df_new['phase']) 
     if 'day_in_cycle' not in df_new.columns:
         df_new = add_day_in_cycle(df_new)
@@ -211,10 +213,10 @@ def main():
     
     # 【终极策略：精准克制】打压易孕期误报，提升月经期敏感度
     best_weights = {
-        le.transform(['Fertility'])[0]: 0.6, 
-        le.transform(['Follicular'])[0]: 1.5, 
-        le.transform(['Luteal'])[0]: 1.0, 
-        le.transform(['Menstrual'])[0]: 2.5
+        le.transform(['fertility'])[0]: 0.6, 
+        le.transform(['follicular'])[0]: 1.5, 
+        le.transform(['luteal'])[0]: 1.0, 
+        le.transform(['menstrual'])[0]: 2.5
     }
     
     # 加入深度限制(max_depth)防止死记硬背

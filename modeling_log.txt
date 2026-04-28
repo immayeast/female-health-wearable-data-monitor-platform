@@ -1,0 +1,154 @@
+Loading & merging tables …
+Master shape: (4820069, 70)
+
+============================================================
+1. PARTICIPANT SPLIT  (30 train / 6 val / 6 test)
+============================================================
+  Train: 30 participants
+  Val  : 6   participants
+  Test : 6  participants
+
+  Train rows: 5140 | Val: 836 | Test: 927
+
+============================================================
+2. FEATURE ENGINEERING
+============================================================
+  Interaction terms added: 24
+  Symptom composites created: somatic_score, mood_score, craving_score
+
+============================================================
+3. FEATURE REDUCTION
+============================================================
+
+  Candidate feature pool size: 61
+
+  [Correlation filter] dropped 2 features (|r| > 0.85)
+  Remaining: 59
+
+  [Self-Reported Stress (Truth)] Lasso selected 2/57 features (alpha=0.1063)
+
+  [Fitbit Stress Score (Wearable)] Lasso selected 0/57 features (alpha=4.3268)
+  [rmssd] not found — skipping Lasso selection
+
+  [PCA] 28 components explain 90% variance
+
+============================================================
+4. MODEL TRAINING
+============================================================
+
+───────────────────────────────────────────────────────
+TARGET: Self-Reported Stress (Truth)  [stress]
+───────────────────────────────────────────────────────
+  Ridge                           MAE=0.730  RMSE=0.921  R²=0.483
+  Lasso                           MAE=0.729  RMSE=0.918  R²=0.486
+  RF                              MAE=0.679  RMSE=0.974  R²=0.421
+  XGB                             MAE=0.674  RMSE=0.942  R²=0.459
+  LGBM                            MAE=0.675  RMSE=0.970  R²=0.427
+  MixedLM                         MAE=0.722  RMSE=0.921  R²=0.483
+
+───────────────────────────────────────────────────────
+TARGET: Fitbit Stress Score (Wearable)  [stress_score]
+───────────────────────────────────────────────────────
+  Ridge                           MAE=15.974  RMSE=21.393  R²=-0.313
+  Lasso                           MAE=16.096  RMSE=21.449  R²=-0.320
+  RF                              MAE=23.726  RMSE=26.401  R²=-1.000
+  XGB                             MAE=23.670  RMSE=25.979  R²=-0.937
+  LGBM                            MAE=30.616  RMSE=31.591  R²=-1.864
+  [MixedLM] FAILED: Found array with 0 sample(s) (shape=(0,)) while a minimum of 1 is required.
+
+───────────────────────────────────────────────────────
+TARGET: HRV (RMSSD)  [rmssd]
+───────────────────────────────────────────────────────
+  ⚠️  Target not in data — skipping
+
+============================================================
+5. VALIDATION — MODEL COMPARISON
+============================================================
+
+[Self-Reported Stress (Truth)]
+              MAE      RMSE        R2
+Lasso    0.728851  0.918327  0.485818
+Ridge    0.730253  0.920688  0.483170
+MixedLM  0.722384  0.920899  0.482934
+XGB      0.673896  0.941837  0.459155
+LGBM     0.674861  0.969691  0.426691
+RF       0.678656  0.974425  0.421080
+  → Best model: Lasso
+
+[Fitbit Stress Score (Wearable)]
+             MAE       RMSE        R2
+Ridge  15.973797  21.392730 -0.313205
+Lasso  16.095596  21.449086 -0.320133
+XGB    23.669755  25.978748 -0.936585
+RF     23.726447  26.401439 -1.000117
+LGBM   30.616213  31.591374 -1.863764
+  → Best model: Ridge
+
+============================================================
+6. TEST SET EVALUATION
+============================================================
+  Lasso → Self-Reported Stress (Truth)  MAE=0.634  RMSE=0.798  R²=0.619
+  Ridge → Fitbit Stress Score (Wearable)  MAE=21.082  RMSE=27.424  R²=-0.039
+
+============================================================
+7. SHAP FEATURE IMPORTANCE
+============================================================
+  [Self-Reported Stress (Truth)] best=Lasso → using permutation importance
+    DEBUG SHAP: target=stress, features len=2, importance len=2
+  [Fitbit Stress Score (Wearable)] best=Ridge → using permutation importance
+    DEBUG SHAP: target=stress_score, features len=57, importance len=57
+  [HRV (RMSSD)] best=None → using permutation importance
+
+============================================================
+8. PHASE-STRATIFIED PERFORMANCE
+============================================================
+  [Self-Reported Stress (Truth)] phase=menstrual    MAE=0.601  R²=0.569  n=189
+  [Self-Reported Stress (Truth)] phase=follicular   MAE=0.641  R²=0.615  n=293
+  [Self-Reported Stress (Truth)] phase=luteal       MAE=0.647  R²=0.638  n=318
+  [Fitbit Stress Score (Wearable)] phase=menstrual    MAE=20.513  R²=-0.161  n=180
+  [Fitbit Stress Score (Wearable)] phase=follicular   MAE=20.340  R²=-0.026  n=300
+  [Fitbit Stress Score (Wearable)] phase=luteal       MAE=22.162  R²=-0.022  n=301
+
+============================================================
+9. SUMMARY REPORT
+============================================================
+mcPHASES MODELING SUMMARY
+==================================================
+Train participants : 30
+Val   participants : 6
+Test  participants : 6
+Feature pool (post corr-filter): 59
+
+BEST MODELS (by validation R²):
+  Self-Reported Stress (Truth) | best=Lasso      | test MAE=0.634  RMSE=0.798  R²=0.619
+  Fitbit Stress Score (Wearable) | best=Ridge      | test MAE=21.082  RMSE=27.424  R²=-0.039
+
+PHASE-STRATIFIED R² (test set):
+  Self-Reported Stress (Truth):
+    menstrual      R²=0.569  MAE=0.601
+    follicular     R²=0.615  MAE=0.641
+    luteal         R²=0.638  MAE=0.647
+  Fitbit Stress Score (Wearable):
+    menstrual      R²=-0.161  MAE=20.513
+    follicular     R²=-0.026  MAE=20.340
+    luteal         R²=-0.022  MAE=22.162
+
+INTERPRETATION NOTES:
+  - Phases where R² drops sharply suggest the model fails to capture
+    that phase's unique physiological baseline — prime candidates for
+    phase-specific sub-models or additional phase interaction terms.
+  - SHAP plots reveal which features drive predictions; if interaction
+    terms (ix_*) rank highly, the phase-shift hypothesis is supported.
+  - MixedLM random intercepts absorb between-person variance; compare
+    its performance to RF/XGB to quantify how much variance is person-
+    level vs feature-driven.
+
+NEXT STEPS:
+  1. Retrain best model per target on train+val combined.
+  2. Evaluate on Interval 2 data (out-of-distribution / longitudinal).
+  3. For phases with poor R²: train phase-specific sub-models.
+  4. Translate phase-relative feature weights into exercise advisories.
+
+✓ Script 3 complete.
+  Report : /Users/kikkiliu/female-health-wearable-data-monitor-platform/eda_outputs/script3_modeling/summary_report.txt
+  Figures: /Users/kikkiliu/female-health-wearable-data-monitor-platform/eda_outputs/script3_modeling

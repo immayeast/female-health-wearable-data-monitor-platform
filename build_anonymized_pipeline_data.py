@@ -77,6 +77,8 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
             if agg == "sum": return vals.sum()
             elif agg == "mean": return vals.mean()
             elif agg == "min": return vals.min()
+            elif agg == "max": return vals.max()
+            elif agg == "std": return vals.std()
             elif agg == "10th": return np.percentile(vals, 10)
             return np.nan
 
@@ -93,8 +95,15 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
         record['distance'] = safe_get('HKQuantityTypeIdentifierDistanceWalkingRunning', 'sum')
         
         # Heart Rate & HRV
-        record['resting_hr'] = safe_get('HKQuantityTypeIdentifierHeartRate', '10th') # 10th percentile daily HR approx Resting
+        record['resting_hr'] = safe_get('HKQuantityTypeIdentifierHeartRate', '10th')
+        record['bpm_mean'] = safe_get('HKQuantityTypeIdentifierHeartRate', 'mean')
+        record['bpm_max'] = safe_get('HKQuantityTypeIdentifierHeartRate', 'max')
+        record['bpm_std'] = safe_get('HKQuantityTypeIdentifierHeartRate', 'std')
+        
         record['rmssd_mean'] = safe_get('HKQuantityTypeIdentifierHeartRateVariabilitySDNN', 'mean')
+        record['rmssd_max'] = safe_get('HKQuantityTypeIdentifierHeartRateVariabilitySDNN', 'max')
+        record['rmssd_std'] = safe_get('HKQuantityTypeIdentifierHeartRateVariabilitySDNN', 'std')
+        record['rmssd_min'] = safe_get('HKQuantityTypeIdentifierHeartRateVariabilitySDNN', 'min')
         
         # Breathing
         record['full_sleep_breathing_rate'] = safe_get('HKQuantityTypeIdentifierRespiratoryRate', 'mean')
@@ -121,7 +130,7 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
     # 3. Phase Inferencing
     print("Building Phase approximations...")
     # If the user has menstrual flow logs, we'll infer 
-    # Menstrual (Days 1-5), Follicular (Days 6-13), Ovulation (14-16), Luteal (17-28)
+    # Menstrual (Days 1-5), Follicular (Days 6-13), Fertility (14-16), Luteal (17-28)
     # Simple rolling inference
     daily_df = daily_df.sort_values('date').reset_index(drop=True)
     daily_df['phase'] = np.nan
@@ -138,7 +147,7 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
             elif days_since_period <= 13:
                 daily_df.loc[i, 'phase'] = 'follicular'
             elif days_since_period <= 16:
-                daily_df.loc[i, 'phase'] = 'ovulation'
+                daily_df.loc[i, 'phase'] = 'fertility'
             elif days_since_period <= 28:
                 daily_df.loc[i, 'phase'] = 'luteal'
             else:

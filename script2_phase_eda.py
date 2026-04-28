@@ -60,11 +60,11 @@ def load(fname, **kwargs):
     return df
 
 # Canonical phase order for all plots
-PHASE_ORDER = ["menstrual", "follicular", "ovulation", "luteal"]
+PHASE_ORDER = ["menstrual", "follicular", "fertility", "luteal"]
 PHASE_COLORS = {
     "menstrual"  : "#e07b7b",
     "follicular" : "#7bafd4",
-    "ovulation"  : "#f5c06a",
+    "fertility"  : "#f5c06a",
     "luteal"     : "#a8c5da",
 }
 

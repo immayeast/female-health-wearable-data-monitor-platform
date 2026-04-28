@@ -1,0 +1,58 @@
+============================================================
+STAGE 1: Loading & Cleaning Old Data (Train Set)
+============================================================
+
+============================================================
+STAGE 2: Loading & Cleaning New Data (Test Set)
+============================================================
+Applying imputation strategy...
+
+============================================================
+STAGE 3: Extracting Sliding Windows (W=7)
+============================================================
+  Training Set: 5658 samples | Testing Set: 5829 samples
+
+============================================================
+STAGE 4: Training Final Optimized Random Forest
+============================================================
+  Model Training Complete.
+
+============================================================
+STAGE 5: Final Evaluation Report
+============================================================
+  Overall Accuracy (Test): 0.8794
+  Macro F1 Score (Test):   0.8470
+
+Classification Report (Test Data):
+              precision    recall  f1-score   support
+
+   fertility       0.63      0.69      0.66       531
+  follicular       0.84      0.90      0.87      2005
+      luteal       0.94      0.89      0.91      2321
+   menstrual       0.97      0.92      0.95       972
+
+    accuracy                           0.88      5829
+   macro avg       0.85      0.85      0.85      5829
+weighted avg       0.88      0.88      0.88      5829
+
+
+Top 15 Feature Importances:
+  Rank  Feature Name                                Importance
+  ------------------------------------------------------------
+  #  1  day_in_cycle_last                             0.109625
+  #  2  day_in_cycle_wslope                           0.087444
+  #  3  day_in_cycle_wstd                             0.073284
+  #  4  day_in_cycle_wmean                            0.056255
+  #  5  day_in_cycle_cos_last                         0.050430
+  #  6  day_in_cycle_cos_wslope                       0.039980
+  #  7  day_in_cycle_sin_last                         0.036958
+  #  8  day_in_cycle_sin_wmean                        0.034468
+  #  9  day_in_cycle_cos_wmean                        0.030395
+  # 10  lh_wslope                                     0.029857
+  # 11  day_in_cycle_sin_wslope                       0.022399
+  # 12  day_in_cycle_cos_wstd                         0.017202
+  # 13  cramps_wslope                                 0.017151
+  # 14  lh_wstd                                       0.016945
+  # 15  estrogen_wslope                               0.014882
+
+  >> Saved confusion matrix plot as: final_confusion_matrix.png

@@ -34,7 +34,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
 RANDOM_STATE = 42
-PHASE_ORDER = ["menstrual", "follicular", "ovulation", "luteal"]
+PHASE_ORDER = ["menstrual", "follicular", "fertility", "luteal"]
 
 
 @dataclass
@@ -176,7 +176,7 @@ def _gap_model_features(df: pd.DataFrame) -> List[str]:
         # Static
         "age", "bmi", "age_of_first_menarche",
         # Phase dummies
-        "phase_menstrual", "phase_follicular", "phase_ovulation", "phase_luteal",
+        "phase_menstrual", "phase_follicular", "phase_fertility", "phase_luteal",
     ]
     centered = [c for c in df.columns if c.endswith("_c")]
     return [c for c in (candidates + centered) if c in df.columns]

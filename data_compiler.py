@@ -24,8 +24,8 @@ def build_real_master(data_dir="./data"):
     hormones = _num_agg.join(_cat_agg).reset_index()
 
     if "phase" in hormones.columns:
-        hormones["phase"] = hormones["phase"].astype(str).str.strip().str.lower().replace("fertility", "ovulation").replace("nan", np.nan)
-    PHASE_ORDER  = ["menstrual", "follicular", "ovulation", "luteal"]
+        hormones["phase"] = hormones["phase"].astype(str).str.strip().str.lower().replace("nan", np.nan)
+    PHASE_ORDER  = ["menstrual", "follicular", "fertility", "luteal"]
     hormones = hormones[hormones["phase"].isin(PHASE_ORDER)]
 
     stress     = load("stress_score.csv")

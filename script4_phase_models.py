@@ -3,7 +3,7 @@ mcPHASES — Script 4: Phase-Specific Models
 ============================================
 Trains one model per phase × per target, with:
   - Data cleaning: status=READY, calculation_failed=False, daily averaging
-  - Phase label fix: fertility is renamed to ovulation
+  - Phase labels: fertility is kept as fertility
   - Boundary day downweighting (0.5 weight for ±2 transition days)
   - SMOTE oversampling for minority phases
   - Hyperparameter search (RF, XGB, LGBM) per phase
@@ -37,16 +37,16 @@ warnings.filterwarnings("ignore")
 sns.set_theme(style="whitegrid", palette="muted")
 plt.rcParams["figure.dpi"] = 130
 
-DATA_DIR     = "./data"
+DATA_DIR     = "/Users/kikkiliu/physionet.org/files/mcphases/data"
 OUT_DIR      = "./eda_outputs/script4_phase_models"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 RANDOM_STATE = 42
 np.random.seed(RANDOM_STATE)
 
-PHASE_ORDER  = ["menstrual", "follicular", "ovulation", "luteal"]
+PHASE_ORDER  = ["menstrual", "follicular", "fertility", "luteal"]
 PHASE_COLORS = {"menstrual": "#e07b7b", "follicular": "#7bafd4",
-                "ovulation": "#f5c06a", "luteal":     "#a8c5da",
+                "fertility": "#f5c06a", "luteal":     "#a8c5da",
                 "unlabeled": "#d0d0d0"}
 
 # Targets are now handled by recalibration_scores.py and alignment_bin_models.py
@@ -115,16 +115,15 @@ _cat_agg = hormones.groupby(JOIN_KEYS)[_cat_cols].first()
 hormones = _num_agg.join(_cat_agg).reset_index()
 print(f"  ✓ Hormones deduplicated: {len(hormones)} unique day-rows")
 
-# ── Phase labels: rename fertility → ovulation ────────────────────────────────
+# ── Phase labels: keep fertility ────────────────────────────────
 hormones["phase_raw"] = hormones["phase"].copy() if "phase" in hormones.columns else np.nan
 if "phase" in hormones.columns:
     hormones["phase"] = (hormones["phase"].astype(str)
                                            .str.strip().str.lower()
-                                           .replace("fertility", "ovulation")
                                            .replace("nan", np.nan))
 hormones["is_labeled"] = hormones["phase"].isin(PHASE_ORDER)
 hormones = hormones[hormones["phase"].isin(PHASE_ORDER)]
-print(f"  ✓ Phase labels: fertility renamed to ovulation")
+print(f"  ✓ Phase labels: fertility kept as fertility")
 print(f"  Phase counts:\n{hormones['phase'].value_counts().to_string()}")
 
 # ── Load raw wearable tables ─────────────────────────────────────────────────

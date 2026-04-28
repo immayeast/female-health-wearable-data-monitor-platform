@@ -35,3 +35,6 @@ dist-ssr/
 .idea/
 .vscode/
 .gemini/
+
+# Local Netlify folder
+.netlify

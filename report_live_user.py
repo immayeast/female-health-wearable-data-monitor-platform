@@ -67,7 +67,7 @@ def generate_user_report(user_csv: str, master_csv: str, output_dir: str):
         
         f.write("\n── PHASE-LEVEL TRENDS ──\n")
         if "phase" in user_df.columns and user_df["phase"].notna().sum() > 0:
-            for phase in ["menstrual", "follicular", "ovulation", "luteal"]:
+            for phase in ["menstrual", "follicular", "fertility", "luteal"]:
                 phase_df = user_df[user_df["phase"] == phase]
                 if phase_df.empty: continue
                 mode_align = phase_df["predicted_alignment"].mode()

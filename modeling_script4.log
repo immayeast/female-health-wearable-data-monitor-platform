@@ -1,0 +1,329 @@
+Building master DataFrame …
+  ✓ Hormones deduplicated: 5659 unique day-rows
+  ✓ Phase labels: fertility kept as fertility
+  Phase counts:
+phase
+luteal        1912
+follicular    1386
+fertility     1281
+menstrual     1079
+  ✓ Stress cleaned: 5413 READY rows
+Master shape: (62591, 64)
+
+============================================================
+1b. PHASE DIAGNOSTICS
+============================================================
+
+Days per phase per participant:
+phase  menstrual  follicular  fertility  luteal
+id                                             
+1             17          16         21      40
+2             11          33         26      53
+3             21          18         20      37
+4             18          17         21      36
+6             28          28         21      19
+7             25          10         24      45
+8             23          23         23      39
+9            197         402        140    1516
+10            98         180        101     459
+11            12          51         22      32
+12           140         246        187     243
+13           165         209        395     284
+14           152         124        267     405
+15            33           9         32      52
+16            11          29         22      40
+18           126         200        354     229
+19            24          25         26      47
+20           403          85        200    4239
+22           180         300       4748     256
+23            25          24         20      49
+24            13          36         23      29
+26           363         120        229    1503
+27           146          19        143     465
+29            13          13         17      21
+30          4300         565        158     204
+32           172         148         22     177
+33            71        6665        182      79
+34            24          36         22      30
+37            13          35         21      30
+38           159         132       1493     348
+39            12          34         31      34
+40            20          27         17      34
+41           182         119       5078     258
+42           135        2363        418     299
+43            98         120        256     532
+44            22          18         24      32
+45            13          25         21      41
+46            15          22         24      38
+47           221         238       6700     221
+48           113         178        386     471
+49            10          11          6      11
+50           228         185        172    6311
+
+Phase totals across all participants:
+phase
+menstrual      8052
+follicular    13138
+fertility     22113
+luteal        19288
+dtype: int64
+
+Split: train=3094, val=567, test=615
+
+Feature pool: 30 features
+
+============================================================
+4. RECALIBRATION PIPELINE
+============================================================
+  GB gap model: train=1621, val=254, val R²=0.892, features=52
+
+Total instances: 62591
+Instances with stress_score: 10561
+GB gap model val R²: 0.892
+
+── Stress: Raw vs Adjusted Score Distributions ──
+Raw stress_score:
+count    10561.000000
+mean        77.465439
+std          4.550332
+min         54.000000
+25%         77.000000
+50%         77.000000
+75%         77.000000
+max         94.000000
+
+Adjusted score (GB-recalibrated):
+count    10561.000000
+mean        77.428051
+std          4.366727
+min         54.590391
+25%         77.000000
+50%         77.000000
+75%         77.000000
+max         97.852062
+
+── Legacy Phase Offsets (diagnostic only) ──
+phase
+fertility    -0.043267
+follicular   -0.125029
+luteal        0.217137
+menstrual     0.701137
+
+── Cluster Profiles ──
+               stress_score  overall_score  resting_hr
+state_cluster                                         
+0                 75.646341      71.719033   60.659264
+1                 70.778098      69.320205   51.957681
+2                 79.932595      78.642077   68.556408
+3                 76.972973      78.413676   55.206802
+4                 71.666667      72.722222   49.736121
+5                 77.272945      70.102490   56.630971
+
+── Dominant Features per Cluster ──
+  Cluster 0: lh: 7.25 HIGH, estrogen: 6.55 HIGH, pdg: 3.06 HIGH
+  Cluster 1: low_frequency_mean: 0.71 LOW, rmssd_mean: 0.68 LOW, high_frequency_mean: 0.67 LOW
+  Cluster 2: calories: 1.11 LOW, resting_hr: 1.03 HIGH, nightly_temperature: 0.86 HIGH
+  Cluster 3: high_frequency_mean: 1.30 HIGH, rmssd_mean: 1.29 HIGH, low_frequency_mean: 1.22 HIGH
+  Cluster 4: full_sleep_breathing_rate: 3.09 LOW, calories: 1.89 HIGH, nightly_temperature: 1.06 LOW
+  Cluster 5: very: 2.06 HIGH, moderately: 1.88 HIGH, steps: 0.97 HIGH
+
+── Pearson r (self-report vs score) ──
+  Raw wearable:  r = -0.0432
+  GB-adjusted:   r = 0.5309
+  Δr:            +0.5741
+
+------------------------------------------------------------
+4b. SLEEP SCORE RECALIBRATION
+------------------------------------------------------------
+  GB gap model: train=2568, val=432, val R²=0.898, features=52
+
+GB gap model val R²: 0.898
+
+── Sleep: Raw vs Adjusted Score Distributions ──
+Raw overall_score:
+count    25558.000000
+mean        75.108127
+std          7.582402
+min         30.000000
+25%         70.000000
+50%         74.000000
+75%         81.000000
+max         94.000000
+
+Adjusted score (GB-recalibrated):
+count    25558.000000
+mean        75.001689
+std          7.366891
+min         30.000000
+25%         70.000000
+50%         74.000000
+75%         81.000000
+max        107.358315
+
+── Legacy Sleep Phase Offsets (diagnostic only) ──
+phase
+fertility    -0.169860
+follicular   -0.186081
+luteal       -0.047510
+menstrual     0.852462
+
+============================================================
+5. ALIGNMENT-BIN EXPERIMENT
+============================================================
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+[PIPELINE DEBUG]
+Numeric features: ['resting_hr', 'calories', 'steps', 'distance', 'sedentary', 'lightly', 'moderately', 'very', 'glucose_value_mean', 'glucose_value_std', 'temperature_diff_from_baseline', 'nightly_temperature', 'full_sleep_breathing_rate', 'demographic_vo2_max', 'lh', 'estrogen', 'pdg', 'rmssd_mean', 'low_frequency_mean', 'high_frequency_mean'] ...
+Categorical features: ['phase']
+
+Self-report column used: stress
+
+── Pearson Diagnostics ──
+  train: global r = -0.0556
+  val: global r = 0.0212
+  test: global r = -0.0663
+
+── Model Comparison ──
+ model  include_wearable_score  accuracy  macro_f1
+    gb                    True  0.755627  0.744453
+    rf                    True  0.717042  0.694321
+logreg                    True  0.598071  0.572159
+    rf                   False  0.517685  0.501797
+    gb                   False  0.504823  0.500793
+logreg                   False  0.511254  0.489905
+
+── Best Model Details ──
+  Best: gb (wearable_score=included)
+  Accuracy: 0.756  |  Macro F1: 0.744
+
+                 precision    recall  f1-score   support
+
+        aligned      0.525     0.697     0.599        76
+    self_higher      0.853     0.771     0.810       105
+wearable_higher      0.878     0.777     0.824       130
+
+       accuracy                          0.756       311
+      macro avg      0.752     0.749     0.744       311
+   weighted avg      0.783     0.756     0.764       311
+
+
+============================================================
+6. PERCEPTION–PHYSIOLOGY GAP ANALYSIS
+============================================================
+
+── Part A: Gap Distance Modeling ──
+
+A1. Computing within-person gap...
+  Gap computed: 2186 observations from 30 participants
+  Gap distribution: mean=0.0000, std=1.4311
+  Categories: {'wearable_higher': 811, 'self_higher': 771, 'aligned': 604}
+  Gap computed: 1621 observations from 21 participants
+  Gap distribution: mean=-0.0000, std=1.4463
+  Categories: {'wearable_higher': 604, 'self_higher': 566, 'aligned': 451}
+  Gap computed: 254 observations from 4 participants
+  Gap distribution: mean=0.0000, std=1.2248
+  Categories: {'self_higher': 91, 'wearable_higher': 87, 'aligned': 76}
+
+A2. Building temporal features...
+
+A3. Fitting gap prediction models...
+  Feature pool: 52 features
+    Ridge  → R²=0.839  MAE=0.337  RMSE=0.491
+    RF     → R²=0.822  MAE=0.367  RMSE=0.516
+    GB     → R²=0.893  MAE=0.252  RMSE=0.400
+
+A4. Phase-level gap analysis...
+
+  Phase-level gap statistics:
+       phase   n  mean_gap  std_gap  median_gap   cohen_d
+ menstrual 415  0.071273 1.544220   -0.018143  0.049805
+follicular 519 -0.054183 1.387138   -0.209052 -0.037862
+ fertility 495 -0.013209 1.427216   -0.024680 -0.009230
+    luteal 757  0.006712 1.399542    0.000208  0.004690
+
+  ANOVA: F=0.610, p=0.6082
+
+A5. Trait vs. state decomposition...
+
+  Trait vs. State Decomposition:
+    ICC = 0.000
+    Trait (between-person): 0.0% of variance
+    State (within-person):  100.0% of variance
+    → Mostly state-dependent
+
+A6. Generating distance visualizations...
+
+── Part B: Perception Space (UMAP + t-SNE) ──
+
+B1–B2. Building UMAP embedding...
+  UMAP: 2186 points × 16 features → 2D embedding
+
+B2b. Building t-SNE embedding...
+  t-SNE: 2186 points → 2D embedding (perplexity=30)
+
+B3. Discovering perception subtypes (HDBSCAN on UMAP)...
+  HDBSCAN: 3 subtypes discovered, 0 noise points
+
+B3b. Validating cluster robustness...
+  Validation Status: ACCEPTED
+
+B4. Profiling subtypes...
+
+         gap_signed   gap_abs  resting_hr  rmssd_mean  overall_score        lh    estrogen  pdg  stress_score     calories        steps  pct_menstrual  pct_follicular  pct_fertility  pct_luteal     n
+subtype                                                                                                                                                                                                
+0         -0.012818  1.129207   67.396408   54.630488      76.228922  5.521753  139.794171  NaN     77.703150  2065.783727  7780.907087      18.582677       25.039370      23.097113   33.280840  1905
+1          0.601104  1.354651    0.000000   73.568939      77.028571  4.370588  133.920588  NaN     77.314286  1958.085714  4334.771429      17.142857       31.428571      17.142857   34.285714    35
+2          0.013737  1.046075    0.000000   29.361638      74.678279  4.753247  152.797403  NaN     74.065041  1866.666667  6816.341463      22.357724       12.601626      19.918699   45.121951   246
+
+B5. Generating UMAP visualizations...
+B5b. Generating t-SNE visualizations...
+
+✓ Gap analysis complete. 17 files in ./eda_outputs/script4_phase_models
+
+── Gap Analysis Summary ──
+  Best gap model: GB (R²=0.893)
+  Phase ANOVA: F=0.610, p=0.6082
+  ICC (trait proportion): 0.000
+  Perception subtypes discovered: 3
+
+============================================================
+7. GB MODEL INTERPRETABILITY (SHAP & Surrogate Rules)
+============================================================
+Running GB structural interpretability on the stress recalibration model...
+
+  [GB Interpret] Running Permutation Importance...
+      [DEBUG] len(feature_names) = 50
+      [DEBUG] len(result.importances_mean) = 50
+  [GB Interpret] Generating SHAP explanations...
+  [GB Interpret] Extracting surrogate rules (pseudo-regimes)...
+
+✓ GB Interpretability complete. Output saved to: /Users/kikkiliu/female-health-wearable-data-monitor-platform/eda_outputs/script4_phase_models
+
+── Top 5 Features (Permutation Importance) ──
+           feature  importance_mean  importance_std
+      gap_rolling3         1.517600        0.090576
+stress_score_delta         0.280916        0.021608
+ self_report_delta         0.208832        0.013446
+          gap_lag2         0.205402        0.015202
+     overall_score         0.006533        0.002323
+
+✓ Script 4 complete. Results in: /Users/kikkiliu/female-health-wearable-data-monitor-platform/eda_outputs/script4_phase_models

@@ -7,11 +7,21 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { messages } = JSON.parse(event.body || '{}');
+    const { messages, persona } = JSON.parse(event.body || '{}');
 
     if (!messages || !Array.isArray(messages)) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Invalid messages array' }) };
     }
+
+    const personaPrompts = {
+      clinical: "You are a clinical neuroscientist specializing in female physiological markers (HRV, P4). Your tone is objective, precise, and authoritative. Focus on the data and the P4 suppression hypothesis.",
+      empathetic: "You are a health coach focusing on intuitive wellness and stress interoception. Your tone is warm, validating, and supportive. Focus on how the user feels and how to bridge the perception gap.",
+      technical: "You are a machine learning engineer specializing in biometric modeling (Gradient Boosting, UMAP). Your tone is analytical, efficient, and data-driven. Focus on the R² values, feature importance, and alignment-bin experiments."
+    };
+
+    const systemPrompt = `${personaPrompts[persona as keyof typeof personaPrompts] || personaPrompts.clinical} 
+    Context: The mcPHASES project explores why wearables fail women during the luteal phase due to Progesterone-driven HRV drops. 
+    The 'Truth' model maps physiology directly to subjective perception to identify this gap.`;
 
     // Call OpenRouter
     const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "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"; // Fallback to provided key for prototype. Highly recommend removing from static code in prod.
@@ -29,7 +39,7 @@ export const handler: Handler = async (event) => {
         messages: [
           {
             role: 'system',
-            content: 'You are the mcPHASES Agentic AI. You are embedded in a React web app prototyping a physiological alignment model. The app demonstrates how female wearables mistakenly classify Progesterone fluctuations (which lower HRV) as "stress" during the luteal phase, creating an alignment gap. Be extremely helpful, concise, and guide the user through the pipeline.'
+            content: systemPrompt
           },
           ...messages
         ],

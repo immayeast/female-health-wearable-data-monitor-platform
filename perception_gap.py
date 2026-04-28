@@ -44,10 +44,10 @@ from cluster_validity import evaluate_cluster_validity
 warnings.filterwarnings("ignore")
 
 RANDOM_STATE = 42
-PHASE_ORDER = ["menstrual", "follicular", "ovulation", "luteal"]
+PHASE_ORDER = ["menstrual", "follicular", "fertility", "luteal"]
 PHASE_COLORS = {
     "menstrual": "#e07b7b", "follicular": "#7bafd4",
-    "ovulation": "#f5c06a", "luteal": "#a8c5da",
+    "fertility": "#f5c06a", "luteal": "#a8c5da",
 }
 GAP_CAT_COLORS = {
     "aligned": "#66bb6a", "self_higher": "#ef5350", "wearable_higher": "#42a5f5",
@@ -222,7 +222,7 @@ def _default_gap_features(df: pd.DataFrame) -> List[str]:
         "gap_lag1", "gap_lag2", "gap_rolling3",
         "stress_score_delta", "self_report_delta",
         # Phase dummies
-        "phase_menstrual", "phase_follicular", "phase_ovulation", "phase_luteal",
+        "phase_menstrual", "phase_follicular", "phase_fertility", "phase_luteal",
     ]
     # Centered variants
     centered = [c for c in df.columns if c.endswith("_c")]

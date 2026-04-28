@@ -44,7 +44,7 @@ This formulation:
 ### 2.2 Data
 
 - **1,882 paired observations** from **31 participants** (30 with ≥10 observations)
-- Phase coverage: menstrual=364, follicular=457, ovulation=419, luteal=642
+- Phase coverage: menstrual=364, follicular=457, fertility=419, luteal=642
 - 52 features available: hormones (LH, estrogen, PDG), HRV, resting HR, sleep, activity, temperature, self-report symptoms, phase dummies, temporal lag features
 
 ### 2.3 Analysis Pipeline
@@ -82,7 +82,7 @@ The perception–physiology gap is highly modelable. Given physiological state, 
 |---|---|---|---|---|
 | Menstrual | 415 | +0.071 | 1.54 | 0.05 |
 | Follicular | 519 | −0.054 | 1.39 | −0.04 |
-| Ovulation | 495 | −0.013 | 1.43 | −0.01 |
+| Fertility | 495 | −0.013 | 1.43 | −0.01 |
 | Luteal | 757 | +0.007 | 1.40 | 0.00 |
 
 One-way ANOVA: F = 0.610, **p = 0.608**. All effect sizes are near zero. Menstrual phase alone does not systematically shift the perception–physiology gap.
