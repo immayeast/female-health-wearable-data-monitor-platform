@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 const LoadingScreen: React.FC = () => {
   return (
@@ -11,33 +11,35 @@ const LoadingScreen: React.FC = () => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%)',
+      backgroundColor: 'var(--bg-main)',
       zIndex: 1000,
-      gap: '1.5rem'
+      gap: '2rem'
     }}>
       <motion.div
         animate={{ 
-          rotate: 360,
-          scale: [1, 1.1, 1]
+          scale: [1, 1.1, 1],
+          boxShadow: [
+            "9px 9px 16px var(--dark-shadow), -9px -9px 16px var(--light-shadow)",
+            "15px 15px 30px var(--dark-shadow), -15px -15px 30px var(--light-shadow)",
+            "9px 9px 16px var(--dark-shadow), -9px -9px 16px var(--light-shadow)"
+          ]
         }}
         transition={{ 
-          rotate: { repeat: Infinity, duration: 3, ease: "linear" },
-          scale: { repeat: Infinity, duration: 2, ease: "easeInOut" }
+          repeat: Infinity, 
+          duration: 3, 
+          ease: "easeInOut" 
         }}
         style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '24px',
-          background: 'rgba(255, 255, 255, 0.4)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid var(--glass-border)',
+          width: '120px',
+          height: '120px',
+          borderRadius: '50%',
+          backgroundColor: 'var(--card-surface)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.05)'
         }}
       >
-        <Activity size={40} color="var(--primary-accent)" />
+        <Activity size={48} color="var(--primary-lavender)" />
       </motion.div>
       
       <div style={{ textAlign: 'center' }}>
@@ -48,40 +50,15 @@ const LoadingScreen: React.FC = () => {
           marginBottom: '0.5rem',
           letterSpacing: '0.05em'
         }}>
-          Synchronizing State-Space
+          Calibrating
         </h3>
         <p style={{ 
           fontSize: '0.9rem', 
-          color: 'var(--text-secondary)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px'
+          color: 'var(--text-secondary)'
         }}>
-          <Loader2 size={16} className="animate-spin" />
-          Calibrating against mcPHASES baseline...
+          Mapping physiology to perception...
         </p>
       </div>
-
-      {/* Decorative Blobs */}
-      <div style={{
-        position: 'absolute',
-        width: '300px',
-        height: '300px',
-        background: 'radial-gradient(circle, rgba(168, 155, 220, 0.15) 0%, transparent 70%)',
-        top: '20%',
-        left: '10%',
-        zIndex: -1
-      }} />
-      <div style={{
-        position: 'absolute',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(177, 166, 196, 0.1) 0%, transparent 70%)',
-        bottom: '10%',
-        right: '5%',
-        zIndex: -1
-      }} />
     </div>
   );
 };

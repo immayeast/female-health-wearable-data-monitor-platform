@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { Transition } from 'framer-motion';
-import Home from './components/Home';
-import UploadFlow from './components/UploadFlow';
-import PhasePrediction from './components/PhasePrediction';
-import ClassifierUmap from './components/ClassifierUmap';
-import Recalibration from './components/Recalibration';
-import AIAssistant from './components/AIAssistant';
+import { Home, Compass, PlusCircle, TrendingUp, FlaskConical } from 'lucide-react';
+import HomeNeumorphic from './components/HomeNeumorphic';
+import AlignmentNeumorphic from './components/AlignmentNeumorphic';
+import LogMomentNeumorphic from './components/LogMomentNeumorphic';
+import TrendsNeumorphic from './components/TrendsNeumorphic';
+import ResearchNeumorphic from './components/ResearchNeumorphic';
 import LoadingScreen from './components/LoadingScreen';
+import AIAssistant from './components/AIAssistant';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -19,11 +19,12 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'home' | 'upload' | 'sorry' | 'phase' | 'umap' | 'recalibration';
+export type AppStep = 'home' | 'alignment' | 'log' | 'trends' | 'research';
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<AppStep>('home');
+  const [trajectoryData, setTrajectoryData] = useState<any>(null);
   const [userData, setUserData] = useState<UserData>({
     sex: 'female',
     restingHR: 60,
@@ -33,7 +34,6 @@ function App() {
     perceivedStress: 5
   });
 
-  // Load real data from trajectory if available
   useEffect(() => {
     fetch('/user_trajectory.json')
       .then(res => {
@@ -42,10 +42,10 @@ function App() {
       })
       .then(json => {
         if (json && json.user_trajectory && json.user_trajectory.length > 0) {
+          setTrajectoryData(json);
           const latest = json.user_trajectory[json.user_trajectory.length - 1];
           setUserData(prev => ({
             ...prev,
-            restingHR: 60, 
             hrv: latest.rmssd || prev.hrv,
             perceivedStress: Math.round(latest.stress),
             phase: latest.phase
@@ -54,94 +54,84 @@ function App() {
       })
       .catch(err => console.error("Trajectory load error:", err))
       .finally(() => {
-        // artificial delay for premium feel
         setTimeout(() => setLoading(false), 1200);
       });
   }, []);
 
-  const nextStep = (s: AppStep) => setStep(s);
-
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    in: { opacity: 1, y: 0 },
-    out: { opacity: 0, y: -20 }
-  };
-
-  const pageTransition: Transition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.5
-  };
+  const navItems = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'alignment', label: 'Alignment', icon: Compass },
+    { id: 'log', label: 'Log', icon: PlusCircle },
+    { id: 'trends', label: 'Trends', icon: TrendingUp },
+    { id: 'research', label: 'Research', icon: FlaskConical },
+  ];
 
   return (
-    <div className="app-container" style={{ position: 'relative', width: '100vw', minHeight: '100vh', overflowX: 'hidden' }}>
-      
+    <div className="app-container">
       <AnimatePresence>
         {loading && <LoadingScreen />}
       </AnimatePresence>
-      
-      {/* Dynamic Background Elements */}
-      <div 
-        className="animate-pulse-slow" 
-        style={{ position: 'fixed', top: '-10%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(168, 155, 220, 0.25) 0%, rgba(255,255,255,0) 70%)', zIndex: 0, pointerEvents: 'none' }} 
-      />
-      <div 
-        className="animate-pulse-slow" 
-        style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(190, 180, 210, 0.2) 0%, rgba(255,255,255,0) 70%)', zIndex: 0, pointerEvents: 'none', animationDelay: '2s' }} 
-      />
 
-      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ paddingBottom: '100px' }}> {/* Container for pages */}
         <AnimatePresence mode="wait">
           {step === 'home' && (
-            <motion.div key="home" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex' }}>
-              <Home onNext={() => nextStep('upload')} />
-            </motion.div>
-          )}
-
-          {step === 'upload' && (
-            <motion.div key="upload" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex' }}>
-              <UploadFlow 
-                userData={userData} 
-                setUserData={setUserData} 
-                onNext={() => nextStep(userData.sex === 'male' ? 'sorry' : 'phase')}
+            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <HomeNeumorphic 
+                status={userData.perceivedStress > 3 ? "Elevated" : "Balanced"}
+                onAction={(target) => setStep(target as AppStep)} 
               />
             </motion.div>
           )}
 
-          {step === 'sorry' && (
-            <motion.div key="sorry" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="container" style={{ textAlign: 'center' }}>
-                <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto' }}>
-                  <h1 className="title text-gradient">Sorry Man</h1>
-                  <p className="subtitle">
-                    The mcPHASES pipeline requires naturally-cycling female physiological context to calculate the Progesterone gap. 
-                    Your dataset belongs in the standard master alignment models.
-                  </p>
-                  <button className="btn btn-secondary" onClick={() => nextStep('upload')}>Go Back</button>
-                </div>
-              </div>
+          {step === 'alignment' && (
+            <motion.div key="alignment" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <AlignmentNeumorphic 
+                value={Math.round((1 - Math.abs(userData.perceivedStress - 2)/5) * 100)} 
+                label={userData.perceivedStress > 3 ? "Slight Gap" : "Mostly Aligned"}
+                sublabel={userData.perceivedStress > 3 ? "Your perception is slightly higher than physiology." : "Your signals are within the expected range."}
+              />
             </motion.div>
           )}
 
-          {step === 'phase' && (
-            <motion.div key="phase" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex' }}>
-              <PhasePrediction userData={userData} onNext={() => nextStep('umap')} />
+          {step === 'log' && (
+            <motion.div key="log" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <LogMomentNeumorphic onSave={(s, n) => {
+                console.log("Saving log:", s, n);
+                setStep('home');
+              }} />
             </motion.div>
           )}
 
-          {step === 'umap' && (
-            <motion.div key="umap" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex' }}>
-              <ClassifierUmap userData={userData} onNext={() => nextStep('recalibration')} />
+          {step === 'trends' && (
+            <motion.div key="trends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <TrendsNeumorphic data={trajectoryData?.user_trajectory || []} />
             </motion.div>
           )}
 
-          {step === 'recalibration' && (
-            <motion.div key="recalibration" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} style={{ flexGrow: 1, display: 'flex' }}>
-              <Recalibration userData={userData} onRestart={() => nextStep('home')} />
+          {step === 'research' && (
+            <motion.div key="research" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <ResearchNeumorphic 
+                trajectory={trajectoryData?.user_trajectory || []} 
+                population={trajectoryData?.population_background || []} 
+              />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        {navItems.map(item => (
+          <button 
+            key={item.id} 
+            className={`nav-item ${step === item.id ? 'active' : ''}`}
+            onClick={() => setStep(item.id as AppStep)}
+          >
+            <item.icon size={24} strokeWidth={step === item.id ? 2.5 : 2} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
 
       <AIAssistant />
     </div>

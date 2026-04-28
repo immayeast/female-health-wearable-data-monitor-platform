@@ -1,0 +1,321 @@
+MORPH / Wearable Stress Recalibration UI — Antigravity Development Prompt
+
+Goal
+Build a light, soft-neumorphic wellness/research interface for a wearable stress + perception–physiology gap project. The UI should be aesthetic, calm, minimal, and directly useful. It should NOT be a dense dashboard except for one dedicated Research/Analysis page. Most pages should have exactly one primary function.
+
+Core Product Concept
+The system helps users understand the gap between physiological wearable signals and perceived stress. It does not claim to measure “true stress.” It shows context-normalized state, captures how the user feels, and explains simple model-derived insights.
+
+Important ML framing:
+- Wearable stress = physiological/autonomic signal.
+- Self-reported stress = subjective perception.
+- The gap = perception–physiology divergence.
+- The UI should expose one simplified projection of model output at a time.
+- Avoid overwhelming users with raw features unless they enter the Research page.
+
+Design Direction
+Style: light neumorphic, minimal, soft, clinical-calm.
+Do not use Renaissance styling, ornate frames, classical statues, floral icons, or heavy decoration.
+No “morphing” visual effects or text suggestions. Use simple soft surfaces and subtle depth.
+
+Visual Language
+- Background: off-white / soft grey.
+- Components: raised soft cards with dual shadows.
+- Interaction states: inset shadows for pressed controls.
+- Accent colors: muted lavender, pale beige, soft mint, very light peach.
+- No harsh outlines, no pure black, no neon colors.
+- Typography: clean sans-serif such as Inter / SF Pro.
+- Use medium-weight headings and regular body text.
+- Large whitespace. Low density.
+
+Suggested Palette
+- Base background: #F4F5F7
+- Card surface: #F8F8FA
+- Dark shadow: #D1D9E6
+- Light shadow: #FFFFFF
+- Primary accent lavender: #B9A7F5
+- Secondary accent mint: #BFD8C8
+- Warm accent beige: #E8D8C3
+- Soft warning peach: #F0C9BC
+- Text primary: #2F3138
+- Text secondary: #777A84
+
+Neumorphic Component Rules
+- Border radius: 20–28px for cards, 999px for circular controls.
+- Use box-shadow to create soft raised and inset effects.
+- Default component: raised.
+- Active/pressed component: inset.
+- Avoid visible borders unless extremely subtle.
+- Use gentle transitions: 180–250ms ease-out.
+
+Navigation Model
+Use a simple minimal navigation system.
+Preferred: bottom nav with 4–5 icons OR a simple radial/home hub if easy to implement.
+Main sections:
+1. Home
+2. Alignment
+3. Log Moment
+4. Trends
+5. Research
+Optional sections:
+6. Drivers
+7. Cycle State
+8. Ritual/Reset
+
+Core UX Principle
+One page = one function.
+Do not create a giant dashboard with many widgets. Each screen should have one main action or one main piece of information.
+
+Page Specifications
+
+1. Home / Neutral State
+Purpose: Calm entry point.
+Content:
+- Greeting, very short.
+- One central soft circular node showing current overall state or “Ready.”
+- Minimal navigation to main functions.
+Do not show many metrics.
+Primary action: enter Alignment or Log Moment.
+
+2. Alignment Page
+Purpose: Show the user’s current perception–physiology alignment as one main metric.
+UI:
+- Large centered circular gauge.
+- One number or label: e.g., “72” or “Balanced.”
+- Small sublabel: “slightly higher perception” or “within expected range.”
+- Optional single mini-card: perception–physiology gap value.
+Interaction:
+- Tap gauge to reveal one short explanation.
+No multi-metric panel.
+
+3. Log Moment Page
+Purpose: Capture self-reported stress/perception quickly.
+UI:
+- Question: “How stressed do you feel right now?”
+- 3 large soft buttons: Low / Medium / High OR 5-point scale.
+- Optional note field hidden behind “Add note.”
+- Save button.
+Interaction:
+- Tapping a state gives immediate visual pressed state.
+- Save confirms and returns to Home.
+Data logged:
+- timestamp
+- self_report_stress
+- optional note
+- current wearable snapshot if available
+
+4. Cycle State Page
+Purpose: Show current inferred phase only.
+UI:
+- Centered phase label, e.g., “Luteal Phase.”
+- Day number if available.
+- One short contextual sentence.
+- Abstract soft shape, not floral.
+No detailed hormone plots here.
+
+5. Trends Page
+Purpose: Show one trend at a time.
+UI:
+- One line chart only.
+- Toggle/select: Gap, HRV, Sleep, Stress.
+- Default = perception–physiology gap over time.
+- Minimal axes and labels.
+Interaction:
+- Tap/scrub to highlight a single day.
+Do not show multiple charts together.
+
+6. Drivers Page
+Purpose: Explain what influenced the current gap.
+UI:
+- 3–4 horizontal soft bars only.
+- Example drivers: Sleep Quality, HRV, Resting HR, Cycle Context, Activity.
+- Each bar has impact level: low / medium / high.
+Interaction:
+- Tap a driver to reveal one short sentence.
+This page is model explanation simplified for users.
+
+7. Insight Page
+Purpose: Deliver one personalized insight.
+UI:
+- One centered insight sentence.
+Example: “Your perceived stress tends to rise when sleep is low.”
+- One optional “Why?” button.
+- On expand, show 1–2 short lines max.
+No dense analytics.
+
+8. Ritual / Reset Page
+Purpose: Simple intervention or grounding action.
+UI:
+- One circular visual object.
+- One instruction: “Take a breath.”
+- One button: Begin.
+No medical claims.
+
+9. Research / Analysis Page
+Purpose: The only dense academic page.
+This page can include:
+- Model result cards
+- Pearson diagnostics
+- Recalibration results
+- GB model performance
+- Feature importance / SHAP-like drivers
+- Cluster validity tests
+- Methods notes
+This is for the user/researcher, not the everyday wellness flow.
+
+Research Page Layout
+Use clean academic sections:
+- Data Summary
+- Recalibration
+- Gap Model
+- Alignment Model
+- Cluster Validity
+- Interpretation Notes
+This page can include tables and multiple charts, but keep the same light neumorphic styling.
+
+Model Outputs to Support
+The interface should be able to display these derived values:
+- raw wearable stress score
+- adjusted/context-normalized stress score
+- self-reported stress
+- perception–physiology gap
+- gap prediction from GB model
+- confidence / reliability label
+- top drivers of gap
+- current phase
+- optional cluster/regime label if validated
+
+Terminology Rules
+Use careful language:
+Good:
+- “physiological signal”
+- “perceived stress”
+- “alignment”
+- “gap”
+- “context-normalized score”
+- “expected for your current state”
+Avoid:
+- “true stress”
+- “diagnosis”
+- “your body is wrong”
+- “your perception is wrong”
+
+Recommended User-Facing Copy
+Home:
+- “Welcome back.”
+- “Let’s check in with your current state.”
+
+Alignment:
+- “Your signals are mostly aligned.”
+- “Your perception is slightly higher than your physiological score.”
+- “Your wearable score is higher than your reported stress.”
+
+Log Moment:
+- “How stressed do you feel right now?”
+- Buttons: Low, Medium, High
+
+Drivers:
+- “What influenced today’s gap”
+- “Sleep quality had the strongest effect.”
+
+Research:
+- “Model and data summary”
+- “This page shows the analytical layer behind the simplified user experience.”
+
+Core Layout Rules
+- Mobile-first.
+- Every screen has one central focal object.
+- Avoid grids except on Research page.
+- Avoid more than 2 cards per mobile screen.
+- Use 1 primary action per screen.
+- Keep text minimal.
+
+Implementation Notes
+If using React:
+- Use reusable components: SoftCard, SoftButton, SoftCircle, Gauge, MinimalLineChart, BottomNav, ResearchCard.
+- Use CSS variables for theme colors and shadows.
+- Keep all styling centralized.
+- Use Framer Motion only for subtle scale/shadow transitions.
+- Avoid heavy animation.
+
+Suggested Component API
+SoftCard:
+- variant: raised | inset | floating
+- children
+
+SoftButton:
+- variant: primary | secondary | icon | mood
+- active
+- onClick
+
+Gauge:
+- value
+- label
+- sublabel
+- accent
+
+SingleTrendChart:
+- data
+- metric
+- selectedRange
+
+DriverBar:
+- label
+- impact
+- explanation
+
+Data Schema Draft
+UserState:
+{
+  user_id,
+  timestamp,
+  phase,
+  cycle_day,
+  raw_stress_score,
+  adjusted_stress_score,
+  self_report_stress,
+  gap,
+  predicted_gap,
+  alignment_label,
+  confidence,
+  hrv_rmssd,
+  resting_hr,
+  sleep_score,
+  activity_level,
+  top_drivers: [
+    { feature, impact, direction, explanation }
+  ]
+}
+
+Alignment Labels
+- aligned
+- self_higher
+- wearable_higher
+
+Reliability Labels
+- high confidence
+- moderate confidence
+- low confidence
+
+Single Snapshot Behavior
+If only one moment of data is available, the UI should say this is a situational estimate, not a personalized long-term profile.
+Recommended message:
+“Limited context. This estimate reflects your current snapshot more than your personal baseline.”
+
+Engineering Priority
+1. Build visual design system and core components.
+2. Build single-function pages with mock data.
+3. Wire real model outputs later.
+4. Add Research page last.
+
+Acceptance Criteria
+- App feels light, soft, and minimal.
+- No dense dashboard except Research page.
+- No floral or Renaissance ornamentation.
+- Each page has one main function.
+- User can log perceived stress quickly.
+- User can view current alignment simply.
+- Research page can expose model details without affecting the everyday flow.
+
+Final Design Summary
+Build a light neumorphic wearable-health interface that translates complex physiology/perception modeling into simple single-function screens. The ordinary user sees only one state, one action, or one insight at a time. The research layer contains the full academic analysis. The product should feel calm, precise, soft, and clinically trustworthy without looking medical-heavy or overly decorative.
