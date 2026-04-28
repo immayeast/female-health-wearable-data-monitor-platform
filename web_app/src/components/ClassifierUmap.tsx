@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { UserData } from '../App';
@@ -29,7 +29,7 @@ interface ClassifierUmapProps {
   onNext: () => void;
 }
 
-const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => {
+const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ onNext }) => {
   const [data, setData] = useState<TrajectoryData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,10 +87,10 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
               <Tooltip 
                 cursor={{ strokeDasharray: '3 3' }} 
                 contentStyle={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px' }} 
-                formatter={(value: any, name: string) => {
+                formatter={(value: any, name?: any) => {
                   if (name === 'stress') return [`${Number(value).toFixed(2)}`, 'Calibrated Stress'];
                   if (name === 'date') return [value, 'Date'];
-                  return [value, name];
+                  return [value, name ?? ''];
                 }}
               />
               
@@ -102,7 +102,7 @@ const ClassifierUmap: React.FC<ClassifierUmapProps> = ({ userData, onNext }) => 
               
               {/* Recent Trajectory (Highlighted) */}
               <Scatter name="Recent" data={recentTrajectory} fill="var(--secondary-accent)" line={{ stroke: 'var(--secondary-accent)', strokeWidth: 2 }}>
-                {recentTrajectory.map((entry, index) => (
+                {recentTrajectory.map((_, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={index === recentTrajectory.length - 1 ? 'var(--primary-accent)' : 'var(--secondary-accent)'} 
