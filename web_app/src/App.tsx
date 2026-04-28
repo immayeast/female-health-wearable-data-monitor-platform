@@ -7,6 +7,7 @@ import PhasePrediction from './components/PhasePrediction';
 import ClassifierUmap from './components/ClassifierUmap';
 import Recalibration from './components/Recalibration';
 import AIAssistant from './components/AIAssistant';
+import LoadingScreen from './components/LoadingScreen';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -21,6 +22,7 @@ export type UserData = {
 export type AppStep = 'home' | 'upload' | 'sorry' | 'phase' | 'umap' | 'recalibration';
 
 function App() {
+  const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<AppStep>('home');
   const [userData, setUserData] = useState<UserData>({
     sex: 'female',
@@ -34,10 +36,13 @@ function App() {
   // Load real data from trajectory if available
   useEffect(() => {
     fetch('/user_trajectory.json')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) return null;
+        return res.json();
+      })
       .then(json => {
-        const latest = json.user_trajectory[json.user_trajectory.length - 1];
-        if (latest) {
+        if (json && json.user_trajectory && json.user_trajectory.length > 0) {
+          const latest = json.user_trajectory[json.user_trajectory.length - 1];
           setUserData(prev => ({
             ...prev,
             restingHR: 60, 
@@ -46,6 +51,11 @@ function App() {
             phase: latest.phase
           }));
         }
+      })
+      .catch(err => console.error("Trajectory load error:", err))
+      .finally(() => {
+        // artificial delay for premium feel
+        setTimeout(() => setLoading(false), 1200);
       });
   }, []);
 
@@ -65,6 +75,10 @@ function App() {
 
   return (
     <div className="app-container" style={{ position: 'relative', width: '100vw', minHeight: '100vh', overflowX: 'hidden' }}>
+      
+      <AnimatePresence>
+        {loading && <LoadingScreen />}
+      </AnimatePresence>
       
       {/* Dynamic Background Elements */}
       <div 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { UploadCloud, ChevronRight, Activity, Moon, Footprints, Heart, User, Brain } from 'lucide-react';
+import React, { useState } from 'react';
+import { UploadCloud, ChevronRight, Activity, Moon, Footprints, Heart, User, Brain, Sparkles, Loader2, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { UserData } from '../App';
 
@@ -10,6 +10,36 @@ interface UploadFlowProps {
 }
 
 const UploadFlow: React.FC<UploadFlowProps> = ({ userData, setUserData, onNext }) => {
+  const [magicText, setMagicText] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
+
+  const handleMagicParse = async () => {
+    if (!magicText.trim()) return;
+    setIsParsing(true);
+    try {
+      const response = await fetch('/.netlify/functions/parse-metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: magicText })
+      });
+      const data = await response.json();
+      
+      const updates: Partial<UserData> = {};
+      if (data.restingHR) updates.restingHR = data.restingHR;
+      if (data.hrv) updates.hrv = data.hrv;
+      if (data.sleep) updates.sleep = data.sleep;
+      if (data.steps) updates.steps = data.steps;
+      if (data.perceivedStress) updates.perceivedStress = data.perceivedStress;
+
+      setUserData(prev => ({ ...prev, ...updates }));
+      setMagicText('');
+    } catch (err) {
+      console.error("Magic parse failed:", err);
+    } finally {
+      setIsParsing(false);
+    }
+  };
+
   const handleChange = (field: keyof UserData, value: string | number) => {
     setUserData(prev => ({ ...prev, [field]: value }));
   };
@@ -23,10 +53,45 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ userData, setUserData, onNext }
         animate={{ opacity: 1, z: 0 }}
         className="glass-panel"
       >
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <UploadCloud size={48} color="var(--primary-accent)" style={{ marginBottom: '1rem' }} />
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}>
+             <UploadCloud size={32} color="var(--primary-accent)" />
+             <Wand2 size={32} color="var(--secondary-accent)" />
+          </div>
           <h2 className="title" style={{ fontSize: '2.5rem' }}>Truth Mapping</h2>
           <p className="subtitle">Synchronizing your subjective perception with physiological truth.</p>
+        </div>
+
+        {/* Magic Input Mode */}
+        <div className="glass-panel" style={{ background: 'rgba(168, 155, 220, 0.08)', marginBottom: '2.5rem', padding: '1.5rem', borderStyle: 'dashed' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+            <Sparkles size={20} color="var(--primary-accent)" />
+            <h4 style={{ fontWeight: 600, fontSize: '1rem', margin: 0 }}>Natural Language Calibration</h4>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+            Describe how you're feeling or list your metrics in a sentence. We'll extract them automatically.
+          </p>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <textarea 
+              value={magicText}
+              onChange={e => setMagicText(e.target.value)}
+              placeholder="e.g., 'My HRV was 45, heart rate 62, and I feel moderate stress today.'"
+              style={{ 
+                flex: 1, height: '80px', background: 'rgba(255,255,255,0.7)', 
+                borderRadius: '12px', padding: '12px', border: '1px solid var(--glass-border)',
+                fontSize: '0.9rem', resize: 'none'
+              }}
+            />
+            <button 
+              className="btn btn-primary"
+              onClick={handleMagicParse}
+              disabled={isParsing || !magicText.trim()}
+              style={{ width: '120px', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px' }}
+            >
+              {isParsing ? <Loader2 className="animate-spin" /> : <Wand2 size={20} />}
+              <span style={{ fontSize: '0.75rem' }}>{isParsing ? 'Parsing...' : 'Sync Data'}</span>
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
