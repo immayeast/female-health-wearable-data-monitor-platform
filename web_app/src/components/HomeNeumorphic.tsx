@@ -38,17 +38,17 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
               padding: '20px'
             }}
           >
-            <div className="soft-inset soft-circle" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="soft-inset soft-circle" style={{ width: '90px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {status === "Elevated" ? (
-                <Moon size={40} color="var(--primary-lavender)" fill="var(--primary-lavender)" opacity={0.6} />
+                <Moon size={44} color="var(--primary-lavender)" fill="var(--primary-lavender)" opacity={0.6} />
               ) : (
-                <Sparkles size={40} color="var(--secondary-mint)" />
+                <Sparkles size={44} color="var(--secondary-mint)" />
               )}
             </div>
             
             <div style={{ textAlign: 'center' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{status}</span>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '160px', margin: '0 auto', lineHeight: 1.4 }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', display: 'block', marginBottom: '6px' }}>{status}</span>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: '180px', margin: '0 auto', lineHeight: 1.5, fontWeight: 500 }}>
                 {status === "Elevated" ? "Cycle-dependent recalibration active." : "Physiology is in its baseline phase."}
               </p>
             </div>
@@ -61,7 +61,7 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
             <span>Detailed Log</span>
           </button>
           
-          <button onClick={() => onWatchTrigger('self_prompt')} className="soft-btn" style={{ padding: '20px', background: 'var(--primary-lavender)', color: '#fff' }}>
+          <button onClick={() => onWatchTrigger('self_prompt')} className="soft-btn soft-btn-primary" style={{ padding: '20px' }}>
             <Activity size={20} />
             <span>Log Stress (Watch)</span>
           </button>
