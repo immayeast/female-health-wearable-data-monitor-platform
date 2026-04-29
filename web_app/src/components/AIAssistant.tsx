@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, FileJson, Layers } from 'lucide-react';
+import { MessageCircle, X, Send, FileJson, Layers } from 'lucide-react';
+import Logo from './Logo';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
@@ -117,8 +118,8 @@ const AIAssistant: React.FC = () => {
             {/* Header */}
             <div style={{ padding: '16px', background: 'var(--bg-main)', borderBottom: '1px solid var(--dark-shadow)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div className="soft-inset soft-circle" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Bot size={20} color="var(--primary-lavender)" />
+                <div className="soft-inset soft-circle" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  <Logo size={28} />
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Assistant</div>

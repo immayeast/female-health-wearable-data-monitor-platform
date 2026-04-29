@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon, Activity } from 'lucide-react';
+import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon } from 'lucide-react';
 
 import HomeNeumorphic from './components/HomeNeumorphic';
 import AlignmentNeumorphic from './components/AlignmentNeumorphic';
@@ -10,6 +10,7 @@ import CycleStateNeumorphic from './components/CycleStateNeumorphic';
 import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
 import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
+import Logo from './components/Logo';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -42,7 +43,7 @@ const App = () => {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification("mcPHASES Watch Action", {
         body: "Time to log your physiological state. Tap to open the P4 Recalibration tool.",
-        icon: "/vite.svg"
+        icon: "/favicon.svg"
       });
     }
   };
@@ -154,8 +155,8 @@ const App = () => {
               style={{ padding: '2rem', maxWidth: '400px', textAlign: 'center' }}
               onClick={e => e.stopPropagation()}
             >
-              <div className="soft-inset soft-circle" style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Activity size={40} color="var(--primary-lavender)" />
+              <div className="soft-inset soft-circle" style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <Logo size={54} />
               </div>
               <h2 style={{ marginBottom: '1rem' }}>Watch Trigger Sent</h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
