@@ -82,7 +82,7 @@ const App = () => {
               sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
               classification={modelResults?.classification}
               phase={modelResults?.phase}
-              recalibratedValue={modelResults ? 40 : undefined}
+              recalibratedValue={modelResults ? modelResults.score : undefined}
             />
           )}
           {step === 'log' && (

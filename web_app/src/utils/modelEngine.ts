@@ -1,16 +1,40 @@
 /**
- * mcPHASES Research Model Engine
- * Replicating GradientBoosting and Phase Classification from script3_modeling.py
+ * mcPHASES Research Model Engine (Production)
+ * Uses exported weights and normalization from research data
  */
 
+export interface ModelMetadata {
+  means: Record<string, number>;
+  stds: Record<string, number>;
+  weights: Record<string, number>;
+  intercept: number;
+  feature_names: string[];
+}
+
 export interface UserState {
-  hrv_z: number;
-  rhr_z: number;
-  temp_z: number;
-  movement_z: number;
-  cycleDay: number;
+  resting_hr: number;
+  rmssd: number;
+  lh?: number;
+  estrogen?: number;
+  pdg?: number;
+  day_in_cycle: number;
   subjectiveStress?: number;
 }
+
+// Prediction Logic
+export const predictStressScore = (state: UserState, metadata: ModelMetadata) => {
+  let score = metadata.intercept;
+  
+  metadata.feature_names.forEach(feature => {
+    const rawValue = (state as any)[feature] || metadata.means[feature];
+    // Z-Score normalization
+    const zScore = (rawValue - metadata.means[feature]) / metadata.stds[feature];
+    // Weight application
+    score += zScore * metadata.weights[feature];
+  });
+
+  return Math.max(0, Math.min(100, score));
+};
 
 export const predictPhase = (day: number) => {
   if (day >= 1 && day <= 5) return 'Menstrual';
@@ -19,29 +43,24 @@ export const predictPhase = (day: number) => {
   return 'Luteal';
 };
 
-export const predictStressClassification = (state: UserState) => {
-  // Logic derived from SHAP importance in script3_modeling.py
-  // HRV (RMSSD) and RHR are the strongest drivers
-  const score = (state.rhr_z * 0.4) - (state.hrv_z * 0.4) + (state.temp_z * 0.2);
-  
-  if (score > 1.5) return { group: 'Dissonant High', level: 'Acute' };
-  if (score > 0.5) return { group: 'Elevated', level: 'Moderate' };
-  if (score < -0.5) return { group: 'Aligned', level: 'Optimal' };
-  return { group: 'Baseline', level: 'Stable' };
+export const predictStressClassification = (score: number) => {
+  if (score > 75) return { group: 'Acute Stress', level: 'High' };
+  if (score > 55) return { group: 'Elevated Gap', level: 'Moderate' };
+  if (score < 45) return { group: 'Aligned Baseline', level: 'Optimal' };
+  return { group: 'Balanced', level: 'Stable' };
 };
 
 export const calculateAlignment = (predicted: number, subjective: number) => {
-  const gap = Math.abs(predicted - subjective);
-  // 0 gap = 100% alignment
-  return Math.max(0, Math.min(100, 100 - (gap * 10)));
+  const gap = Math.abs(predicted - (subjective * 10)); // Scale subjective to 0-100
+  return Math.max(0, Math.min(100, 100 - gap));
 };
 
 export const parseResearchCSV = (csvText: string) => {
-  const lines = csvText.split('\n');
+  const lines = csvText.trim().split('\n');
   const headers = lines[0].split(',').map(h => h.trim());
   
-  // Find latest record (assuming chronological)
-  const lastRow = lines[lines.length - 2].split(',').map(v => v.trim());
+  // Use the latest row for "current" state
+  const lastRow = lines[lines.length - 1].split(',').map(v => v.trim());
   
   const data: any = {};
   headers.forEach((h, i) => {

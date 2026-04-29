@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { parseResearchCSV, predictPhase, predictStressClassification } from '../utils/modelEngine';
+import { parseResearchCSV, predictPhase, predictStressClassification, predictStressScore } from '../utils/modelEngine';
 
 interface UploadFlowProps {
   onComplete: (results: any) => void;
@@ -26,46 +26,57 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     }
   };
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     setIsUploading(true);
-    const reader = new FileReader();
+    setError(null);
     
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const rawData = parseResearchCSV(text);
-        
-        // Transform raw data into Model State
-        // (Mapping common columns from PhysioNet/CSV structure)
-        const state = {
-          hrv_z: rawData.rmssd_z || (rawData.rmssd - 50) / 10 || 0,
-          rhr_z: rawData.resting_hr_z || (rawData.resting_hr - 65) / 5 || 0,
-          temp_z: rawData.temp_diff_z || 0,
-          movement_z: rawData.steps_z || 0,
-          cycleDay: rawData.day_in_cycle || 14
-        };
+    try {
+      // 1. Fetch real model weights from Netlify/Public
+      const metaResponse = await fetch('/model_metadata.json');
+      const metadata = await metaResponse.json();
 
-        const classification = predictStressClassification(state);
-        const phase = predictPhase(state.cycleDay);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target?.result as string;
+          const rawData = parseResearchCSV(text);
+          
+          // Map CSV headers to Model Features
+          const state = {
+            resting_hr: rawData.resting_hr || rawData.rhr || 65,
+            rmssd: rawData.rmssd || rawData.hrv || 50,
+            lh: rawData.lh || 0,
+            estrogen: rawData.estrogen || 0,
+            pdg: rawData.pdg || 0,
+            day_in_cycle: rawData.day_in_cycle || rawData.day || 14
+          };
 
-        setTimeout(() => {
-          onComplete({
-            state,
-            classification,
-            phase,
-            rawData,
-            timestamp: new Date().toISOString()
-          });
+          const predictedScore = predictStressScore(state, metadata);
+          const classification = predictStressClassification(predictedScore);
+          const phase = predictPhase(state.day_in_cycle);
+
+          setTimeout(() => {
+            onComplete({
+              state,
+              classification,
+              phase,
+              score: predictedScore,
+              rawData,
+              timestamp: new Date().toISOString()
+            });
+            setIsUploading(false);
+          }, 2000);
+
+        } catch (err) {
+          setError('CSV processing failed. Check column headers.');
           setIsUploading(false);
-        }, 2500); // Artificial delay for "Running Models" effect
-
-      } catch (err) {
-        setError('Failed to parse CSV. Ensure it follows the mcPHASES format.');
-        setIsUploading(false);
-      }
-    };
-
-    reader.readAsText(file);
+        }
+      };
+      reader.readAsText(file);
+    } catch (err) {
+      setError('Could not load research model metadata.');
+      setIsUploading(false);
+    }
   };
 
   return (

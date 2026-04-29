@@ -37,7 +37,9 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
           <div className="gauge-ring" />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
             <div style={{ textAlign: 'center' }}>
-              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>{recalibratedValue || value}%</span>
+              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>
+                {Math.round(recalibratedValue || value)}%
+              </span>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Alignment Score</p>
             </div>
             {classification && (
