@@ -8,6 +8,7 @@ import TrendsNeumorphic from './components/TrendsNeumorphic';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import LoadingScreen from './components/LoadingScreen';
 import LoginNeumorphic from './components/LoginNeumorphic';
+import WatchStressCapture from './components/WatchStressCapture';
 import AIAssistant from './components/AIAssistant';
 
 export type UserData = {
@@ -28,6 +29,11 @@ function App() {
   const [hasConsented, setHasConsented] = useState(false);
   const [step, setStep] = useState<AppStep>('home');
   const [trajectoryData, setTrajectoryData] = useState<any>(null);
+  
+  // Watch / Spike States
+  const [watchTrigger, setWatchTrigger] = useState<{ active: boolean; type: 'physiological_spike' | 'self_prompt' }>({ active: false, type: 'self_prompt' });
+  const [, setCapturedEvents] = useState<any[]>([]);
+  const [lastBaseline, setLastBaseline] = useState<number>(45); // HRV baseline
   const [userData, setUserData] = useState<UserData>({
     sex: 'female',
     restingHR: 60,
@@ -61,6 +67,7 @@ function App() {
             perceivedStress: Math.round(latest.stress),
             phase: latest.phase
           }));
+          setLastBaseline(latest.rmssd || 45);
         }
       })
       .catch(err => console.error("Trajectory load error:", err))
@@ -68,6 +75,24 @@ function App() {
         setTimeout(() => setLoading(false), 1200);
       });
   }, []);
+
+  // Flow A: Physiological Spike Detection
+  useEffect(() => {
+    if (loading || !isAuthenticated || watchTrigger.active) return;
+
+    // Simulate detection: If HRV drops 20% below baseline
+    if (userData.hrv < lastBaseline * 0.8) {
+      console.log("SPIKE DETECTED: HRV drop detected.");
+      setWatchTrigger({ active: true, type: 'physiological_spike' });
+    }
+  }, [userData.hrv, lastBaseline, loading, isAuthenticated]);
+
+  const handleSaveEvent = (event: any) => {
+    setCapturedEvents(prev => [...prev, event]);
+    // Also save to local storage for persistence
+    const existing = JSON.parse(localStorage.getItem('mcphases_events') || '[]');
+    localStorage.setItem('mcphases_events', JSON.stringify([...existing, event]));
+  };
 
   const handleLogin = (email: string, consented: boolean) => {
     console.log("Logged in as:", email);
@@ -121,6 +146,7 @@ function App() {
                 status={userData.perceivedStress > 3 ? "Elevated" : "Balanced"}
                 onAction={(target) => setStep(target as AppStep)} 
                 onLogout={handleLogout}
+                onWatchTrigger={(type) => setWatchTrigger({ active: true, type })}
               />
             </motion.div>
           )}
@@ -176,6 +202,23 @@ function App() {
       </nav>
 
       <AIAssistant />
+
+      <AnimatePresence>
+        {watchTrigger.active && (
+          <WatchStressCapture 
+            triggerType={watchTrigger.type}
+            onClose={() => setWatchTrigger({ ...watchTrigger, active: false })}
+            onSave={handleSaveEvent}
+            currentVitals={{
+              hr: userData.restingHR,
+              hrv: userData.hrv,
+              restingHR: userData.restingHR,
+              predictedStress: userData.perceivedStress,
+              phase: userData.phase || 'Unknown'
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

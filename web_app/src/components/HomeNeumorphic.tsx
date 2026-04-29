@@ -5,10 +5,11 @@ import { Activity, Plus, ShieldCheck, LogOut } from 'lucide-react';
 interface HomeProps {
   onAction: (target: string) => void;
   onLogout: () => void;
+  onWatchTrigger: (type: 'physiological_spike' | 'self_prompt') => void;
   status?: string;
 }
 
-const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, status = "Ready" }) => {
+const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigger, status = "Ready" }) => {
   return (
     <div className="container fade-in">
       <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem' }}>
@@ -57,10 +58,19 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, status = "Rea
         </motion.button>
 
         {/* Primary Actions */}
-        <div style={{ display: 'flex', gap: '1.5rem' }}>
-          <button onClick={() => onAction('log')} className="soft-btn" style={{ padding: '20px 32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '300px' }}>
+          <button onClick={() => onAction('log')} className="soft-btn" style={{ padding: '20px' }}>
             <Plus size={20} />
-            <span>Log Moment</span>
+            <span>Detailed Log</span>
+          </button>
+          
+          <button onClick={() => onWatchTrigger('self_prompt')} className="soft-btn" style={{ padding: '20px', background: 'var(--primary-lavender)', color: '#fff' }}>
+            <Activity size={20} />
+            <span>Log Stress (Watch)</span>
+          </button>
+
+          <button onClick={() => onWatchTrigger('physiological_spike')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer', opacity: 0.6 }}>
+            [Debug] Simulate Spike
           </button>
         </div>
       </div>
