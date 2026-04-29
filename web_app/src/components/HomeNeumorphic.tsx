@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, LogOut } from 'lucide-react';
+import { Activity, LogOut, Moon, Sparkles } from 'lucide-react';
 
 interface HomeProps {
   onAction: (target: string) => void;
@@ -27,21 +27,31 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
         {/* Central Focal Node */}
         <div style={{ width: '280px', height: '280px', position: 'relative' }}>
           <motion.button
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => onAction('alignment')}
             className="soft-raised soft-circle"
             style={{
               width: '100%', height: '100%',
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
-              gap: '12px', cursor: 'pointer', border: 'none'
+              gap: '20px', cursor: 'pointer', border: 'none',
+              padding: '20px'
             }}
           >
-            <span style={{ fontSize: '3rem' }}>{status === "Elevated" ? "🩸" : "🧘"}</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)' }}>{status}</span>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              {status === "Elevated" ? "Menstruation and Stress Tool" : "Physiology is stable."}
-            </p>
+            <div className="soft-inset soft-circle" style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {status === "Elevated" ? (
+                <Moon size={40} color="var(--primary-lavender)" fill="var(--primary-lavender)" opacity={0.6} />
+              ) : (
+                <Sparkles size={40} color="var(--secondary-mint)" />
+              )}
+            </div>
+            
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block', marginBottom: '4px' }}>{status}</span>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '160px', margin: '0 auto', lineHeight: 1.4 }}>
+                {status === "Elevated" ? "Cycle-dependent recalibration active." : "Physiology is in its baseline phase."}
+              </p>
+            </div>
           </motion.button>
         </div>
 
@@ -58,6 +68,14 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
 
           <button onClick={() => onWatchTrigger('physiological_spike')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', cursor: 'pointer', opacity: 0.6 }}>
             [Debug] Simulate Spike
+          </button>
+
+          <button 
+            onClick={() => onAction('ritual')}
+            className="soft-btn" 
+            style={{ marginTop: '2rem', padding: '12px', fontSize: '0.8rem', background: 'var(--card-surface)', width: 'auto', alignSelf: 'center' }}
+          >
+            <span>Reset Ritual</span>
           </button>
         </div>
       </div>

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info } from 'lucide-react';
+import { Info, Zap, Lightbulb, ChevronRight } from 'lucide-react';
 
 interface AlignmentProps {
   value: number;
   label: string;
   sublabel: string;
+  onAction: (target: string) => void;
 }
 
-const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel }) => {
+const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, onAction }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
@@ -38,6 +39,19 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel 
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>{label}</h2>
           <p style={{ color: 'var(--text-secondary)' }}>{sublabel}</p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', marginTop: '3rem' }}>
+          <button onClick={() => onAction('drivers')} className="soft-btn" style={{ padding: '15px' }}>
+            <Zap size={18} />
+            <span style={{ flex: 1, textAlign: 'left', marginLeft: '10px' }}>What is driving this?</span>
+            <ChevronRight size={18} color="var(--text-muted)" />
+          </button>
+          <button onClick={() => onAction('insight')} className="soft-btn" style={{ padding: '15px' }}>
+            <Lightbulb size={18} />
+            <span style={{ flex: 1, textAlign: 'left', marginLeft: '10px' }}>View current insight</span>
+            <ChevronRight size={18} color="var(--text-muted)" />
+          </button>
         </div>
 
         <AnimatePresence>

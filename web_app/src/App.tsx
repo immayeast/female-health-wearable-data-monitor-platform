@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Compass, PlusCircle, TrendingUp, FlaskConical } from 'lucide-react';
+import { Home, Compass, PlusCircle, FlaskConical, Moon } from 'lucide-react';
 import HomeNeumorphic from './components/HomeNeumorphic';
 import AlignmentNeumorphic from './components/AlignmentNeumorphic';
 import LogMomentNeumorphic from './components/LogMomentNeumorphic';
 import TrendsNeumorphic from './components/TrendsNeumorphic';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
+import CycleStateNeumorphic from './components/CycleStateNeumorphic';
+import DriversNeumorphic from './components/DriversNeumorphic';
+import InsightNeumorphic from './components/InsightNeumorphic';
+import RitualNeumorphic from './components/RitualNeumorphic';
 import LoadingScreen from './components/LoadingScreen';
 import LoginNeumorphic from './components/LoginNeumorphic';
 import WatchStressCapture from './components/WatchStressCapture';
@@ -21,7 +25,7 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'home' | 'alignment' | 'log' | 'trends' | 'research';
+export type AppStep = 'home' | 'alignment' | 'log' | 'trends' | 'research' | 'cycle' | 'drivers' | 'insight' | 'ritual';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -133,10 +137,10 @@ function App() {
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
-    { id: 'alignment', label: 'Alignment', icon: Compass },
+    { id: 'cycle', label: 'Cycle', icon: Moon },
+    { id: 'alignment', label: 'Gap', icon: Compass },
     { id: 'log', label: 'Log', icon: PlusCircle },
-    { id: 'trends', label: 'Trends', icon: TrendingUp },
-    { id: 'research', label: 'Research', icon: FlaskConical },
+    { id: 'research', label: 'Analysis', icon: FlaskConical },
   ];
 
   return (
@@ -178,6 +182,7 @@ function App() {
                 value={Math.round((1 - Math.abs(userData.perceivedStress - 2)/5) * 100)} 
                 label={userData.perceivedStress > 3 ? "Slight Gap" : "Mostly Aligned"}
                 sublabel={userData.perceivedStress > 3 ? "Your perception is slightly higher than physiology." : "Your signals are within the expected range."}
+                onAction={(target) => setStep(target as AppStep)}
               />
             </motion.div>
           )}
@@ -203,6 +208,30 @@ function App() {
                 trajectory={trajectoryData?.user_trajectory || []} 
                 population={trajectoryData?.population_background || []} 
               />
+            </motion.div>
+          )}
+
+          {step === 'cycle' && (
+            <motion.div key="cycle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <CycleStateNeumorphic phase={userData.phase || 'Luteal'} day={22} />
+            </motion.div>
+          )}
+
+          {step === 'drivers' && (
+            <motion.div key="drivers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <DriversNeumorphic />
+            </motion.div>
+          )}
+
+          {step === 'insight' && (
+            <motion.div key="insight" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <InsightNeumorphic />
+            </motion.div>
+          )}
+
+          {step === 'ritual' && (
+            <motion.div key="ritual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <RitualNeumorphic />
             </motion.div>
           )}
         </AnimatePresence>
