@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Info, FlaskConical, Database, GitMerge, Apple, ChevronRight } from 'lucide-react';
+import { Info, FlaskConical, Database, GitMerge, Apple, ChevronRight, Download, Trash2 } from 'lucide-react';
 import AppleHealthGuide from './AppleHealthGuide';
 
 interface ResearchProps {
@@ -10,6 +10,28 @@ interface ResearchProps {
 
 const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population }) => {
   const [showGuide, setShowGuide] = useState(false);
+
+  const handleDownload = () => {
+    const events = localStorage.getItem('mcphases_events');
+    if (!events) return alert("No events to download.");
+    
+    const blob = new Blob([events], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mcphases_research_logs_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleClear = () => {
+    if (window.confirm("Are you sure you want to delete all captured events? This cannot be undone.")) {
+      localStorage.removeItem('mcphases_events');
+      window.location.reload();
+    }
+  };
   return (
     <div className="container fade-in" style={{ maxWidth: '1000px' }}>
       <h1 className="screen-title">Research & Analysis</h1>
@@ -83,6 +105,34 @@ const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population })
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             You are currently classified in the <strong>Balanced</strong> regime. Your interoceptive signals align with the Gradient Boosted baseline.
           </p>
+        </div>
+
+        {/* Data Management Card */}
+        <div className="soft-raised" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
+            <Database size={28} color="var(--primary-lavender)" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Research Data</h3>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            Export your captured stress events and vitals for offline analysis.
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={handleDownload}
+              className="soft-btn" 
+              style={{ flex: 1, padding: '12px', fontSize: '0.8rem', background: 'var(--card-surface)' }}
+            >
+              <Download size={16} />
+              <span>Export JSON</span>
+            </button>
+            <button 
+              onClick={handleClear}
+              className="soft-btn" 
+              style={{ padding: '12px', background: 'var(--card-surface)' }}
+            >
+              <Trash2 size={16} color="var(--error)" />
+            </button>
+          </div>
         </div>
 
         <div className="soft-raised" style={{ gridColumn: 'span 2', padding: '1.5rem' }}>
