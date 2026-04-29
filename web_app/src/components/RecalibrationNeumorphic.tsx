@@ -104,29 +104,29 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         
         <WindowPaneSlider 
           label="HRV (RMSSD)" 
-          icon={<Heart size={18} color="#B8B5FF" />}
+          icon={<Heart size={18} color="#908CA0" />}
           value={data.hrv}
           min={20} max={120} step={1} unit="ms"
           field="hrv"
-          color="#E8E7FF" // Very light lavender
+          color="#C7C1D1" // Muted Slate Lavender
         />
 
         <WindowPaneSlider 
           label="Resting Heart Rate" 
-          icon={<Activity size={18} color="#86D2D0" />}
+          icon={<Activity size={18} color="#7A9895" />}
           value={data.rhr}
           min={40} max={100} step={1} unit="bpm"
           field="rhr"
-          color="#A0E9E5" // The requested light teal
+          color="#9ABCB9" // Dusty Research Teal
         />
 
         <WindowPaneSlider 
           label="Body Temp Diff" 
-          icon={<Thermometer size={18} color="#E5C3A6" />}
+          icon={<Thermometer size={18} color="#A89C8C" />}
           value={data.temp_diff}
           min={-1} max={1} step={0.1} unit="°C"
           field="temp_diff"
-          color="#F9F1EA" // Very light warm sand
+          color="#D9D1C5" // Muted Oatmeal Beige
         />
       </div>
 
@@ -134,22 +134,22 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Menstrual Context</h3>
         <WindowPaneSlider 
           label="Cycle Day" 
-          icon={<Calendar size={18} color="#A7D7C5" />}
+          icon={<Calendar size={18} color="#8A968B" />}
           value={data.cycle_day}
           min={1} max={32} step={1} unit=""
           field="cycle_day"
-          color="#E9F5F0" // Very light mint frost
+          color="#A9B7AA" // Desaturated Sage Mint
         />
 
         <div style={{ marginTop: '2.5rem' }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Subjective Log</h3>
           <WindowPaneSlider 
             label="Stress Level" 
-            icon={<Info size={18} color="#B8B5FF" />}
+            icon={<Info size={18} color="#908CA0" />}
             value={data.subjective_stress}
             min={1} max={10} step={1} unit="/10"
             field="subjective_stress"
-            color="#E8E7FF"
+            color="#C7C1D1"
           />
         </div>
       </div>
