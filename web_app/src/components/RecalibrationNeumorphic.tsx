@@ -72,28 +72,24 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
             className="pane-slider-input"
           />
           
-          {/* Visual Overlay: The Window Shutter Handle (Sharpened) */}
+          {/* Visual Overlay: The "Seamless Door" Edge */}
           <div 
             style={{ 
               position: 'absolute', 
-              left: `calc(${percentage}% * 0.75)`, 
-              top: '10px',
-              bottom: '10px',
-              width: '20%', 
-              borderRadius: '4px', 
-              background: 'var(--bg-main)',
-              boxShadow: '6px 6px 12px var(--dark-shadow), -6px -6px 12px var(--light-shadow)',
+              left: `calc(${percentage}% * 0.98)`, 
+              top: '4px',
+              bottom: '4px',
+              width: '2px', 
+              background: color,
+              boxShadow: `0 0 10px ${color}44`,
               pointerEvents: 'none',
               zIndex: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.2)',
-              transition: 'left 0.15s ease-out'
+              transition: 'left 0.1s ease-out'
             }}
           >
-             <div style={{ width: '1px', height: '12px', background: 'var(--text-muted)', margin: '0 2px', opacity: 0.4 }} />
-             <div style={{ width: '1px', height: '12px', background: 'var(--text-muted)', margin: '0 2px', opacity: 0.4 }} />
+            {/* Subtle glow tips */}
+            <div style={{ position: 'absolute', top: -2, left: -2, width: 6, height: 6, borderRadius: '50%', background: color, opacity: 0.5 }} />
+            <div style={{ position: 'absolute', bottom: -2, left: -2, width: 6, height: 6, borderRadius: '50%', background: color, opacity: 0.5 }} />
           </div>
         </div>
       </div>
