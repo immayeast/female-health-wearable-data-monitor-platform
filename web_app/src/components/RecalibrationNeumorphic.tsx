@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Thermometer, Heart, Calendar, Send, Info, GripVertical } from 'lucide-react';
+import { Activity, Thermometer, Heart, Calendar, Send, Info } from 'lucide-react';
 
 interface RecalibrationProps {
   onComplete: (data: any) => void;
@@ -26,69 +26,74 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
     }, 2000);
   };
 
-  const WindowSlider = ({ label, icon, value, min, max, step, unit, field, color = "var(--primary-lavender)" }: any) => {
+  const WindowPaneSlider = ({ label, icon, value, min, max, step, unit, field, color = "var(--primary-lavender)" }: any) => {
     const percentage = ((value - min) / (max - min)) * 100;
     
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setData({...data, [field]: parseFloat(e.target.value)});
-    };
-
     return (
-      <div className="soft-raised" style={{ padding: '1.5rem', marginBottom: '1.5rem', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.2rem', alignItems: 'center' }}>
+      <div className="soft-raised" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div className="soft-inset" style={{ padding: '8px', borderRadius: '12px' }}>
               {icon}
             </div>
-            <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{label}</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{label}</span>
           </div>
-          <span style={{ fontWeight: 700, color: color, fontSize: '1rem' }}>{value}{unit}</span>
+          <span style={{ fontWeight: 700, color: color }}>{value}{unit}</span>
         </div>
         
-        <div style={{ position: 'relative', height: '40px', display: 'flex', alignItems: 'center' }}>
-          {/* The Rail/Track */}
-          <div className="soft-inset" style={{ width: '100%', height: '12px', borderRadius: '6px', position: 'relative' }}>
-            {/* Active Progress */}
+        <div style={{ position: 'relative', width: '100%', height: '54px' }}>
+          {/* The Inset Track (The Frame) */}
+          <div className="soft-inset" style={{ 
+            width: '100%', 
+            height: '100%', 
+            borderRadius: '27px', 
+            position: 'relative',
+            overflow: 'hidden',
+            background: 'var(--bg-main)'
+          }}>
+            {/* The "Closed" Area Reveal */}
             <div style={{ 
               position: 'absolute', left: 0, top: 0, bottom: 0, 
               width: `${percentage}%`, 
               background: color, 
-              opacity: 0.15,
-              borderRadius: '6px 0 0 6px',
-              transition: 'width 0.1s ease-out'
+              opacity: 0.1,
+              transition: 'width 0.15s ease-out'
             }} />
           </div>
 
-          {/* The Sliding Window Handle */}
+          {/* The Transparent Input Control */}
           <input 
             type="range" 
             min={min} 
             max={max} 
             step={step} 
             value={value} 
-            onChange={handleChange}
-            className="window-slider-input"
+            onChange={(e) => setData({...data, [field]: parseFloat(e.target.value)})}
+            className="pane-slider-input"
           />
           
-          {/* Visual Overlay of the "Window Pane" */}
+          {/* Visual Overlay: The Window Shutter Handle */}
           <div 
             style={{ 
               position: 'absolute', 
-              left: `calc(${percentage}% - 12px)`, 
-              pointerEvents: 'none',
-              width: '24px',
-              height: '40px',
-              borderRadius: '6px',
+              left: `calc(${percentage}% * 0.75)`, // Adjust to keep handle within track bounds
+              top: '6px',
+              bottom: '6px',
+              width: '25%', // Wide rectangle like a pane
+              borderRadius: '21px',
               background: 'var(--bg-main)',
-              boxShadow: '6px 0 15px var(--dark-shadow), -2px 0 5px var(--light-shadow)',
+              boxShadow: '10px 10px 20px var(--dark-shadow), -10px -10px 20px var(--light-shadow)',
+              pointerEvents: 'none',
+              zIndex: 10,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid var(--light-shadow)',
-              zIndex: 10
+              border: '1px solid rgba(255,255,255,0.4)',
+              transition: 'left 0.15s ease-out'
             }}
           >
-            <GripVertical size={14} color="var(--text-muted)" />
+             <div style={{ width: '2px', height: '16px', background: 'var(--text-muted)', borderRadius: '1px', margin: '0 2px', opacity: 0.3 }} />
+             <div style={{ width: '2px', height: '16px', background: 'var(--text-muted)', borderRadius: '1px', margin: '0 2px', opacity: 0.3 }} />
           </div>
         </div>
       </div>
@@ -98,12 +103,12 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
   return (
     <div className="container fade-in" style={{ paddingBottom: '120px' }}>
       <h1 className="screen-title">P4 Recalibration</h1>
-      <p className="screen-subtitle">Adjust your physiological baselines to reveal the Truth Gap.</p>
+      <p className="screen-subtitle">Slide the window to align your physiology with the research model.</p>
 
       <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>Physiological Features</h3>
+        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Physiological Markers</h3>
         
-        <WindowSlider 
+        <WindowPaneSlider 
           label="HRV (RMSSD)" 
           icon={<Heart size={18} color="var(--primary-lavender)" />}
           value={data.hrv}
@@ -111,7 +116,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           field="hrv"
         />
 
-        <WindowSlider 
+        <WindowPaneSlider 
           label="Resting Heart Rate" 
           icon={<Activity size={18} color="var(--error)" />}
           value={data.rhr}
@@ -120,7 +125,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           color="var(--error)"
         />
 
-        <WindowSlider 
+        <WindowPaneSlider 
           label="Body Temp Diff" 
           icon={<Thermometer size={18} color="var(--warm-beige)" />}
           value={data.temp_diff}
@@ -131,10 +136,9 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
       </div>
 
       <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>Contextual Features</h3>
-        
-        <WindowSlider 
-          label="Menstrual Day" 
+        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Menstrual Context</h3>
+        <WindowPaneSlider 
+          label="Cycle Day" 
           icon={<Calendar size={18} color="var(--secondary-mint)" />}
           value={data.cycle_day}
           min={1} max={32} step={1} unit=""
@@ -143,9 +147,9 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         />
 
         <div style={{ marginTop: '2.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>Interoceptive Log (Subjective Truth)</h3>
-          <WindowSlider 
-            label="Stress Perception" 
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Subjective Log</h3>
+          <WindowPaneSlider 
+            label="Stress Level" 
             icon={<Info size={18} color="var(--primary-lavender)" />}
             value={data.subjective_stress}
             min={1} max={10} step={1} unit="/10"
@@ -158,7 +162,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         className="soft-btn soft-btn-primary" 
         onClick={handleSubmit}
         disabled={isProcessing}
-        style={{ width: '100%', padding: '20px', marginTop: '1rem', height: '70px', borderRadius: '24px' }}
+        style={{ width: '100%', padding: '20px', marginTop: '1rem', height: '70px', borderRadius: '35px' }}
       >
         {isProcessing ? (
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
@@ -167,15 +171,15 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         ) : (
           <>
             <Send size={20} />
-            <span>Apply Recalibration</span>
+            <span>Update Model Truth</span>
           </>
         )}
       </button>
 
-      <div className="soft-raised" style={{ marginTop: '2rem', padding: '1.2rem', display: 'flex', gap: '12px', alignItems: 'center', borderRadius: '20px' }}>
+      <div className="soft-raised" style={{ marginTop: '2.5rem', padding: '1.2rem', display: 'flex', gap: '12px', alignItems: 'center', borderRadius: '24px' }}>
         <Info size={20} color="var(--primary-lavender)" />
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          Your inputs will update the Gradient Boosted model in real-time.
+          Applying these changes recalibrates your population Z-score distribution.
         </p>
       </div>
     </div>
