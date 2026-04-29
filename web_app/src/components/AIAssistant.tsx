@@ -68,12 +68,14 @@ const AIAssistant: React.FC = () => {
 
   return (
     <>
-      <button 
+      <motion.button 
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
         className="soft-raised soft-circle"
         style={{ 
           position: 'fixed', 
-          bottom: '110px', 
+          bottom: '120px', 
           right: '2rem', 
           width: '60px', 
           height: '60px',
@@ -83,11 +85,12 @@ const AIAssistant: React.FC = () => {
           background: 'var(--primary-lavender)',
           color: '#fff',
           zIndex: 1000,
-          cursor: 'pointer'
+          cursor: 'pointer',
+          boxShadow: '10px 10px 25px var(--dark-shadow), -10px -10px 25px var(--light-shadow)'
         }}
       >
         <MessageCircle size={28} />
-      </button>
+      </motion.button>
 
       <AnimatePresence>
         {isOpen && (

@@ -11,6 +11,8 @@ import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
 import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
 import Logo from './components/Logo';
+import ResearchAcknowledgement from './components/ResearchAcknowledgement';
+import MethodologyWalkthrough from './components/MethodologyWalkthrough';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -22,12 +24,13 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'login' | 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual';
+export type AppStep = 'login' | 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual' | 'methodology';
 
 const App = () => {
   const [step, setStep] = useState<AppStep>('login');
   const [isWatchPromptOpen, setIsWatchPromptOpen] = useState(false);
   const [modelResults, setModelResults] = useState<any>(null);
+  const [hasAcceptedResearch, setHasAcceptedResearch] = useState(false);
 
   const navItems = [
     { id: 'home', label: 'Home', icon: HomeIcon },
@@ -105,8 +108,22 @@ const App = () => {
               onComplete={() => setStep('alignment')} 
             />
           )}
+          {step === 'methodology' && (
+            <MethodologyWalkthrough onBack={() => {
+              setHasAcceptedResearch(true);
+              setStep('home');
+            }} />
+          )}
         </motion.div>
       </AnimatePresence>
+
+      {/* Research Acknowledgement Overlay */}
+      {step !== 'login' && !hasAcceptedResearch && step !== 'methodology' && (
+        <ResearchAcknowledgement 
+          onReadMore={() => setStep('methodology')}
+          onUnderstood={() => setHasAcceptedResearch(true)}
+        />
+      )}
 
       {/* Recalibrate Shortcut on Home */}
       {step === 'home' && (
