@@ -158,31 +158,36 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         </div>
       </div>
 
-      <button 
-        className="soft-btn soft-btn-primary" 
-        onClick={handleSubmit}
-        disabled={isProcessing}
-        style={{ 
-          width: '100%', 
-          padding: '12px', 
-          marginTop: '2rem', 
-          height: '52px', 
-          borderRadius: '4px',
-          fontSize: '0.9rem',
-          fontWeight: 700
-        }}
-      >
-        {isProcessing ? (
-          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-            <Activity size={20} />
-          </motion.div>
-        ) : (
-          <>
-            <Send size={16} />
-            <span>Verify Model Calibration</span>
-          </>
-        )}
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
+        <button 
+          className="soft-btn soft-btn-primary" 
+          onClick={handleSubmit}
+          disabled={isProcessing}
+          style={{ 
+            width: '160px', 
+            padding: '12px', 
+            height: '48px', 
+            borderRadius: '12px',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          {isProcessing ? (
+            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+              <Activity size={18} />
+            </motion.div>
+          ) : (
+            <>
+              <Send size={16} />
+              <span>Calibrate</span>
+            </>
+          )}
+        </button>
+      </div>
 
       <div className="soft-raised" style={{ marginTop: '2.5rem', padding: '1.2rem', display: 'flex', gap: '12px', alignItems: 'center', borderRadius: '24px' }}>
         <Info size={20} color="var(--primary-lavender)" />
