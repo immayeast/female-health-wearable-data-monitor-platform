@@ -75,7 +75,10 @@ const App = () => {
             <HomeNeumorphic 
               onAction={(s) => setStep(s as AppStep)} 
               onWatchTrigger={handleWatchTrigger} 
-              onLogout={() => setStep('login')}
+              onLogout={() => {
+                setHasAcceptedResearch(false);
+                setStep('login');
+              }} 
               status={modelResults ? modelResults.classification.group : "Elevated"} 
             />
           )}
