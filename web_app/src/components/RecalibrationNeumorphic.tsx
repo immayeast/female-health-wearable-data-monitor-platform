@@ -72,28 +72,28 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
             className="pane-slider-input"
           />
           
-          {/* Visual Overlay: The Window Shutter Handle */}
+          {/* Visual Overlay: The Window Shutter Handle (Sharpened) */}
           <div 
             style={{ 
               position: 'absolute', 
-              left: `calc(${percentage}% * 0.75)`, // Adjust to keep handle within track bounds
-              top: '6px',
-              bottom: '6px',
-              width: '25%', // Wide rectangle like a pane
-              borderRadius: '21px',
+              left: `calc(${percentage}% * 0.75)`, 
+              top: '10px',
+              bottom: '10px',
+              width: '20%', 
+              borderRadius: '4px', 
               background: 'var(--bg-main)',
-              boxShadow: '10px 10px 20px var(--dark-shadow), -10px -10px 20px var(--light-shadow)',
+              boxShadow: '6px 6px 12px var(--dark-shadow), -6px -6px 12px var(--light-shadow)',
               pointerEvents: 'none',
               zIndex: 10,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.4)',
+              border: '1px solid rgba(255,255,255,0.2)',
               transition: 'left 0.15s ease-out'
             }}
           >
-             <div style={{ width: '2px', height: '16px', background: 'var(--text-muted)', borderRadius: '1px', margin: '0 2px', opacity: 0.3 }} />
-             <div style={{ width: '2px', height: '16px', background: 'var(--text-muted)', borderRadius: '1px', margin: '0 2px', opacity: 0.3 }} />
+             <div style={{ width: '1px', height: '12px', background: 'var(--text-muted)', margin: '0 2px', opacity: 0.4 }} />
+             <div style={{ width: '1px', height: '12px', background: 'var(--text-muted)', margin: '0 2px', opacity: 0.4 }} />
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
   return (
     <div className="container fade-in" style={{ paddingBottom: '120px' }}>
       <h1 className="screen-title">P4 Recalibration</h1>
-      <p className="screen-subtitle">Slide the window to align your physiology with the research model.</p>
+      <p className="screen-subtitle">Adjust the sharp window panes to align your physiological truth.</p>
 
       <div style={{ marginBottom: '2rem' }}>
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Physiological Markers</h3>
@@ -157,37 +157,37 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           />
         </div>
       </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
-        <button 
-          className="soft-btn soft-btn-primary" 
-          onClick={handleSubmit}
-          disabled={isProcessing}
-          style={{ 
-            width: '160px', 
-            padding: '12px', 
-            height: '48px', 
-            borderRadius: '12px',
-            fontSize: '0.85rem',
-            fontWeight: 700,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
-          {isProcessing ? (
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-              <Activity size={18} />
-            </motion.div>
-          ) : (
-            <>
-              <Send size={16} />
-              <span>Calibrate</span>
-            </>
-          )}
-        </button>
-      </div>
+      
+      <button 
+        className="soft-btn soft-btn-primary" 
+        onClick={handleSubmit}
+        disabled={isProcessing}
+        style={{ 
+          width: '100%', 
+          padding: '20px', 
+          marginTop: '3rem', 
+          height: '72px', 
+          borderRadius: '36px', 
+          fontSize: '1rem',
+          fontWeight: 700,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '10px 10px 20px var(--dark-shadow), -10px -10px 20px var(--light-shadow)'
+        }}
+      >
+        {isProcessing ? (
+          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
+            <Activity size={24} />
+          </motion.div>
+        ) : (
+          <>
+            <Send size={20} />
+            <span>Verify Model Calibration</span>
+          </>
+        )}
+      </button>
 
       <div className="soft-raised" style={{ marginTop: '2.5rem', padding: '1.2rem', display: 'flex', gap: '12px', alignItems: 'center', borderRadius: '24px' }}>
         <Info size={20} color="var(--primary-lavender)" />
