@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, FileJson, Layers, Wand2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, FileJson, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
@@ -95,20 +95,29 @@ const AIAssistant: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="glass-panel"
+            className="soft-raised"
             style={{
-              position: 'fixed', bottom: '6rem', left: '2rem',
-              width: '380px', height: '550px',
-              display: 'flex', flexDirection: 'column',
-              padding: 0, overflow: 'hidden', zIndex: 50,
-              boxShadow: '0 20px 50px rgba(0,0,0,0.15)'
+              position: 'fixed', 
+              bottom: '200px', 
+              right: '2rem',
+              width: '380px', 
+              height: '550px',
+              display: 'flex', 
+              flexDirection: 'column',
+              padding: 0, 
+              overflow: 'hidden', 
+              zIndex: 1050,
+              borderRadius: '32px',
+              border: 'none',
+              background: 'var(--bg-main)',
+              boxShadow: '15px 15px 30px var(--dark-shadow), -15px -15px 30px var(--light-shadow)'
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px', background: 'rgba(255,255,255,0.6)', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '16px', background: 'var(--bg-main)', borderBottom: '1px solid var(--dark-shadow)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ background: 'var(--primary-accent)', borderRadius: '8px', padding: '6px' }}>
-                  <Bot size={18} color="#fff" />
+                <div className="soft-inset soft-circle" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Bot size={20} color="var(--primary-lavender)" />
                 </div>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Assistant</div>
@@ -121,15 +130,16 @@ const AIAssistant: React.FC = () => {
             </div>
 
             {/* Persona Selector */}
-            <div style={{ display: 'flex', gap: '4px', padding: '8px 16px', background: 'rgba(255,255,255,0.3)', borderBottom: '1px solid var(--glass-border)' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', background: 'var(--bg-main)', borderBottom: '1px solid var(--dark-shadow)' }}>
               {(['clinical', 'empathetic', 'technical'] as Persona[]).map(p => (
                 <button
                   key={p}
                   onClick={() => setPersona(p)}
                   style={{
                     flex: 1, fontSize: '0.75rem', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-                    background: persona === p ? 'var(--primary-accent)' : 'transparent',
+                    background: persona === p ? 'var(--primary-lavender)' : 'var(--bg-main)',
                     color: persona === p ? '#fff' : 'var(--text-secondary)',
+                    boxShadow: persona === p ? 'none' : '4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow)',
                     fontWeight: 600, transition: 'all 0.2s'
                   }}
                 >
@@ -196,7 +206,7 @@ const AIAssistant: React.FC = () => {
             </div>
 
             {/* Input Footer */}
-            <div style={{ padding: '16px', background: 'rgba(255,255,255,0.6)', borderTop: '1px solid var(--glass-border)', display: 'flex', gap: '8px' }}>
+            <div style={{ padding: '16px', background: 'var(--bg-main)', borderTop: '1px solid var(--dark-shadow)', display: 'flex', gap: '8px' }}>
               <div style={{ flex: 1, position: 'relative' }}>
                 <input 
                   type="text" 
@@ -204,12 +214,12 @@ const AIAssistant: React.FC = () => {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder={`Speak to the ${persona} agent...`}
-                  style={{ width: '100%', padding: '10px 14px', paddingRight: '40px', borderRadius: '25px', fontSize: '0.9rem', background: 'rgba(255,255,255,0.8)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)' }}
+                  className="soft-inset"
+                  style={{ width: '100%', padding: '12px 16px', paddingRight: '40px', borderRadius: '25px', fontSize: '0.85rem' }}
                 />
-                <Wand2 size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary-accent)', opacity: 0.5 }} />
               </div>
               <button 
-                className="btn btn-primary" 
+                className="soft-btn soft-btn-primary" 
                 onClick={() => handleSend()}
                 style={{ borderRadius: '50%', width: '42px', height: '42px', padding: 0, flexShrink: 0 }}
               >
