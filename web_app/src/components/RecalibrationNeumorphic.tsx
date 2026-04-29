@@ -57,8 +57,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
               position: 'absolute', left: 0, top: 0, bottom: 0, 
               width: `${percentage}%`, 
               background: color, 
-              opacity: 0.85, // More opaque but lighter
-              filter: 'brightness(1.1) saturate(0.8)', // Lighter pastel feel
+              opacity: 1, 
               transition: 'width 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }} />
           </div>
@@ -108,7 +107,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.hrv}
           min={20} max={120} step={1} unit="ms"
           field="hrv"
-          color="#C7C1D1" // Muted Slate Lavender
+          color="#908CA0" // Matched Slate Lavender
         />
 
         <WindowPaneSlider 
@@ -117,7 +116,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.rhr}
           min={40} max={100} step={1} unit="bpm"
           field="rhr"
-          color="#9ABCB9" // Dusty Research Teal
+          color="#7A9895" // Matched Dusty Research Teal
         />
 
         <WindowPaneSlider 
@@ -126,7 +125,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.temp_diff}
           min={-1} max={1} step={0.1} unit="°C"
           field="temp_diff"
-          color="#D9D1C5" // Muted Oatmeal Beige
+          color="#A89C8C" // Matched Muted Oatmeal Beige
         />
       </div>
 
@@ -138,7 +137,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.cycle_day}
           min={1} max={32} step={1} unit=""
           field="cycle_day"
-          color="#A9B7AA" // Desaturated Sage Mint
+          color="#8A968B" // Matched Desaturated Sage Mint
         />
 
         <div style={{ marginTop: '2.5rem' }}>
@@ -149,7 +148,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
             value={data.subjective_stress}
             min={1} max={10} step={1} unit="/10"
             field="subjective_stress"
-            color="#C7C1D1"
+            color="#908CA0"
           />
         </div>
       </div>
