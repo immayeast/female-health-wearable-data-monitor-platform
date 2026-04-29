@@ -162,16 +162,24 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         className="soft-btn soft-btn-primary" 
         onClick={handleSubmit}
         disabled={isProcessing}
-        style={{ width: '100%', padding: '20px', marginTop: '1rem', height: '70px', borderRadius: '35px' }}
+        style={{ 
+          width: '100%', 
+          padding: '12px', 
+          marginTop: '2rem', 
+          height: '52px', 
+          borderRadius: '4px',
+          fontSize: '0.9rem',
+          fontWeight: 700
+        }}
       >
         {isProcessing ? (
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-            <Activity size={24} />
+            <Activity size={20} />
           </motion.div>
         ) : (
           <>
-            <Send size={20} />
-            <span>Update Model Truth</span>
+            <Send size={16} />
+            <span>Verify Model Calibration</span>
           </>
         )}
       </button>
