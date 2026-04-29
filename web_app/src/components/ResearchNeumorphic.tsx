@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Info, FlaskConical, Database, GitMerge } from 'lucide-react';
+import { Info, FlaskConical, Database, GitMerge, Apple, ChevronRight } from 'lucide-react';
+import AppleHealthGuide from './AppleHealthGuide';
 
 interface ResearchProps {
   trajectory: any[];
@@ -8,6 +9,7 @@ interface ResearchProps {
 }
 
 const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population }) => {
+  const [showGuide, setShowGuide] = useState(false);
   return (
     <div className="container fade-in" style={{ maxWidth: '1000px' }}>
       <h1 className="screen-title">Research & Analysis</h1>
@@ -36,6 +38,25 @@ const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population })
               </ScatterChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        {/* Apple Health Sync Card */}
+        <div className="soft-raised" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
+            <Apple size={28} color="#000" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Apple Health Sync</h3>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            Export your high-resolution vitals directly from your Watch for deep analysis.
+          </p>
+          <button 
+            onClick={() => setShowGuide(true)}
+            className="soft-btn" 
+            style={{ width: '100%', padding: '12px', fontSize: '0.85rem', background: 'var(--card-surface)' }}
+          >
+            <span>View Export Guide</span>
+            <ChevronRight size={16} />
+          </button>
         </div>
 
         {/* Diagnostic Cards */}
@@ -76,6 +97,8 @@ const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population })
         </div>
 
       </div>
+
+      {showGuide && <AppleHealthGuide onClose={() => setShowGuide(false)} />}
     </div>
   );
 };

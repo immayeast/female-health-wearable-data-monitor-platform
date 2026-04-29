@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, Heart, Play, SkipForward, X, Check } from 'lucide-react';
 
 type TriggerType = 'physiological_spike' | 'self_prompt';
-type Screen = 'prompt' | 'vitals' | 'capturing' | 'success';
+type Screen = 'prompt' | 'vitals' | 'capturing' | 'manual' | 'success';
 
 interface WatchStressCaptureProps {
   onClose: () => void;
@@ -27,6 +27,8 @@ const WatchStressCapture: React.FC<WatchStressCaptureProps> = ({
   const [screen, setScreen] = useState<Screen>('prompt');
   const [selfReport, setSelfReport] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  const [manualHR, setManualHR] = useState(currentVitals.hr);
+  const [manualHRV, setManualHRV] = useState(currentVitals.hrv);
 
   // Simulation of vitals capture
   useEffect(() => {
@@ -56,8 +58,8 @@ const WatchStressCapture: React.FC<WatchStressCaptureProps> = ({
       timestamp: new Date().toISOString(),
       trigger_type: triggerType,
       self_report_stress: selfReport,
-      heart_rate: currentVitals.hr,
-      hrv: currentVitals.hrv,
+      heart_rate: manualHR,
+      hrv: manualHRV,
       resting_hr: currentVitals.restingHR,
       activity_context: 'sedentary',
       sleep_context: 'normal',
@@ -131,6 +133,41 @@ const WatchStressCapture: React.FC<WatchStressCaptureProps> = ({
                   </button>
                   <button onClick={handleFinalSave} style={{ ...watchBtnStyle, background: '#333' }}>
                     <SkipForward size={16} /> Skip
+                  </button>
+                </div>
+                <button 
+                  onClick={() => setScreen('manual')}
+                  style={{ marginTop: '16px', background: 'none', border: 'none', color: 'var(--primary-lavender)', fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  Enter manually
+                </button>
+              </motion.div>
+            )}
+
+            {screen === 'manual' && (
+              <motion.div key="manual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ width: '100%' }}>
+                <h3 style={{ color: '#fff', fontSize: '1rem', fontWeight: 600, marginBottom: '20px' }}>Manual Entry</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#aaa', fontSize: '0.8rem' }}>HR (bpm)</span>
+                    <input 
+                      type="number" 
+                      value={manualHR} 
+                      onChange={e => setManualHR(Number(e.target.value))}
+                      style={{ width: '70px', padding: '8px', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#aaa', fontSize: '0.8rem' }}>HRV (ms)</span>
+                    <input 
+                      type="number" 
+                      value={manualHRV} 
+                      onChange={e => setManualHRV(Number(e.target.value))}
+                      style={{ width: '70px', padding: '8px', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '8px' }}
+                    />
+                  </div>
+                  <button onClick={() => setScreen('success')} style={{ ...watchBtnStyle, background: '#B9A7F5', color: '#000', marginTop: '10px' }}>
+                    Confirm
                   </button>
                 </div>
               </motion.div>
