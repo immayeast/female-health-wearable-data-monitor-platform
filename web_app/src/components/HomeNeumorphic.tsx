@@ -1,15 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Plus, ShieldCheck } from 'lucide-react';
+import { Activity, Plus, ShieldCheck, LogOut } from 'lucide-react';
 
 interface HomeProps {
   onAction: (target: string) => void;
+  onLogout: () => void;
   status?: string;
 }
 
-const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, status = "Ready" }) => {
+const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, status = "Ready" }) => {
   return (
     <div className="container fade-in">
+      <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem' }}>
+        <button onClick={onLogout} className="soft-btn" style={{ padding: '10px', borderRadius: '12px' }}>
+          <LogOut size={18} color="var(--text-muted)" />
+        </button>
+      </div>
+      
       <div style={{ marginTop: '2rem', marginBottom: '4rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '0.5rem' }}>Welcome back.</p>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 600 }}>Let's check in with your current state.</h2>

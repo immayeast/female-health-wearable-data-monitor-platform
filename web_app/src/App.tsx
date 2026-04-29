@@ -77,6 +77,14 @@ function App() {
     localStorage.setItem('mcphases_consent', 'true');
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setHasConsented(false);
+    localStorage.removeItem('mcphases_auth');
+    localStorage.removeItem('mcphases_consent');
+    setStep('home');
+  };
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'alignment', label: 'Alignment', icon: Compass },
@@ -112,6 +120,7 @@ function App() {
               <HomeNeumorphic 
                 status={userData.perceivedStress > 3 ? "Elevated" : "Balanced"}
                 onAction={(target) => setStep(target as AppStep)} 
+                onLogout={handleLogout}
               />
             </motion.div>
           )}
