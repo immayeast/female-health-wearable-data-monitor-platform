@@ -1,11 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Neumorphic Palette - Slightly more contrast for depth */
-  --bg-main: #E6E9EF;
-  --card-surface: #E6E9EF; /* Neumorphic works best when surface matches bg */
-  --dark-shadow: #B8BCC7;
-  --light-shadow: #FFFFFF;
+  /* Neumorphic Palette - Ultra-soft blending */
+  --bg-main: #E9ECF1;
+  --dark-shadow: rgba(163, 177, 198, 0.5);
+  --light-shadow: rgba(255, 255, 255, 0.8);
   
   /* Accents */
   --primary-lavender: #B9A7F5;
@@ -14,7 +13,7 @@
   --soft-peach: #F0C9BC;
   
   /* Text */
-  --text-primary: #2F3138;
+  --text-primary: #44474E;
   --text-secondary: #777A84;
   --text-muted: #A0A4B0;
   
@@ -27,6 +26,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border: none; /* Globally remove edges */
+  outline: none;
 }
 
 body {
@@ -39,21 +40,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Neumorphic Shadow Utilities */
+/* Neumorphic Shadow Utilities - Much more diffuse */
 .soft-raised {
   background: var(--bg-main);
   box-shadow: 
-    12px 12px 24px var(--dark-shadow), 
-    -12px -12px 24px var(--light-shadow);
-  border-radius: 32px;
+    12px 12px 32px var(--dark-shadow), 
+    -12px -12px 32px var(--light-shadow);
+  border-radius: 40px;
 }
 
 .soft-inset {
   background: var(--bg-main);
   box-shadow: 
-    inset 8px 8px 16px var(--dark-shadow), 
-    inset -8px -8px 16px var(--light-shadow);
-  border-radius: 32px;
+    inset 10px 10px 24px var(--dark-shadow), 
+    inset -10px -10px 24px var(--light-shadow);
+  border-radius: 40px;
 }
 
 .soft-circle {
@@ -69,10 +70,10 @@ body {
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 
-    8px 8px 16px var(--dark-shadow), 
-    -8px -8px 16px var(--light-shadow);
+    10px 10px 24px var(--dark-shadow), 
+    -10px -10px 24px var(--light-shadow);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -81,8 +82,8 @@ body {
 
 .soft-btn:active {
   box-shadow: 
-    inset 4px 4px 8px var(--dark-shadow), 
-    inset -4px -4px 8px var(--light-shadow);
+    inset 6px 6px 12px var(--dark-shadow), 
+    inset -6px -6px 12px var(--light-shadow);
   transform: scale(0.96);
 }
 
@@ -90,8 +91,8 @@ body {
   background: var(--primary-lavender);
   color: #FFFFFF;
   box-shadow: 
-    8px 8px 16px var(--dark-shadow), 
-    -4px -4px 12px var(--light-shadow);
+    12px 12px 28px var(--dark-shadow), 
+    -6px -6px 18px var(--light-shadow);
   font-weight: 700;
 }
 
@@ -132,14 +133,15 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 80px;
-  background: var(--bg-main);
+  height: 90px;
+  background: rgba(233, 236, 241, 0.9); /* Translucent blend */
+  backdrop-filter: blur(20px);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 1rem 10px;
   z-index: 100;
-  box-shadow: 0 -10px 20px rgba(209, 217, 230, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .nav-item {
@@ -169,8 +171,8 @@ body {
 
 /* Specific UI Elements */
 .gauge-container {
-  width: 260px;
-  height: 260px;
+  width: 280px;
+  height: 280px;
   margin: 0 auto;
   position: relative;
   display: flex;
@@ -179,17 +181,17 @@ body {
   border-radius: 50%;
   background: var(--bg-main);
   box-shadow: 
-    15px 15px 30px var(--dark-shadow), 
-    -15px -15px 30px var(--light-shadow);
+    20px 20px 60px var(--dark-shadow), 
+    -20px -20px 60px var(--light-shadow);
 }
 
 .gauge-ring {
   position: absolute;
-  inset: 20px;
+  inset: 24px;
   border-radius: 50%;
   box-shadow: 
-    inset 10px 10px 20px var(--dark-shadow), 
-    inset -10px -10px 20px var(--light-shadow);
+    inset 12px 12px 30px var(--dark-shadow), 
+    inset -12px -12px 30px var(--light-shadow);
 }
 
 .gauge-value {
