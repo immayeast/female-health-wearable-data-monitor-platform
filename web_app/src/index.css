@@ -227,3 +227,20 @@ input:focus {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.window-slider-input {
+  position: absolute;
+  width: 100%;
+  height: 40px !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 20;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 40px;
+  height: 40px;
+}
