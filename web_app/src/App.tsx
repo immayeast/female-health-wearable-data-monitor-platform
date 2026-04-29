@@ -4,7 +4,7 @@ import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon, Activity } f
 
 import HomeNeumorphic from './components/HomeNeumorphic';
 import AlignmentNeumorphic from './components/AlignmentNeumorphic';
-import LogMomentNeumorphic from './components/LogMomentNeumorphic';
+import UploadFlow from './components/UploadFlow';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import CycleStateNeumorphic from './components/CycleStateNeumorphic';
 import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
@@ -25,6 +25,7 @@ export type AppStep = 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'rec
 const App = () => {
   const [step, setStep] = useState<AppStep>('home');
   const [isWatchPromptOpen, setIsWatchPromptOpen] = useState(false);
+  const [modelResults, setModelResults] = useState<any>(null);
 
   const navItems = [
     { id: 'home', label: 'Home', icon: HomeIcon },
@@ -45,6 +46,11 @@ const App = () => {
     }
   };
 
+  const handleUploadComplete = (results: any) => {
+    setModelResults(results);
+    setStep('alignment');
+  };
+
   return (
     <div style={{ paddingBottom: '90px', position: 'relative' }}>
       <AnimatePresence mode="wait">
@@ -60,25 +66,28 @@ const App = () => {
               onAction={(s) => setStep(s as AppStep)} 
               onWatchTrigger={handleWatchTrigger} 
               onLogout={() => console.log('logout')}
-              status="Elevated" 
+              status={modelResults ? modelResults.classification.group : "Elevated"} 
             />
           )}
           {step === 'cycle' && (
             <CycleStateNeumorphic 
-              day={14} 
-              phase="Fertility" 
+              day={modelResults ? modelResults.state.cycleDay : 14} 
+              phase={modelResults ? modelResults.phase : "Fertility"} 
             />
           )}
           {step === 'alignment' && (
             <AlignmentNeumorphic 
               value={40} 
-              label="Slight Gap" 
-              sublabel="Your perception is slightly higher than physiology." 
+              label={modelResults ? modelResults.classification.group : "Slight Gap"} 
+              sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
+              classification={modelResults?.classification}
+              phase={modelResults?.phase}
+              recalibratedValue={modelResults ? 40 : undefined}
             />
           )}
           {step === 'log' && (
-            <LogMomentNeumorphic 
-              onSave={() => setStep('alignment')} 
+            <UploadFlow 
+              onComplete={handleUploadComplete} 
             />
           )}
           {step === 'analysis' && (
