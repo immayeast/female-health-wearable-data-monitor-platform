@@ -1,18 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home, Compass, PlusCircle, FlaskConical, Moon } from 'lucide-react';
+import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon, Activity } from 'lucide-react';
+
 import HomeNeumorphic from './components/HomeNeumorphic';
 import AlignmentNeumorphic from './components/AlignmentNeumorphic';
 import LogMomentNeumorphic from './components/LogMomentNeumorphic';
-import TrendsNeumorphic from './components/TrendsNeumorphic';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import CycleStateNeumorphic from './components/CycleStateNeumorphic';
-import DriversNeumorphic from './components/DriversNeumorphic';
-import InsightNeumorphic from './components/InsightNeumorphic';
-import RitualNeumorphic from './components/RitualNeumorphic';
-import LoadingScreen from './components/LoadingScreen';
-import LoginNeumorphic from './components/LoginNeumorphic';
-import WatchStressCapture from './components/WatchStressCapture';
+import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
 import AIAssistant from './components/AIAssistant';
 
 export type UserData = {
@@ -25,252 +20,146 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'home' | 'alignment' | 'log' | 'trends' | 'research' | 'cycle' | 'drivers' | 'insight' | 'ritual';
+export type AppStep = 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual';
 
-function App() {
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [hasConsented, setHasConsented] = useState(false);
+const App = () => {
   const [step, setStep] = useState<AppStep>('home');
-  const [trajectoryData, setTrajectoryData] = useState<any>(null);
-  
-  // Watch / Spike States
-  const [watchTrigger, setWatchTrigger] = useState<{ active: boolean; type: 'physiological_spike' | 'self_prompt' }>({ active: false, type: 'self_prompt' });
-  const [, setCapturedEvents] = useState<any[]>([]);
-  const [lastBaseline, setLastBaseline] = useState<number>(45); // HRV baseline
-  const [userData, setUserData] = useState<UserData>({
-    sex: 'female',
-    restingHR: 60,
-    hrv: 45,
-    sleep: 7.5,
-    steps: 8000,
-    perceivedStress: 5
-  });
-
-  // Request Notification Permission
-  useEffect(() => {
-    if ("Notification" in window) {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  useEffect(() => {
-    // Check local storage for session/consent
-    const savedAuth = localStorage.getItem('mcphases_auth');
-    const savedConsent = localStorage.getItem('mcphases_consent');
-    if (savedAuth === 'true' && savedConsent === 'true') {
-      setIsAuthenticated(true);
-      setHasConsented(true);
-    }
-
-    fetch('/user_trajectory.json')
-      .then(res => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then(json => {
-        if (json && json.user_trajectory && json.user_trajectory.length > 0) {
-          setTrajectoryData(json);
-          const latest = json.user_trajectory[json.user_trajectory.length - 1];
-          setUserData(prev => ({
-            ...prev,
-            hrv: latest.rmssd || prev.hrv,
-            perceivedStress: Math.round(latest.stress),
-            phase: latest.phase
-          }));
-          setLastBaseline(latest.rmssd || 45);
-        }
-      })
-      .catch(err => console.error("Trajectory load error:", err))
-      .finally(() => {
-        setTimeout(() => setLoading(false), 1200);
-      });
-  }, []);
-
-  // Flow A: Physiological Spike Detection
-  useEffect(() => {
-    if (loading || !isAuthenticated || watchTrigger.active) return;
-
-    // Simulate detection: If HRV drops 20% below baseline
-    if (userData.hrv < lastBaseline * 0.8) {
-      console.log("SPIKE DETECTED: HRV drop detected.");
-      setWatchTrigger({ active: true, type: 'physiological_spike' });
-      
-      // Trigger Native Notification
-      if ("Notification" in window && Notification.permission === "granted") {
-        const n = new Notification("mcPHASES Stress Alert", {
-          body: "Body signal changed. Do you feel stressed?",
-          icon: "/favicon.ico",
-          tag: "stress-spike",
-          requireInteraction: true
-        });
-        n.onclick = () => {
-          window.focus();
-          setWatchTrigger({ active: true, type: 'physiological_spike' });
-        };
-      }
-    }
-  }, [userData.hrv, lastBaseline, loading, isAuthenticated]);
-
-  const handleSaveEvent = (event: any) => {
-    setCapturedEvents(prev => [...prev, event]);
-    // Also save to local storage for persistence
-    const existing = JSON.parse(localStorage.getItem('mcphases_events') || '[]');
-    localStorage.setItem('mcphases_events', JSON.stringify([...existing, event]));
-  };
-
-  const handleLogin = (email: string, consented: boolean) => {
-    console.log("Logged in as:", email);
-    setIsAuthenticated(true);
-    setHasConsented(consented);
-    localStorage.setItem('mcphases_auth', 'true');
-    localStorage.setItem('mcphases_consent', 'true');
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setHasConsented(false);
-    localStorage.removeItem('mcphases_auth');
-    localStorage.removeItem('mcphases_consent');
-    setStep('home');
-  };
+  const [isWatchPromptOpen, setIsWatchPromptOpen] = useState(false);
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
+    { id: 'home', label: 'Home', icon: HomeIcon },
     { id: 'cycle', label: 'Cycle', icon: Moon },
     { id: 'alignment', label: 'Gap', icon: Compass },
     { id: 'log', label: 'Log', icon: PlusCircle },
-    { id: 'research', label: 'Analysis', icon: FlaskConical },
+    { id: 'analysis', label: 'Research', icon: FlaskConical },
   ];
 
+  const handleWatchTrigger = (type: string) => {
+    console.log(`Triggering watch: ${type}`);
+    setIsWatchPromptOpen(true);
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification("mcPHASES Watch Action", {
+        body: "Time to log your physiological state. Tap to open the P4 Recalibration tool.",
+        icon: "/vite.svg"
+      });
+    }
+  };
+
   return (
-    <div className="app-container">
-      <AnimatePresence>
-        {loading && <LoadingScreen />}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {(!isAuthenticated || !hasConsented) && !loading && (
-          <motion.div 
-            key="login" 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'var(--bg-main)' }}
-          >
-            <LoginNeumorphic onLogin={handleLogin} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div style={{ paddingBottom: '100px' }}> {/* Container for pages */}
-        <AnimatePresence mode="wait">
+    <div style={{ paddingBottom: '90px', position: 'relative' }}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+        >
           {step === 'home' && (
-            <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <HomeNeumorphic 
-                status={userData.perceivedStress > 3 ? "Elevated" : "Balanced"}
-                onAction={(target) => setStep(target as AppStep)} 
-                onLogout={handleLogout}
-                onWatchTrigger={(type) => setWatchTrigger({ active: true, type })}
-              />
-            </motion.div>
+            <HomeNeumorphic 
+              onAction={(s) => setStep(s as AppStep)} 
+              onWatchTrigger={handleWatchTrigger} 
+              onLogout={() => console.log('logout')}
+              status="Elevated" 
+            />
           )}
-
-          {step === 'alignment' && (
-            <motion.div key="alignment" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <AlignmentNeumorphic 
-                value={Math.round((1 - Math.abs(userData.perceivedStress - 2)/5) * 100)} 
-                label={userData.perceivedStress > 3 ? "Slight Gap" : "Mostly Aligned"}
-                sublabel={userData.perceivedStress > 3 ? "Your perception is slightly higher than physiology." : "Your signals are within the expected range."}
-                onAction={(target) => setStep(target as AppStep)}
-              />
-            </motion.div>
-          )}
-
-          {step === 'log' && (
-            <motion.div key="log" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <LogMomentNeumorphic onSave={(s, n) => {
-                console.log("Saving log:", s, n);
-                setStep('home');
-              }} />
-            </motion.div>
-          )}
-
-          {step === 'trends' && (
-            <motion.div key="trends" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <TrendsNeumorphic data={trajectoryData?.user_trajectory || []} />
-            </motion.div>
-          )}
-
-          {step === 'research' && (
-            <motion.div key="research" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <ResearchNeumorphic 
-                trajectory={trajectoryData?.user_trajectory || []} 
-                population={trajectoryData?.population_background || []} 
-              />
-            </motion.div>
-          )}
-
           {step === 'cycle' && (
-            <motion.div key="cycle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <CycleStateNeumorphic phase={userData.phase || 'Luteal'} day={22} />
-            </motion.div>
+            <CycleStateNeumorphic 
+              day={14} 
+              phase="Fertility" 
+            />
           )}
-
-          {step === 'drivers' && (
-            <motion.div key="drivers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <DriversNeumorphic />
-            </motion.div>
+          {step === 'alignment' && (
+            <AlignmentNeumorphic 
+              value={40} 
+              label="Slight Gap" 
+              sublabel="Your perception is slightly higher than physiology." 
+            />
           )}
-
-          {step === 'insight' && (
-            <motion.div key="insight" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <InsightNeumorphic />
-            </motion.div>
+          {step === 'log' && (
+            <LogMomentNeumorphic 
+              onSave={() => setStep('alignment')} 
+            />
           )}
-
-          {step === 'ritual' && (
-            <motion.div key="ritual" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <RitualNeumorphic />
-            </motion.div>
+          {step === 'analysis' && (
+            <ResearchNeumorphic />
           )}
-        </AnimatePresence>
-      </div>
+          {step === 'recalibrate' && (
+            <RecalibrationNeumorphic 
+              onComplete={() => setStep('alignment')} 
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Bottom Navigation */}
-      <nav className="bottom-nav">
-        {navItems.map(item => (
+      {/* Recalibrate Shortcut on Home */}
+      {step === 'home' && (
+        <div style={{ position: 'fixed', bottom: '110px', left: '2rem', zIndex: 100 }}>
           <button 
-            key={item.id} 
-            className={`nav-item ${step === item.id ? 'active' : ''}`}
-            onClick={() => setStep(item.id as AppStep)}
+            onClick={() => setStep('recalibrate')}
+            className="soft-btn"
+            style={{ padding: '12px 20px', fontSize: '0.8rem' }}
           >
-            <item.icon size={24} strokeWidth={step === item.id ? 2.5 : 2} />
+            <FlaskConical size={16} />
+            <span>Recalibrate Model</span>
+          </button>
+        </div>
+      )}
+
+      {/* Global AI Assistant */}
+      <AIAssistant />
+
+      {/* Navigation */}
+      <nav className="bottom-nav">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setStep(item.id as AppStep)}
+            className={`nav-item ${step === item.id ? 'active' : ''}`}
+          >
+            <item.icon size={22} />
             <span>{item.label}</span>
           </button>
         ))}
       </nav>
 
-      <AIAssistant />
-
+      {/* Watch Simulation Modal */}
       <AnimatePresence>
-        {watchTrigger.active && (
-          <WatchStressCapture 
-            triggerType={watchTrigger.type}
-            onClose={() => setWatchTrigger({ ...watchTrigger, active: false })}
-            onSave={handleSaveEvent}
-            currentVitals={{
-              hr: userData.restingHR,
-              hrv: userData.hrv,
-              restingHR: userData.restingHR,
-              predictedStress: userData.perceivedStress,
-              phase: userData.phase || 'Unknown'
-            }}
-          />
+        {isWatchPromptOpen && (
+          <div 
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.1)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}
+            onClick={() => setIsWatchPromptOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="soft-raised"
+              style={{ padding: '2rem', maxWidth: '400px', textAlign: 'center' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="soft-inset soft-circle" style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Activity size={40} color="var(--primary-lavender)" />
+              </div>
+              <h2 style={{ marginBottom: '1rem' }}>Watch Trigger Sent</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+                A notification has been pushed to your Apple Watch. Please check your wrist to provide your immediate interoceptive log.
+              </p>
+              <button 
+                className="soft-btn soft-btn-primary" 
+                style={{ width: '100%' }}
+                onClick={() => {
+                  setIsWatchPromptOpen(false);
+                  setStep('recalibrate');
+                }}
+              >
+                Open Recalibration on Web
+              </button>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
   );
-}
+};
 
 export default App;
