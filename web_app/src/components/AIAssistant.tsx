@@ -72,7 +72,7 @@ const AIAssistant: React.FC = () => {
         className="soft-raised soft-circle"
         style={{ 
           position: 'fixed', 
-          bottom: '120px', 
+          bottom: '110px', 
           right: '2rem', 
           width: '60px', 
           height: '60px',
@@ -98,9 +98,10 @@ const AIAssistant: React.FC = () => {
             className="soft-raised"
             style={{
               position: 'fixed', 
-              bottom: '200px', 
+              bottom: '100px', 
               right: '2rem',
               width: '380px', 
+              maxHeight: '75vh',
               height: '550px',
               display: 'flex', 
               flexDirection: 'column',
@@ -110,7 +111,7 @@ const AIAssistant: React.FC = () => {
               borderRadius: '32px',
               border: 'none',
               background: 'var(--bg-main)',
-              boxShadow: '15px 15px 30px var(--dark-shadow), -15px -15px 30px var(--light-shadow)'
+              boxShadow: '20px 20px 60px var(--dark-shadow), -20px -20px 60px var(--light-shadow)'
             }}
           >
             {/* Header */}
