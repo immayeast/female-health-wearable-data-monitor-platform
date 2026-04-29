@@ -7,6 +7,7 @@ import LogMomentNeumorphic from './components/LogMomentNeumorphic';
 import TrendsNeumorphic from './components/TrendsNeumorphic';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import LoadingScreen from './components/LoadingScreen';
+import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
 
 export type UserData = {
@@ -23,6 +24,8 @@ export type AppStep = 'home' | 'alignment' | 'log' | 'trends' | 'research';
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasConsented, setHasConsented] = useState(false);
   const [step, setStep] = useState<AppStep>('home');
   const [trajectoryData, setTrajectoryData] = useState<any>(null);
   const [userData, setUserData] = useState<UserData>({
@@ -35,6 +38,14 @@ function App() {
   });
 
   useEffect(() => {
+    // Check local storage for session/consent
+    const savedAuth = localStorage.getItem('mcphases_auth');
+    const savedConsent = localStorage.getItem('mcphases_consent');
+    if (savedAuth === 'true' && savedConsent === 'true') {
+      setIsAuthenticated(true);
+      setHasConsented(true);
+    }
+
     fetch('/user_trajectory.json')
       .then(res => {
         if (!res.ok) return null;
@@ -58,6 +69,14 @@ function App() {
       });
   }, []);
 
+  const handleLogin = (email: string, consented: boolean) => {
+    console.log("Logged in as:", email);
+    setIsAuthenticated(true);
+    setHasConsented(consented);
+    localStorage.setItem('mcphases_auth', 'true');
+    localStorage.setItem('mcphases_consent', 'true');
+  };
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'alignment', label: 'Alignment', icon: Compass },
@@ -70,6 +89,20 @@ function App() {
     <div className="app-container">
       <AnimatePresence>
         {loading && <LoadingScreen />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {(!isAuthenticated || !hasConsented) && !loading && (
+          <motion.div 
+            key="login" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'var(--bg-main)' }}
+          >
+            <LoginNeumorphic onLogin={handleLogin} />
+          </motion.div>
+        )}
       </AnimatePresence>
 
       <div style={{ paddingBottom: '100px' }}> {/* Container for pages */}
