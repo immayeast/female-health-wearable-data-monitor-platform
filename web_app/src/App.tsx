@@ -8,6 +8,7 @@ import UploadFlow from './components/UploadFlow';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import CycleStateNeumorphic from './components/CycleStateNeumorphic';
 import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
+import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
 
 export type UserData = {
@@ -20,10 +21,10 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual';
+export type AppStep = 'login' | 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual';
 
 const App = () => {
-  const [step, setStep] = useState<AppStep>('home');
+  const [step, setStep] = useState<AppStep>('login');
   const [isWatchPromptOpen, setIsWatchPromptOpen] = useState(false);
   const [modelResults, setModelResults] = useState<any>(null);
 
@@ -61,11 +62,16 @@ const App = () => {
           exit={{ opacity: 0, scale: 1.02 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
         >
+          {step === 'login' && (
+            <LoginNeumorphic 
+              onLogin={() => setStep('home')} 
+            />
+          )}
           {step === 'home' && (
             <HomeNeumorphic 
               onAction={(s) => setStep(s as AppStep)} 
               onWatchTrigger={handleWatchTrigger} 
-              onLogout={() => console.log('logout')}
+              onLogout={() => setStep('login')}
               status={modelResults ? modelResults.classification.group : "Elevated"} 
             />
           )}
@@ -119,18 +125,20 @@ const App = () => {
       <AIAssistant />
 
       {/* Navigation */}
-      <nav className="bottom-nav">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setStep(item.id as AppStep)}
-            className={`nav-item ${step === item.id ? 'active' : ''}`}
-          >
-            <item.icon size={22} />
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
+      {step !== 'login' && (
+        <nav className="bottom-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setStep(item.id as AppStep)}
+              className={`nav-item ${step === item.id ? 'active' : ''}`}
+            >
+              <item.icon size={22} />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
 
       {/* Watch Simulation Modal */}
       <AnimatePresence>
