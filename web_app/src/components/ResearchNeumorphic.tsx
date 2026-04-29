@@ -135,13 +135,29 @@ const ResearchNeumorphic: React.FC<ResearchProps> = ({ trajectory, population })
           </div>
         </div>
 
-        <div className="soft-raised" style={{ gridColumn: 'span 2', padding: '1.5rem' }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <Info size={18} color="var(--text-muted)" style={{ marginTop: '2px' }} />
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              This research layer exposes the analytical framework behind the wellness experience. 
-              The Manifold Projection uses UMAP dimensionality reduction to show your current physiological 
-              coordinates relative to the mcPHASES population study.
+        {/* Scientific Context Section */}
+        <div className="soft-raised" style={{ gridColumn: 'span 2', padding: '2rem' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Info size={20} color="var(--primary-lavender)" /> Scientific Framework
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+            <div>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.75rem' }}>Manifold Mapping</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                The projection above uses UMAP dimensionality reduction to map your 24-hour physiological state into a population-wide "latent space." 
+                The lavender dots represent your trajectory through the menstrual cycle.
+              </p>
+            </div>
+            <div>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.75rem' }}>Recalibration Logic</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                Our model utilizes a Gradient Boosted Regressor to predict "expected" stress levels. The <strong>Truth Gap</strong> is the variance between this baseline and your subjective report.
+              </p>
+            </div>
+          </div>
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--dark-shadow)', opacity: 0.7 }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+              Reference: "Wearable Physiological Signals for Menstrual Phase Prediction and Stress Alignment" (2024 Research Draft)
             </p>
           </div>
         </div>

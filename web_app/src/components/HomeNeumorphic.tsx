@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Plus, ShieldCheck, LogOut } from 'lucide-react';
+import { Activity, LogOut } from 'lucide-react';
 
 interface HomeProps {
   onAction: (target: string) => void;
@@ -25,42 +25,29 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3rem' }}>
         {/* Central Focal Node */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onAction('alignment')}
-          className="soft-raised soft-circle"
-          style={{
-            width: '240px',
-            height: '240px',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px'
-          }}
-        >
-          <div style={{ 
-            width: '80px', 
-            height: '80px', 
-            borderRadius: '50%', 
-            background: 'var(--card-surface)',
-            boxShadow: 'inset 4px 4px 8px var(--dark-shadow), inset -4px -4px 8px var(--light-shadow)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <ShieldCheck size={36} color="var(--primary-lavender)" />
-          </div>
-          <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{status}</span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Tap to view alignment</span>
-        </motion.button>
+        <div style={{ width: '280px', height: '280px', position: 'relative' }}>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onAction('alignment')}
+            className="soft-raised soft-circle"
+            style={{
+              width: '100%', height: '100%',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: '12px', cursor: 'pointer', border: 'none'
+            }}
+          >
+            <span style={{ fontSize: '3rem' }}>{status === "Elevated" ? "🩸" : "🧘"}</span>
+            <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)' }}>{status}</span>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {status === "Elevated" ? "Menstruation and Stress Tool" : "Physiology is stable."}
+            </p>
+          </motion.button>
+        </div>
 
         {/* Primary Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '300px' }}>
           <button onClick={() => onAction('log')} className="soft-btn" style={{ padding: '20px' }}>
-            <Plus size={20} />
             <span>Detailed Log</span>
           </button>
           

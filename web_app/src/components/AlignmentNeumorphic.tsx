@@ -23,13 +23,16 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel 
           style={{ cursor: 'pointer' }}
         >
           <div className="gauge-ring" />
-          <motion.div 
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            className="gauge-value"
-          >
-            {value}
-          </motion.div>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--card-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>{value}%</span>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Alignment Score</p>
+          </div>
+          {/* Population Overlay */}
+          <div style={{ position: 'absolute', bottom: '20px', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+            Top 15% of Population
+          </div>
+        </div>
         </motion.div>
 
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>

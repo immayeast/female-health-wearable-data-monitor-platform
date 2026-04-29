@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, FileJson, Layers, Wand2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, FileJson, Layers, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
@@ -68,16 +68,24 @@ const AIAssistant: React.FC = () => {
   return (
     <>
       <button 
-        className="btn btn-primary"
-        style={{
-          position: 'fixed', bottom: '2rem', right: '2rem',
-          borderRadius: '50%', width: '60px', height: '60px',
-          padding: 0, zIndex: 50,
-          boxShadow: '0 10px 25px rgba(129, 140, 248, 0.4)'
-        }}
         onClick={() => setIsOpen(true)}
+        className="soft-raised soft-circle"
+        style={{ 
+          position: 'fixed', 
+          bottom: '120px', 
+          right: '2rem', 
+          width: '60px', 
+          height: '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--primary-lavender)',
+          color: '#fff',
+          zIndex: 1000,
+          cursor: 'pointer'
+        }}
       >
-        <MessageSquare size={24} />
+        <MessageCircle size={28} />
       </button>
 
       <AnimatePresence>
@@ -89,7 +97,7 @@ const AIAssistant: React.FC = () => {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="glass-panel"
             style={{
-              position: 'fixed', bottom: '6rem', right: '2rem',
+              position: 'fixed', bottom: '6rem', left: '2rem',
               width: '380px', height: '550px',
               display: 'flex', flexDirection: 'column',
               padding: 0, overflow: 'hidden', zIndex: 50,
@@ -103,7 +111,7 @@ const AIAssistant: React.FC = () => {
                   <Bot size={18} color="#fff" />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>mcPHASES Agent</h3>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Assistant</div>
                   <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 600 }}>● Online</span>
                 </div>
               </div>
@@ -140,12 +148,14 @@ const AIAssistant: React.FC = () => {
                   style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}
                 >
                   <div style={{
-                    padding: '10px 14px', borderRadius: '14px', fontSize: '0.9rem', lineHeight: 1.5,
-                    background: msg.role === 'user' ? 'linear-gradient(135deg, var(--primary-accent), var(--secondary-accent))' : 'rgba(255,255,255,0.9)',
-                    color: msg.role === 'user' ? '#ffffff' : 'var(--text-primary)',
-                    boxShadow: msg.role === 'assistant' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-                    borderBottomRightRadius: msg.role === 'user' ? '4px' : '14px',
-                    borderBottomLeftRadius: msg.role === 'assistant' ? '4px' : '14px',
+                    padding: '12px 16px',
+                    borderRadius: '16px',
+                    background: msg.role === 'user' ? 'var(--primary-lavender)' : 'var(--card-surface)',
+                    color: msg.role === 'user' ? '#fff' : 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.5,
+                    boxShadow: msg.role === 'user' ? 'none' : '4px 4px 10px var(--dark-shadow)',
+                    maxWidth: '85%'
                   }}>
                     {msg.content}
                   </div>

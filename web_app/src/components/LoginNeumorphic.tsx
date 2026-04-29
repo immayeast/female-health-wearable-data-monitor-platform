@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Mail, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight } from 'lucide-react';
 
 interface LoginProps {
   onLogin: (email: string, consented: boolean) => void;
@@ -20,11 +20,8 @@ const LoginNeumorphic: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className="container fade-in" style={{ justifyContent: 'center', maxWidth: '450px' }}>
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <div className="soft-raised soft-circle" style={{ width: '80px', height: '80px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ShieldCheck size={40} color="var(--primary-lavender)" />
-        </div>
-        <h1 className="screen-title">mcPHASES</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>Secure Physiological Research Platform</p>
+        <h1 className="screen-title" style={{ marginBottom: '0.5rem' }}>Platform Access</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Secure Physiological Research</p>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
