@@ -43,6 +43,13 @@ function App() {
     perceivedStress: 5
   });
 
+  // Request Notification Permission
+  useEffect(() => {
+    if ("Notification" in window) {
+      Notification.requestPermission();
+    }
+  }, []);
+
   useEffect(() => {
     // Check local storage for session/consent
     const savedAuth = localStorage.getItem('mcphases_auth');
@@ -84,6 +91,20 @@ function App() {
     if (userData.hrv < lastBaseline * 0.8) {
       console.log("SPIKE DETECTED: HRV drop detected.");
       setWatchTrigger({ active: true, type: 'physiological_spike' });
+      
+      // Trigger Native Notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        const n = new Notification("mcPHASES Stress Alert", {
+          body: "Body signal changed. Do you feel stressed?",
+          icon: "/favicon.ico",
+          tag: "stress-spike",
+          requireInteraction: true
+        });
+        n.onclick = () => {
+          window.focus();
+          setWatchTrigger({ active: true, type: 'physiological_spike' });
+        };
+      }
     }
   }, [userData.hrv, lastBaseline, loading, isAuthenticated]);
 
