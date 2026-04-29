@@ -41,23 +41,25 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           <span style={{ fontWeight: 700, color: color }}>{value}{unit}</span>
         </div>
         
-        <div style={{ position: 'relative', width: '100%', height: '54px' }}>
-          {/* The Inset Track (The Frame) */}
+        <div style={{ position: 'relative', width: '100%', height: '48px' }}>
+          {/* The Deep Rectangular Trench */}
           <div className="soft-inset" style={{ 
             width: '100%', 
             height: '100%', 
-            borderRadius: '27px', 
+            borderRadius: '4px', // Sharp, technical rectangle
             position: 'relative',
             overflow: 'hidden',
-            background: 'var(--bg-main)'
+            background: 'var(--bg-main)',
+            boxShadow: 'inset 6px 6px 12px var(--dark-shadow), inset -6px -6px 12px var(--light-shadow)'
           }}>
-            {/* The "Closed" Area Reveal */}
+            {/* The Opaque Block Fill */}
             <div style={{ 
               position: 'absolute', left: 0, top: 0, bottom: 0, 
               width: `${percentage}%`, 
               background: color, 
-              opacity: 0.1,
-              transition: 'width 0.15s ease-out'
+              opacity: 0.85, // More opaque but lighter
+              filter: 'brightness(1.1) saturate(0.8)', // Lighter pastel feel
+              transition: 'width 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }} />
           </div>
 
@@ -70,27 +72,23 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
             value={value} 
             onChange={(e) => setData({...data, [field]: parseFloat(e.target.value)})}
             className="pane-slider-input"
+            style={{ height: '48px' }}
           />
           
-          {/* Visual Overlay: The "Seamless Door" Edge */}
+          {/* Visual Overlay: Subtle Refraction Edge */}
           <div 
             style={{ 
               position: 'absolute', 
-              left: `calc(${percentage}% * 0.98)`, 
-              top: '4px',
-              bottom: '4px',
+              left: `calc(${percentage}% - 1px)`, 
+              top: 0,
+              bottom: 0,
               width: '2px', 
-              background: color,
-              boxShadow: `0 0 10px ${color}44`,
+              background: 'rgba(255, 255, 255, 0.4)', // Subtle light edge instead of obvious line
               pointerEvents: 'none',
               zIndex: 10,
-              transition: 'left 0.1s ease-out'
+              transition: 'left 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }}
-          >
-            {/* Subtle glow tips */}
-            <div style={{ position: 'absolute', top: -2, left: -2, width: 6, height: 6, borderRadius: '50%', background: color, opacity: 0.5 }} />
-            <div style={{ position: 'absolute', bottom: -2, left: -2, width: 6, height: 6, borderRadius: '50%', background: color, opacity: 0.5 }} />
-          </div>
+          />
         </div>
       </div>
     );
