@@ -107,7 +107,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.hrv}
           min={20} max={120} step={1} unit="ms"
           field="hrv"
-          color="#B9A7F5" // Official Muted Lavender
+          color="#B9A7F5" // Muted Lavender
         />
 
         <WindowPaneSlider 
@@ -116,7 +116,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.rhr}
           min={40} max={100} step={1} unit="bpm"
           field="rhr"
-          color="#BFD8C8" // Official Research Mint
+          color="#BFD8C8" // Research Mint
         />
 
         <WindowPaneSlider 
@@ -125,7 +125,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           value={data.temp_diff}
           min={-1} max={1} step={0.1} unit="°C"
           field="temp_diff"
-          color="#E8D8C3" // Official Warm Beige
+          color="#E8D8C3" // Warm Beige
         />
       </div>
 
@@ -133,22 +133,22 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
         <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Menstrual Context</h3>
         <WindowPaneSlider 
           label="Cycle Day" 
-          icon={<Calendar size={18} color="#BFD8C8" />}
+          icon={<Calendar size={18} color="#A7BED3" />}
           value={data.cycle_day}
           min={1} max={32} step={1} unit=""
           field="cycle_day"
-          color="#BFD8C8" 
+          color="#A7BED3" // Distinct Slate Blue
         />
 
         <div style={{ marginTop: '2.5rem' }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Subjective Log</h3>
           <WindowPaneSlider 
             label="Stress Level" 
-            icon={<Info size={18} color="#B9A7F5" />}
+            icon={<Info size={18} color="#A6B0A0" />}
             value={data.subjective_stress}
             min={1} max={10} step={1} unit="/10"
             field="subjective_stress"
-            color="#B9A7F5"
+            color="#A6B0A0" // Distinct Muted Sage
           />
         </div>
       </div>
