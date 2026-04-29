@@ -7,15 +7,15 @@ type Message = {
   content: string;
 };
 
-type Persona = 'clinical' | 'empathetic' | 'technical';
+type Persona = 'empathetic' | 'technical';
 
 const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [persona, setPersona] = useState<Persona>('clinical');
+  const [persona, setPersona] = useState<Persona>('technical');
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
-      content: "Hello. I am the mcPHASES NeMo Agent. I can help you understand the 'Truth vs. Wearable' gap in your physiological data. Please select my persona below to begin." 
+      content: "Hello. I am the mcPHASES NeMo Agent. I am here to analyze the Truth Gap in your physiological markers. Choose Technical for Z-score analysis or Empathetic for relative-to-normal insights." 
     }
   ]);
   const [input, setInput] = useState('');
@@ -132,15 +132,15 @@ const AIAssistant: React.FC = () => {
 
             {/* Persona Selector */}
             <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', background: 'var(--bg-main)', borderBottom: '1px solid var(--dark-shadow)' }}>
-              {(['clinical', 'empathetic', 'technical'] as Persona[]).map(p => (
+              {(['technical', 'empathetic'] as Persona[]).map(p => (
                 <button
                   key={p}
                   onClick={() => setPersona(p)}
                   style={{
-                    flex: 1, fontSize: '0.75rem', padding: '6px', borderRadius: '6px', border: 'none', cursor: 'pointer',
+                    flex: 1, fontSize: '0.75rem', padding: '8px', borderRadius: '8px', border: 'none', cursor: 'pointer',
                     background: persona === p ? 'var(--primary-lavender)' : 'var(--bg-main)',
                     color: persona === p ? '#fff' : 'var(--text-secondary)',
-                    boxShadow: persona === p ? 'none' : '4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow)',
+                    boxShadow: persona === p ? 'inset 2px 2px 5px var(--dark-shadow), inset -2px -2px 5px var(--light-shadow)' : '4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow)',
                     fontWeight: 600, transition: 'all 0.2s'
                   }}
                 >

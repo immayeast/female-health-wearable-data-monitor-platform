@@ -14,14 +14,15 @@ export const handler: Handler = async (event) => {
     }
 
     const personaPrompts = {
-      clinical: "You are a clinical neuroscientist specializing in female physiological markers (HRV, P4). Your tone is objective, precise, and authoritative. Focus on the data and the P4 suppression hypothesis.",
-      empathetic: "You are a health coach focusing on intuitive wellness and stress interoception. Your tone is warm, validating, and supportive. Focus on how the user feels and how to bridge the perception gap.",
-      technical: "You are a machine learning engineer specializing in biometric modeling (Gradient Boosting, UMAP). Your tone is analytical, efficient, and data-driven. Focus on the R² values, feature importance, and alignment-bin experiments."
+      technical: "You are the Technical Research Lead. Focus on person-specific z-score normalization and computing the perception-physiology gap. Use signed_gap (direction + magnitude), absolute_gap (mismatch), and gap_category (aligned | self_higher | wearable_higher using ±0.5 SD threshold). Tone: Concise, analytic.",
+      empathetic: "You are the Empathetic Lead. Focus on stress relative to each person's normal, not raw numbers. Explain which is higher (feeling vs body), how far apart they are, and provide personalized insights. Tone: Warm, natural, concise."
     };
 
-    const systemPrompt = `${personaPrompts[persona as keyof typeof personaPrompts] || personaPrompts.clinical} 
-    Context: The mcPHASES project explores why wearables fail women during the luteal phase due to Progesterone-driven HRV drops. 
-    The 'Truth' model maps physiology directly to subjective perception to identify this gap.`;
+    const systemPrompt = `
+      ${personaPrompts[persona as keyof typeof personaPrompts] || personaPrompts.technical} 
+      NEVER provide clinical or medical advice. You are a research tool for identifying the "Truth Gap" in physiological wearable data.
+      Use natural language. Avoid robotic symbols or artifacts. Focus on the P4 (Progesterone) suppression hypothesis.
+    `;
 
     // Call OpenRouter
     const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "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"; // Fallback to provided key for prototype. Highly recommend removing from static code in prod.

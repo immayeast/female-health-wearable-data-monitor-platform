@@ -50,8 +50,23 @@ export const predictStressClassification = (score: number) => {
   return { group: 'Balanced', level: 'Stable' };
 };
 
+export const calculateTruthGap = (predicted: number, subjective: number, stdDev: number = 1.0) => {
+  // Normalize subjective (usually 1-5) to the same scale if needed, 
+  // but here we assume both are Z-scores or normalized.
+  const signed_gap = subjective - predicted;
+  const absolute_gap = Math.abs(signed_gap);
+  
+  let gap_category: 'aligned' | 'self_higher' | 'wearable_higher' = 'aligned';
+  const threshold = 0.5 * stdDev;
+
+  if (signed_gap > threshold) gap_category = 'self_higher';
+  else if (signed_gap < -threshold) gap_category = 'wearable_higher';
+
+  return { signed_gap, absolute_gap, gap_category };
+};
+
 export const calculateAlignment = (predicted: number, subjective: number) => {
-  const gap = Math.abs(predicted - (subjective * 10)); // Scale subjective to 0-100
+  const gap = Math.abs(predicted - (subjective * 10)); 
   return Math.max(0, Math.min(100, 100 - gap));
 };
 
