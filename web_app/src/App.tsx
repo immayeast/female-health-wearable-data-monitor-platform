@@ -13,6 +13,7 @@ import AIAssistant from './components/AIAssistant';
 import Logo from './components/Logo';
 import ResearchAcknowledgement from './components/ResearchAcknowledgement';
 import MethodologyWalkthrough from './components/MethodologyWalkthrough';
+import ResearchReferences from './components/ResearchReferences';
 import { calculateAlignment, predictPhase, predictStressClassification, predictStressScore } from './utils/modelEngine';
 
 export type UserData = {
@@ -25,7 +26,7 @@ export type UserData = {
   phase?: string;
 };
 
-export type AppStep = 'login' | 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual' | 'methodology';
+export type AppStep = 'login' | 'home' | 'cycle' | 'alignment' | 'log' | 'analysis' | 'recalibrate' | 'trends' | 'research' | 'drivers' | 'insight' | 'ritual' | 'methodology' | 'references';
 
 const App = () => {
   const [step, setStep] = useState<AppStep>('login');
@@ -158,13 +159,20 @@ const App = () => {
               setStep('home');
             }} />
           )}
+          {step === 'references' && (
+            <ResearchReferences onBack={() => {
+              setHasAcceptedResearch(true);
+              setStep('home');
+            }} />
+          )}
         </motion.div>
       </AnimatePresence>
 
       {/* Research Acknowledgement Overlay */}
-      {step !== 'login' && !hasAcceptedResearch && step !== 'methodology' && (
+      {step !== 'login' && !hasAcceptedResearch && step !== 'methodology' && step !== 'references' && (
         <ResearchAcknowledgement 
           onReadMore={() => setStep('methodology')}
+          onReadReferences={() => setStep('references')}
           onUnderstood={() => setHasAcceptedResearch(true)}
         />
       )}

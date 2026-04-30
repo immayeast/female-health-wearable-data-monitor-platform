@@ -4,10 +4,11 @@ import { BookOpen, CheckCircle2, FlaskConical } from 'lucide-react';
 
 interface AcknowledgementProps {
   onReadMore: () => void;
+  onReadReferences: () => void;
   onUnderstood: () => void;
 }
 
-const ResearchAcknowledgement: React.FC<AcknowledgementProps> = ({ onReadMore, onUnderstood }) => {
+const ResearchAcknowledgement: React.FC<AcknowledgementProps> = ({ onReadMore, onReadReferences, onUnderstood }) => {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 3000,
@@ -56,7 +57,13 @@ const ResearchAcknowledgement: React.FC<AcknowledgementProps> = ({ onReadMore, o
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
+          <button 
+            onClick={onReadReferences}
+            style={{ background: 'none', border: 'none', color: 'var(--primary-lavender)', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Research Evidence
+          </button>
           <button 
             onClick={onReadMore}
             style={{ background: 'none', border: 'none', color: 'var(--primary-lavender)', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}
