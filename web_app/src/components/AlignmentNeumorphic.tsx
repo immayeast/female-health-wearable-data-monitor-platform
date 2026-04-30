@@ -9,11 +9,6 @@ interface AlignmentProps {
   value: number;
   label: string;
   sublabel: string;
-  state?: {
-    rmssd?: number;
-    steps?: number;
-    sleep_overall_score?: number;
-  };
   classification?: {
     group: string;
     level: string;
@@ -22,7 +17,7 @@ interface AlignmentProps {
   recalibratedValue?: number;
 }
 
-const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, state, classification, phase, recalibratedValue }) => {
+const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, classification, phase, recalibratedValue }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
@@ -132,7 +127,7 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 className="screen-title" style={{ fontSize: '1.4rem' }}>Gap Drivers</h2>
         </div>
-        <DriversNeumorphic state={state} />
+        <DriversNeumorphic />
       </section>
 
       <section style={{ marginTop: '6rem' }}>

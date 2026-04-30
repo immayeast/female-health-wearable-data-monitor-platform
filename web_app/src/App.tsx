@@ -134,7 +134,6 @@ const App = () => {
               value={modelResults?.alignment ?? 40} 
               label={modelResults ? modelResults.classification.group : "Slight Gap"} 
               sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
-              state={modelResults?.state}
               classification={modelResults?.classification}
               phase={modelResults?.phase}
               recalibratedValue={modelResults ? modelResults.score : undefined}
