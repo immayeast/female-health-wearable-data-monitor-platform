@@ -7,12 +7,13 @@ import AlignmentNeumorphic from './components/AlignmentNeumorphic';
 import UploadFlow from './components/UploadFlow';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import CycleStateNeumorphic from './components/CycleStateNeumorphic';
-import RecalibrationNeumorphic from './components/RecalibrationNeumorphic';
+import RecalibrationNeumorphicReferenceNumericInput from './components/RecalibrationNeumorphicReferenceNumericInput';
 import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
 import Logo from './components/Logo';
 import ResearchAcknowledgement from './components/ResearchAcknowledgement';
 import MethodologyWalkthrough from './components/MethodologyWalkthrough';
+import { calculateAlignment, predictPhase, predictStressClassification, predictStressScore } from './utils/modelEngine';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -56,6 +57,45 @@ const App = () => {
     setStep('alignment');
   };
 
+  const handleRecalibrationComplete = (data: any) => {
+    // Mirror UploadFlow's output shape so downstream UI updates.
+    const fallbackMetadata = {
+      means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
+      stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
+      weights: { resting_hr: 3.44, rmssd: -1.16, lh: 2.11, estrogen: 0.44, pdg: 1.58 },
+      intercept: 64.96,
+      feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
+    };
+
+    const state = {
+      resting_hr: data?.rhr ?? 65,
+      rmssd: data?.hrv ?? 50,
+      lh: 0,
+      estrogen: 0,
+      pdg: 0,
+      day_in_cycle: data?.cycle_day ?? 14,
+      subjectiveStress: data?.subjective_stress ?? 5,
+      steps: data?.steps,
+      temp_diff: data?.temp_diff,
+    };
+
+    const score = predictStressScore(state, fallbackMetadata as any);
+    const classification = predictStressClassification(score);
+    const phase = predictPhase(state.day_in_cycle);
+    const alignment = calculateAlignment(score, state.subjectiveStress);
+
+    setModelResults({
+      state,
+      score,
+      classification,
+      phase,
+      alignment,
+      timestamp: new Date().toISOString(),
+      source: 'recalibration',
+    });
+    setStep('alignment');
+  };
+
   return (
     <div style={{ paddingBottom: '90px', position: 'relative' }}>
       <AnimatePresence mode="wait">
@@ -84,15 +124,17 @@ const App = () => {
           )}
           {step === 'cycle' && (
             <CycleStateNeumorphic 
-              day={modelResults ? modelResults.state.cycleDay : 14} 
+              day={modelResults ? (modelResults.state?.day_in_cycle ?? modelResults.state?.cycleDay ?? 14) : 14} 
               phase={modelResults ? modelResults.phase : "Fertility"} 
+              hasData={!!modelResults}
             />
           )}
           {step === 'alignment' && (
             <AlignmentNeumorphic 
-              value={40} 
+              value={modelResults?.alignment ?? 40} 
               label={modelResults ? modelResults.classification.group : "Slight Gap"} 
               sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
+              state={modelResults?.state}
               classification={modelResults?.classification}
               phase={modelResults?.phase}
               recalibratedValue={modelResults ? modelResults.score : undefined}
@@ -107,8 +149,8 @@ const App = () => {
             <ResearchNeumorphic />
           )}
           {step === 'recalibrate' && (
-            <RecalibrationNeumorphic 
-              onComplete={() => setStep('alignment')} 
+            <RecalibrationNeumorphicReferenceNumericInput 
+              onComplete={handleRecalibrationComplete} 
             />
           )}
           {step === 'methodology' && (
