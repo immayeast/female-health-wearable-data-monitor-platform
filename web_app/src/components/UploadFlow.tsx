@@ -56,13 +56,15 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
           const rawData = parseResearchCSV(text);
           
           // Map CSV headers to Model Features
+          const cycleDay = Math.max(1, Math.min(28, rawData.day_in_cycle || rawData.day || 14));
+
           const state = {
             resting_hr: rawData.resting_hr || rawData.rhr || 65,
             rmssd: rawData.rmssd || rawData.hrv || 50,
             lh: rawData.lh || 0,
             estrogen: rawData.estrogen || 0,
             pdg: rawData.pdg || 0,
-            day_in_cycle: rawData.day_in_cycle || rawData.day || 14
+            day_in_cycle: cycleDay
           };
 
           const predictedScore = predictStressScore(state, metadata);

@@ -68,13 +68,15 @@ const App = () => {
       feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
     };
 
+    const cycleDay = Math.max(1, Math.min(28, data?.cycle_day ?? 14));
+
     const state = {
       resting_hr: data?.rhr ?? 65,
       rmssd: data?.hrv ?? 50,
       lh: 0,
       estrogen: 0,
       pdg: 0,
-      day_in_cycle: data?.cycle_day ?? 14,
+      day_in_cycle: cycleDay,
       subjectiveStress: data?.subjective_stress ?? 5,
       steps: data?.steps,
       temp_diff: data?.temp_diff,

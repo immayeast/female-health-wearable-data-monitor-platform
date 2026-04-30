@@ -48,6 +48,10 @@ const WindowPaneSlider: React.FC<WindowPaneSliderProps> = ({ spec, rawText, setT
   // While typing, do NOT clamp to spec.min/spec.max so the bar can respond immediately.
   const liveValue = Number.isFinite(parsed as number) ? (parsed as number) : null;
   const committedValue = liveValue === null ? null : clamp(liveValue, spec.min, spec.max);
+  const maxValidationMessage =
+    spec.field === 'cycle_day' && liveValue !== null && liveValue > spec.max
+      ? `Maximum cycle day is ${spec.max}.`
+      : '';
 
   const percentage =
     liveValue === null
@@ -165,6 +169,11 @@ const WindowPaneSlider: React.FC<WindowPaneSliderProps> = ({ spec, rawText, setT
           }}
         />
       </div>
+      {maxValidationMessage && (
+        <p style={{ marginTop: '0.75rem', color: 'var(--error)', fontSize: '0.8rem', fontWeight: 600 }}>
+          {maxValidationMessage}
+        </p>
+      )}
     </div>
   );
 };
@@ -236,7 +245,7 @@ const RecalibrationNeumorphicNumericInput: React.FC<RecalibrationProps> = ({ onC
         unit: '',
         field: 'cycle_day',
         min: 1,
-        max: 32,
+        max: 28,
         step: 1,
         color: '#A7BED3',
       },
