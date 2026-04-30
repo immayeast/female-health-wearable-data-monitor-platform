@@ -157,13 +157,13 @@ const App = () => {
           )}
           {step === 'methodology' && (
             <MethodologyWalkthrough onBack={() => {
-              setHasAcceptedResearch(true);
+              setHasAcceptedResearch(false);
               setStep('home');
             }} />
           )}
           {step === 'references' && (
             <ResearchReferences onBack={() => {
-              setHasAcceptedResearch(true);
+              setHasAcceptedResearch(false);
               setStep('home');
             }} />
           )}
