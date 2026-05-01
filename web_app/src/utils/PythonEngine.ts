@@ -121,6 +121,9 @@ try:
     }
     df = df.rename(columns=MAPPING)
     
+    # Deduplicate columns to avoid reindexing errors
+    df = df.loc[:, ~df.columns.duplicated()]
+    
     # 3. Universal Inference (Zero-Dependency)
     # Align features to model expectations
     X_raw = df.reindex(columns=brain['features']).values
