@@ -103,15 +103,15 @@ try:
     df = df.rename(columns=MAPPING)
     df = df.loc[:, ~df.columns.duplicated()]
 
-    # Ensure required features exist (fill with NaN if missing)
-    for feat in phase_cfg["base_features"]:
-        if feat not in df.columns:
-            df[feat] = np.nan
-
     # 3. PHASE PREDICTION (7-Day Sliding Window RF)
     phase_cfg = brain["phase_model"]
     window_size = phase_cfg["window_size"]
     base_features = phase_cfg["base_features"]
+
+    # Ensure required features exist (fill with NaN if missing)
+    for feat in base_features:
+        if feat not in df.columns:
+            df[feat] = np.nan
     
     # Sort and ensure we have enough history (pad if needed)
     df = df.sort_values(df.columns[0]).reset_index(drop=True) 
