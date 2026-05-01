@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon } from 'lucide-react';
+import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon, LogOut } from 'lucide-react';
 
 import HomeNeumorphic from './components/HomeNeumorphic';
 import AlignmentNeumorphic from './components/AlignmentNeumorphic';
@@ -138,7 +138,7 @@ const App = () => {
 
   return (
     <div style={{ paddingBottom: '90px', position: 'relative' }}>
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
+      <div style={{ position: 'fixed', top: '24px', right: '24px', zIndex: 1000, display: 'flex', gap: '10px' }}>
         {step !== 'login' && (
           <button 
             onClick={() => {
@@ -147,20 +147,21 @@ const App = () => {
               setModelResults(null);
             }}
             className="soft-raised"
+            title="Log Out"
             style={{ 
-              padding: '10px 20px', 
-              borderRadius: '20px', 
-              fontSize: '0.8rem', 
-              fontWeight: 700, 
-              color: 'var(--text-secondary)',
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%', 
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              justifyContent: 'center',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              background: 'var(--bg-color)',
+              color: 'var(--text-secondary)'
             }}
           >
-            <HomeIcon size={16} /> Logout
+            <LogOut size={18} />
           </button>
         )}
       </div>
