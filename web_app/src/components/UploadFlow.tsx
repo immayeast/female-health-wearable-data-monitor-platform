@@ -126,50 +126,27 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
         margin: '0 auto 2rem'
       }}>
         {/* Toggle 1: Deep Research Mode */}
+        {/* Active Engine Status */}
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
-          gap: '12px' 
+          gap: '12px',
+          padding: '1.2rem',
+          borderRadius: '24px',
+          background: 'rgba(185, 167, 245, 0.05)',
+          border: '1px solid rgba(185, 167, 245, 0.1)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-            <div style={{ flexShrink: 0 }}>
-              <Cpu size={22} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div className="soft-inset" style={{ padding: '10px', borderRadius: '12px', background: 'rgba(185, 167, 245, 0.1)' }}>
+              <Cpu size={20} color="var(--primary-lavender)" />
             </div>
-            <div style={{ textAlign: 'left' }}>
-              <p style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Deep Research Mode</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Python Inference Engine</p>
+            <div>
+              <p style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, color: 'var(--text-secondary)' }}>Research Engine Active</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Dual-model inference enabled</p>
             </div>
           </div>
-          <button 
-            onClick={() => {
-              setUseResearchMode(!useResearchMode);
-              if (!pyStatus.isLoaded) pythonEngine.init();
-            }}
-            className="soft-raised"
-            style={{ 
-              width: '56px', 
-              height: '30px', 
-              borderRadius: '15px', 
-              padding: '3px',
-              background: useResearchMode ? 'var(--primary-lavender)' : 'rgba(0,0,0,0.03)',
-              border: 'none',
-              cursor: 'pointer',
-              flexShrink: 0,
-              position: 'relative',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            <div style={{ 
-              width: '24px', 
-              height: '24px', 
-              borderRadius: '50%', 
-              background: '#fff', 
-              transform: useResearchMode ? 'translateX(26px)' : 'translateX(0)',
-              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }} />
-          </button>
+          <div style={{ padding: '4px 12px', borderRadius: '12px', background: 'var(--primary-lavender)', color: '#fff', fontSize: '0.7rem', fontWeight: 800 }}>LIVE</div>
         </div>
 
         {/* Toggle 2: Research Opt-in */}
@@ -178,12 +155,14 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
           alignItems: 'center', 
           justifyContent: 'space-between',
           gap: '12px',
-          borderTop: '1px solid rgba(0,0,0,0.05)', 
-          paddingTop: '1.5rem' 
+          padding: '1.2rem',
+          borderRadius: '24px',
+          marginTop: '1.5rem',
+          background: 'rgba(0,0,0,0.02)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-            <div style={{ flexShrink: 0 }}>
-              <FileText size={22} color={researchConsent ? "var(--primary-teal)" : "var(--text-muted)"} />
+            <div className="soft-inset" style={{ padding: '8px', borderRadius: '10px', flexShrink: 0 }}>
+              <FileText size={20} color={researchConsent ? "var(--primary-teal)" : "var(--text-muted)"} />
             </div>
             <div style={{ textAlign: 'left' }}>
               <p style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Contribute to Research</p>
