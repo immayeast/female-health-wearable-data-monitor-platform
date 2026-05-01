@@ -66,7 +66,7 @@ export const calculateTruthGap = (predicted: number, subjective: number, stdDev:
 };
 
 export const calculateAlignment = (predicted: number, subjective: number) => {
-  // Map subjective 1-5 scale to 0-100 (e.g. 5 -> 100, 3 -> 60)
+  // Map subjective 1-5 scale (Likert) to 0-100 (e.g. 5 -> 100, 3 -> 60)
   const subjectiveNormalized = Math.min(5, Math.max(1, subjective)) * 20;
   const gap = Math.abs(predicted - subjectiveNormalized); 
   return Math.max(0, Math.min(100, 100 - gap));

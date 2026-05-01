@@ -250,18 +250,29 @@ const RecalibrationNeumorphicNumericInput: React.FC<RecalibrationProps> = ({ onC
         color: '#A7BED3',
       },
       {
-        label: 'Stress Level',
+        label: 'Perceived Stress (Likert)',
         icon: <Info size={18} color="#A6B0A0" />,
-        unit: '/10',
+        unit: '/5',
         field: 'subjective_stress',
         min: 1,
-        max: 10,
+        max: 5,
         step: 1,
         color: '#A6B0A0',
       },
     ],
     []
   );
+
+  const getLikertLabel = (val: number) => {
+    const labels: Record<number, string> = {
+      1: "Not at all / Very Low",
+      2: "Low",
+      3: "Moderate",
+      4: "High",
+      5: "Very High"
+    };
+    return labels[val] || "";
+  };
 
   const handleSubmit = () => {
     setIsProcessing(true);
@@ -308,6 +319,9 @@ const RecalibrationNeumorphicNumericInput: React.FC<RecalibrationProps> = ({ onC
         <div style={{ marginTop: '2.5rem' }}>
           <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Subjective Log</h3>
           <WindowPaneSlider spec={specs[4]} rawText={text.subjective_stress} setText={setText} commitValue={commitValue} />
+          <p style={{ marginTop: '-1rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', textAlign: 'right' }}>
+            {getLikertLabel(data.subjective_stress)}
+          </p>
         </div>
       </div>
 
