@@ -197,9 +197,9 @@ const App = () => {
         >
           {step === 'login' && (
             <LoginNeumorphic 
-              onLogin={(email, consent) => {
-                console.log(`Research login for ${email} (Consent: ${consent})`);
-                setHasAcceptedResearch(consent);
+              onLogin={(email) => {
+                console.log(`Research login for ${email}`);
+                setHasAcceptedResearch(false); // Force acknowledgement overlay to show
                 setStep('home');
               }} 
             />
