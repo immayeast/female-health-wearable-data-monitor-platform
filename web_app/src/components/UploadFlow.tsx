@@ -14,7 +14,6 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(activeFile || null);
-  const [useResearchMode] = useState(true);
   const [researchConsent, setResearchConsent] = useState(false);
   const [sessionId] = useState(() => {
     try {
@@ -225,7 +224,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
 
           <div>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-              {isUploading ? (useResearchMode ? 'Running Python Pipeline...' : 'Calculating Z-scores...') : fileName || 'Select CSV File'}
+              {isUploading ? 'Running Python Pipeline...' : fileName || 'Select CSV File'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               {isUploading ? 'Executing Gradient Boosting model' : 'Individual user data for stress & cycle mapping'}
