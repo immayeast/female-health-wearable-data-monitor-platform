@@ -36,12 +36,22 @@ class PythonEngine {
       for (const script of scripts) {
         const response = await fetch(`/${script}`);
         if (response.ok) {
+          const contentType = response.headers.get('content-type');
+          
+          // CRITICAL: Check if we got HTML (404 page) instead of binary/python
+          if (contentType && contentType.includes('text/html')) {
+            console.error(`❌ Asset load failed for ${script}: Received HTML instead of data. Ensure the file is in public/`);
+            continue; 
+          }
+
           const content = script.endsWith('.pkl') 
             ? new Uint8Array(await response.arrayBuffer())
             : await response.text();
           
           this.pyodide.FS.writeFile(script, content);
           console.log(`📄 Loaded research asset: ${script}`);
+        } else {
+          console.warn(`⚠️ Could not find research asset: ${script}. Deep Research mode may fail.`);
         }
       }
 

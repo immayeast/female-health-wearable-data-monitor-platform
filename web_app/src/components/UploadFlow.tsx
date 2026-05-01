@@ -123,14 +123,19 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
         margin: '0 auto 2rem'
       }}>
         {/* Toggle 1: Deep Research Mode */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: '12px' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
             <div style={{ flexShrink: 0 }}>
               <Cpu size={22} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
             </div>
-            <div style={{ textAlign: 'left', overflow: 'hidden' }}>
-              <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Deep Research Mode</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Native Python Recalibration</p>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Deep Research Mode</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Python Inference Engine</p>
             </div>
           </div>
           <button 
@@ -138,59 +143,74 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
               setUseResearchMode(!useResearchMode);
               if (!pyStatus.isLoaded) pythonEngine.init();
             }}
+            className="soft-raised"
             style={{ 
-              width: '50px', 
-              height: '26px', 
-              borderRadius: '13px', 
-              padding: '2px',
-              background: useResearchMode ? 'var(--primary-lavender)' : 'var(--card-surface)',
+              width: '56px', 
+              height: '30px', 
+              borderRadius: '15px', 
+              padding: '3px',
+              background: useResearchMode ? 'var(--primary-lavender)' : 'rgba(0,0,0,0.03)',
               border: 'none',
               cursor: 'pointer',
-              position: 'relative'
+              flexShrink: 0,
+              position: 'relative',
+              transition: 'all 0.3s ease'
             }}
           >
             <div style={{ 
-              width: '22px', 
-              height: '22px', 
+              width: '24px', 
+              height: '24px', 
               borderRadius: '50%', 
               background: '#fff', 
-              transform: useResearchMode ? 'translateX(24px)' : 'translateX(0)',
-              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              transform: useResearchMode ? 'translateX(26px)' : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }} />
           </button>
         </div>
 
-        {/* Toggle 2: Research Opt-in (Anonymization logic) */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+        {/* Toggle 2: Research Opt-in */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: '12px',
+          borderTop: '1px solid rgba(0,0,0,0.05)', 
+          paddingTop: '1.5rem' 
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
             <div style={{ flexShrink: 0 }}>
               <FileText size={22} color={researchConsent ? "var(--primary-teal)" : "var(--text-muted)"} />
             </div>
-            <div style={{ textAlign: 'left', overflow: 'hidden' }}>
-              <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Contribute to Research</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Anonymize & Sync Data</p>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>Contribute to Research</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Anonymize & Sync</p>
             </div>
           </div>
           <button 
             onClick={() => setResearchConsent(!researchConsent)}
+            className="soft-raised"
             style={{ 
-              width: '50px', 
-              height: '26px', 
-              borderRadius: '13px', 
-              padding: '2px',
-              background: researchConsent ? 'var(--primary-teal)' : 'var(--card-surface)',
+              width: '56px', 
+              height: '30px', 
+              borderRadius: '15px', 
+              padding: '3px',
+              background: researchConsent ? 'var(--primary-teal)' : 'rgba(0,0,0,0.03)',
               border: 'none',
               cursor: 'pointer',
-              position: 'relative'
+              flexShrink: 0,
+              position: 'relative',
+              transition: 'all 0.3s ease'
             }}
           >
             <div style={{ 
-              width: '22px', 
-              height: '22px', 
+              width: '24px', 
+              height: '24px', 
               borderRadius: '50%', 
               background: '#fff', 
-              transform: researchConsent ? 'translateX(24px)' : 'translateX(0)',
-              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              transform: researchConsent ? 'translateX(26px)' : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }} />
           </button>
         </div>
