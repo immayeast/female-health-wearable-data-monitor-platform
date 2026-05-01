@@ -1,12 +1,12 @@
 import os
-import joblib
+import pickle
 import pandas as pd
 import numpy as np
 from recalibration_scores import run_recalibration_pipeline
 
 # Paths
 DATA_DIR = "/Users/kikkiliu/physionet.org/files/mcphases/data"
-OUTPUT_PATH = "/Users/kikkiliu/female-health-wearable-data-monitor-platform/web_app/public/research_model.joblib"
+OUTPUT_PATH = "/Users/kikkiliu/female-health-wearable-data-monitor-platform/web_app/public/research_model.pkl"
 
 def export_full_research_model():
     print("🧠 Building and Serializing the Research Brain...")

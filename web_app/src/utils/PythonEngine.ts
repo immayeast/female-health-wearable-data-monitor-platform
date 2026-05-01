@@ -28,15 +28,15 @@ class PythonEngine {
       
       // 1. Load Essential Data Science Libraries
       console.log("📦 Loading Python libraries (Pandas, Scikit-Learn, Joblib)...");
-      await this.pyodide.loadPackage(["pandas", "scikit-learn", "numpy", "micropip"]);
+      await this.pyodide.loadPackage(["pandas", "numpy", "scikit-learn", "micropip"]);
       await this.pyodide.runPythonAsync("import micropip; await micropip.install('joblib')");
       
       // 2. Load your Research Scripts into the Virtual Filesystem
-      const scripts = ['recalibration_scores.py', 'interpret_gb.py', 'research_model.joblib'];
+      const scripts = ['recalibration_scores.py', 'interpret_gb.py', 'research_model.pkl'];
       for (const script of scripts) {
         const response = await fetch(`/${script}`);
         if (response.ok) {
-          const content = script.endsWith('.joblib') 
+          const content = script.endsWith('.pkl') 
             ? new Uint8Array(await response.arrayBuffer())
             : await response.text();
           
@@ -62,7 +62,7 @@ class PythonEngine {
 
     const pythonCode = `
 import pandas as pd
-import joblib
+import pickle
 import io
 import json
 import traceback
@@ -70,9 +70,11 @@ from recalibration_scores import RecalibrationArtifacts
 
 try:
     # 1. Load the Research Brain
-    artifacts = joblib.load("research_model.joblib")
+    with open("research_model.pkl", "rb") as f:
+        artifacts = pickle.load(f)
     
-    # 2. Read the user's uploaded data (Autodetect delimiters)
+    # 2. Read the user's uploaded data
+    # Use 'sep=None, engine=python' to autodetect delimiters (comma, semicolon, etc.)
     df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
     print(f"📊 Raw Data Received: {len(df)} rows")
 
