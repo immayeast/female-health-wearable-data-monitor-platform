@@ -307,9 +307,25 @@ def train_gap_model(
 
     # Impute + scale
     imp = SimpleImputer(strategy="median").fit(Xtr)
-    sc = StandardScaler().fit(imp.transform(Xtr))
-    Xtr_s = sc.transform(imp.transform(Xtr))
-    Xvl_s = sc.transform(imp.transform(Xvl))
+    Xtr_i = imp.transform(Xtr)
+    
+    # CRITICAL: Handle features skipped by imputer (all NaNs)
+    if Xtr_i.shape[1] != len(features):
+        # Some features were dropped because they were empty.
+        # SimpleImputer with strategy='median' drops columns with all NaNs.
+        # We need to find which ones were kept.
+        mask = ~np.all(np.isnan(Xtr), axis=0)
+        kept_features = [f for i, f in enumerate(features) if mask[i]]
+        print(f"  ⚠️  Dropped {len(features) - len(kept_features)} empty features: {[f for i, f in enumerate(features) if not mask[i]]}")
+        features = kept_features
+        # Re-fit imputer on the reduced set to be safe
+        Xtr = tr[features].values
+        imp = SimpleImputer(strategy="median").fit(Xtr)
+        Xtr_i = imp.transform(Xtr)
+
+    sc = StandardScaler().fit(Xtr_i)
+    Xtr_s = sc.transform(Xtr_i)
+    Xvl_s = sc.transform(imp.transform(vl[features].values))
 
     # Train
     gb = GradientBoostingRegressor(
