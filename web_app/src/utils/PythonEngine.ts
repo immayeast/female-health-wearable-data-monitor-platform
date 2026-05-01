@@ -65,50 +65,75 @@ import pandas as pd
 import joblib
 import io
 import json
+import traceback
 from recalibration_scores import RecalibrationArtifacts
 
-# 1. Load the Research Brain
-artifacts = joblib.load("research_model.joblib")
+try:
+    # 1. Load the Research Brain
+    artifacts = joblib.load("research_model.joblib")
+    
+    # 2. Read the user's uploaded data
+    # Use 'sep=None, engine=python' to autodetect delimiters (comma, semicolon, etc.)
+    df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
+    
+    print(f"📊 CSV Loaded. Rows: {len(df)}, Columns: {list(df.columns)}")
 
-# 2. Read the user's uploaded data
-df = pd.read_csv(io.StringIO(input_csv_content))
+    # 3. Preprocess user data
+    LIKERT_MAP = {"Not at all": 0, "Very Low/Little": 1, "Low": 2, "Moderate": 3, "High": 4, "Very High": 5}
+    if "stress" in df.columns and df["stress"].dtype == object:
+        df["stress"] = df["stress"].map(LIKERT_MAP) * 20
 
-# 3. Preprocess user data (Map Likert if needed)
-LIKERT_MAP = {"Not at all": 0, "Very Low/Little": 1, "Low": 2, "Moderate": 3, "High": 4, "Very High": 5}
-if "stress" in df.columns and df["stress"].dtype == object:
-    df["stress"] = df["stress"].map(LIKERT_MAP) * 20
+    # 4. Align Features (Robustly handle missing columns)
+    X = df.reindex(columns=artifacts.gb_features)
+    missing = []
+    for i, feat in enumerate(artifacts.gb_features):
+        if X[feat].isnull().all():
+            X[feat] = artifacts.gb_imputer.statistics_[i]
+            missing.append(feat)
+    
+    if missing:
+        print(f"⚠️ Missing columns filled with research baselines: {missing}")
 
-# 4. Align Features (Robustly handle missing columns)
-# Ensure all columns required by the model exist, fill missing with medians from artifacts
-X = df.reindex(columns=artifacts.gb_features)
-for i, feat in enumerate(artifacts.gb_features):
-    if X[feat].isnull().all():
-        # Use the median from the imputer if the entire column is missing
-        X[feat] = artifacts.gb_imputer.statistics_[i]
+    X_imp = artifacts.gb_imputer.transform(X)
+    X_sc = artifacts.gb_scaler.transform(X_imp)
 
-X_imp = artifacts.gb_imputer.transform(X)
-X_sc = artifacts.gb_scaler.transform(X_imp)
+    predicted_gap = artifacts.gb_model.predict(X_sc)
+    
+    # Determine base score (use stress_score, or overall_score, or fallback to 65)
+    base_col = "stress_score" if "stress_score" in df.columns else ("overall_score" if "overall_score" in df.columns else None)
+    if base_col:
+        adjusted_score = df[base_col] + predicted_gap
+    else:
+        print("⚠️ No stress_score found in CSV. Using model intercept (65) as baseline.")
+        adjusted_score = pd.Series([65] * len(df)) + predicted_gap
 
-predicted_gap = artifacts.gb_model.predict(X_sc)
-adjusted_score = df["stress_score"] if "stress_score" in df.columns else pd.Series([65] * len(df))
-adjusted_score = adjusted_score + predicted_gap
+    # 5. Format results for React
+    results = {
+        "score": float(adjusted_score.iloc[-1]),
+        "gap": float(predicted_gap[-1]),
+        "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown"
+    }
+    print(f"✅ Recalibration Success: Score={results['score']:.2f}, Gap={results['gap']:.2f}")
+    final_output = json.dumps(results)
 
-# 5. Format results for React
-results = {
-    "score": float(adjusted_score.iloc[-1]),
-    "gap": float(predicted_gap[-1]),
-    "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown"
-}
-json.dumps(results)
+except Exception as e:
+    error_msg = f"❌ Python Error: {str(e)}\n{traceback.format_exc()}"
+    print(error_msg)
+    final_output = json.dumps({"error": str(e), "traceback": traceback.format_exc()})
+
+final_output
 `;
 
     try {
       const jsonResult = await this.pyodide.runPythonAsync(pythonCode);
-      return JSON.parse(jsonResult);
+      const parsed = JSON.parse(jsonResult);
+      if (parsed.error) {
+        throw new Error(parsed.error);
+      }
+      return parsed;
     } catch (err: any) {
       console.error("🐍 Python Execution Error:", err.message);
-      // Re-throw a cleaner error for the UI
-      throw new Error(`Python Pipeline Error: ${err.message}`);
+      throw err;
     }
   }
 
