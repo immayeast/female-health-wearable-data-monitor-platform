@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, BrainCircuit, LineChart, FlaskConical, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Layers, BrainCircuit, LineChart, FlaskConical, ArrowLeft, CheckCircle2, Database, ExternalLink } from 'lucide-react';
 
 interface WalkthroughProps {
   onBack: () => void;
@@ -21,7 +21,32 @@ const MethodologyWalkthrough: React.FC<WalkthroughProps> = ({ onBack }) => {
         <p className="screen-subtitle" style={{ textAlign: 'left' }}>Detailed scientific validation and model architecture.</p>
       </header>
 
-      {/* 1. Algorithm Evolution */}
+      {/* 1. Dataset */}
+      <section className="soft-raised" style={{ padding: '2.5rem', marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
+          <Database size={24} color="var(--secondary-mint)" />
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Dataset</h2>
+        </div>
+        <div style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
+          <p style={{ marginBottom: '1rem' }}>
+            We use the <strong>mcPHASES</strong> dataset, collected from <strong>42 Canadian young adult menstruators</strong> across two 3-month study periods.
+          </p>
+          <p style={{ marginBottom: '1.25rem' }}>
+            The dataset combines wearable physiology from <strong>Fitbit Sense</strong>, continuous glucose data from <strong>Dexcom G6</strong>, hormone measures from <strong>Mira Plus</strong>, and daily self-reports such as cramps, sleep quality, and stress.
+          </p>
+          <a
+            href="https://www.physionet.org/content/mcphases/1.0.0/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--primary-lavender)', fontWeight: 700, fontSize: '0.85rem' }}
+          >
+            <span>View mcPHASES dataset on PhysioNet</span>
+            <ExternalLink size={14} />
+          </a>
+        </div>
+      </section>
+
+      {/* 2. Algorithm Evolution */}
       <section className="soft-raised" style={{ padding: '2.5rem', marginBottom: '3rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
           <BrainCircuit size={24} color="var(--primary-lavender)" />
@@ -43,7 +68,7 @@ const MethodologyWalkthrough: React.FC<WalkthroughProps> = ({ onBack }) => {
         </div>
       </section>
 
-      {/* 2. Numerical Results */}
+      {/* 3. Numerical Results */}
       <section className="soft-raised" style={{ padding: '2.5rem', marginBottom: '3rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
           <LineChart size={24} color="var(--secondary-mint)" />
@@ -64,7 +89,7 @@ const MethodologyWalkthrough: React.FC<WalkthroughProps> = ({ onBack }) => {
         </p>
       </section>
 
-      {/* 3. Model Architecture */}
+      {/* 4. Model Architecture */}
       <section className="soft-raised" style={{ padding: '2.5rem', marginBottom: '3rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
           <Layers size={24} color="var(--primary-lavender)" />
