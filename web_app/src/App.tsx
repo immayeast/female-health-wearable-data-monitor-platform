@@ -214,6 +214,8 @@ const App = () => {
           {step === 'log' && (
             <UploadFlow 
               onComplete={handleUploadComplete} 
+              activeFile={modelResults?.fileName}
+              onClear={() => setModelResults(null)}
             />
           )}
           {step === 'analysis' && (

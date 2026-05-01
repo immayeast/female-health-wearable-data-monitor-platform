@@ -6,13 +6,15 @@ import { pythonEngine } from '../utils/PythonEngine';
 
 interface UploadFlowProps {
   onComplete: (results: any) => void;
+  activeFile?: string | null;
+  onClear?: () => void;
 }
 
-const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
+const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [useResearchMode, setUseResearchMode] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(activeFile || null);
+  const [useResearchMode, setUseResearchMode] = useState(true);
   const [researchConsent, setResearchConsent] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [pyStatus, setPyStatus] = useState({ isLoaded: false, isLoading: false });
@@ -54,6 +56,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
             const pyResult = await pythonEngine.runRecalibration(text);
             
             onComplete({
+              fileName: file.name,
               state: { day_in_cycle: 14 }, // Placeholder for now
               classification: predictStressClassification(pyResult.score),
               phase: pyResult.phase,
@@ -261,6 +264,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
                 e.stopPropagation();
                 setFileName(null);
                 setError(null);
+                if (onClear) onClear();
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
               className="soft-btn"
