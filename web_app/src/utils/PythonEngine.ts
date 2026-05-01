@@ -131,14 +131,29 @@ try:
     
     predicted_gaps = predict_ensemble(brain, X)
     
-    # 4. Result Formatting
-    base_col = "stress_score" if "stress_score" in df.columns else ("overall_score" if "overall_score" in df.columns else None)
-    current_score = df[base_col].iloc[-1] if (base_col and not pd.isna(df[base_col].iloc[-1])) else 65
+    # 4. Result Formatting & Synthetic Baseline
+    score_candidates = ['stress_score', 'overall_score', 'stress', 'readiness', 'wellness', 'score']
+    base_col = next((c for c in score_candidates if c in df.columns), None)
     
+    current_score = None
+    if base_col and not pd.isna(df[base_col].iloc[-1]):
+        current_score = df[base_col].iloc[-1]
+    
+    if current_score is None:
+        # Derive synthetic base if no score found
+        latest_rhr = df['resting_hr'].iloc[-1] if 'resting_hr' in df.columns else 70
+        latest_hrv = df['rmssd'].iloc[-1] if 'rmssd' in df.columns else 65
+        rhr_n = np.clip((latest_rhr - 40) / 60, 0, 1)
+        hrv_n = np.clip((latest_hrv - 20) / 100, 0, 1)
+        current_score = 70 - (rhr_n * 30) + (hrv_n * 20)
+
+    predicted_gap = float(predicted_gaps[-1])
     results = {
-        "score": float(current_score + predicted_gaps[-1]),
-        "gap": float(predicted_gaps[-1]),
-        "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown"
+        "score": round(float(np.clip(current_score + predicted_gap, 0, 100)), 1),
+        "gap": round(predicted_gap, 1),
+        "base_score": round(float(current_score), 1),
+        "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown",
+        "status": "Balanced" if (current_score + predicted_gap) < 70 else "High Performance"
     }
     final_output = json.dumps(results)
 except Exception as e:
