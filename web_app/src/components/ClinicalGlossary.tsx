@@ -39,56 +39,101 @@ const ClinicalGlossary: React.FC<GlossaryProps> = ({ isOpen, onClose, term }) =>
   return (
     <AnimatePresence>
       {isOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          {/* Deep Blur Backdrop */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} 
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }} 
           />
+          
+          {/* The High-Contrast 3D Card */}
           <motion.div 
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="soft-raised"
+            exit={{ scale: 0.95, opacity: 0, y: 10 }}
             style={{ 
               width: '100%', 
               maxWidth: '440px', 
               padding: '2.5rem', 
               position: 'relative', 
               zIndex: 1001, 
-              background: 'rgba(255, 255, 255, 0.95)', 
-              backdropFilter: 'blur(20px)',
-              borderRadius: '32px',
-              border: '1px solid rgba(255, 255, 255, 0.5)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
+              background: '#FFFFFF', // High-Contrast White for readability
+              borderRadius: '36px',
+              boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)', // Deep 3D Elevation
             }}
           >
-            <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', border: 'none', background: 'rgba(0,0,0,0.05)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#444' }}>
-              <X size={18} />
+            {/* Minimalist Close Button */}
+            <button 
+              onClick={onClose} 
+              style={{ 
+                position: 'absolute', 
+                top: '24px', 
+                right: '24px', 
+                border: 'none', 
+                background: '#F1F3F5', // Soft tactile circle
+                borderRadius: '50%', 
+                width: '36px', 
+                height: '36px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer', 
+                color: '#495057',
+                transition: 'transform 0.2s ease'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            >
+              <X size={20} strokeWidth={2.5} />
             </button>
 
             {term ? (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', color: 'var(--primary-lavender)' }}>
-                  <div style={{ background: 'var(--primary-lavender)', color: '#fff', borderRadius: '10px', padding: '8px' }}>
-                    <Info size={24} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '1.75rem' }}>
+                  {/* Purple Clinical Icon Badge */}
+                  <div style={{ 
+                    background: '#B9A7F5', 
+                    color: '#fff', 
+                    borderRadius: '12px', 
+                    padding: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <Info size={24} strokeWidth={2.5} />
                   </div>
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2D3748', letterSpacing: '-0.02em' }}>{CLINICAL_TERMS[term].full}</h3>
+                  <h3 style={{ 
+                    fontSize: '1.5rem', 
+                    fontWeight: 800, 
+                    color: '#212529', 
+                    letterSpacing: '-0.02em',
+                    margin: 0
+                  }}>
+                    {CLINICAL_TERMS[term].full}
+                  </h3>
                 </div>
-                <p style={{ fontSize: '1.05rem', lineHeight: 1.6, color: '#4A5568', fontWeight: 500 }}>
+                
+                <p style={{ 
+                  fontSize: '1.15rem', 
+                  lineHeight: 1.6, 
+                  color: '#495057', 
+                  fontWeight: 500,
+                  margin: 0
+                }}>
                   {CLINICAL_TERMS[term].description}
                 </p>
               </div>
             ) : (
               <div>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '2rem', color: '#2D3748' }}>Clinical Glossary</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '2.5rem', color: '#212529' }}>Clinical Glossary</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                   {Object.entries(CLINICAL_TERMS).map(([key, data]) => (
                     <div key={key}>
-                      <p style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--primary-lavender)', marginBottom: '6px' }}>{data.full} ({key})</p>
-                      <p style={{ fontSize: '0.9rem', color: '#4A5568', lineHeight: 1.5, fontWeight: 500 }}>{data.description}</p>
+                      <p style={{ fontWeight: 800, fontSize: '1rem', color: '#B9A7F5', marginBottom: '6px' }}>{data.full} ({key})</p>
+                      <p style={{ fontSize: '0.95rem', color: '#495057', lineHeight: 1.6, fontWeight: 500 }}>{data.description}</p>
                     </div>
                   ))}
                 </div>
