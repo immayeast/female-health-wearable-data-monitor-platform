@@ -135,7 +135,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           label="Cycle Day" 
           icon={<Calendar size={18} color="#A7BED3" />}
           value={data.cycle_day}
-          min={1} max={28} step={1} unit=""
+          min={1} max={45} step={1} unit=""
           field="cycle_day"
           color="#A7BED3" // Distinct Slate Blue
         />

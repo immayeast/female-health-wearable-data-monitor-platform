@@ -245,7 +245,7 @@ const RecalibrationNeumorphicNumericInput: React.FC<RecalibrationProps> = ({ onC
         unit: '',
         field: 'cycle_day',
         min: 1,
-        max: 28,
+        max: 45,
         step: 1,
         color: '#A7BED3',
       },

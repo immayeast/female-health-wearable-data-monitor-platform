@@ -99,13 +99,19 @@ try:
     with open("research_model.json", "r") as f:
         brain = json.load(f)
     
-    # 2. Read & Clean Data
-    # Use 'on_bad_lines' to skip corrupted rows and 'engine="python"' for better robustness
+    # 2. Read & Clean Data (Super-Resilient Parser)
+    # 1st try: Python engine with auto-delimiter detection and bad line skipping
+    # 2nd try: Default C engine (fast)
+    # 3rd try: Low-level string cleaning then read
     try:
-        df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip')
+        df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip', quotechar='"', escapechar='\\')
     except Exception:
-        # Fallback for extreme cases
-        df = pd.read_csv(io.StringIO(input_csv_content), engine='c')
+        try:
+            df = pd.read_csv(io.StringIO(input_csv_content), on_bad_lines='skip')
+        except Exception:
+            # Last resort: Clean the string of unusual characters first
+            cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\n\r\t,")
+            df = pd.read_csv(io.StringIO(cleaned), sep=',', on_bad_lines='skip')
     
     # Map common variations
     MAPPING = {'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
@@ -118,6 +124,10 @@ try:
     
     # Manual Imputation & Scaling
     X = X_raw.copy()
+    if 'cycle_day' in brain['features']:
+        idx = brain['features'].index('cycle_day')
+        X[:, idx] = np.clip(X[:, idx], None, 45)
+
     for i in range(X.shape[1]):
         mask = np.isnan(X[:, i])
         X[mask, i] = brain['imputer_medians'][i]
