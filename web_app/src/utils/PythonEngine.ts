@@ -76,95 +76,99 @@ import io
 import json
 import traceback
 
-def predict_tree(tree, x):
-    node = 0
-    # While not a leaf
-    while tree['children_left'][node] != -1:
-        if x[tree['feature'][node]] <= tree['threshold'][node]:
-            node = tree['children_left'][node]
-        else:
-            node = tree['children_right'][node]
-    return tree['value'][node]
+    def walk_tree(node, row):
+        while not node.get("is_leaf", False):
+            val = row[node["feature_idx"]]
+            node = node["left"] if val <= node["threshold"] else node["right"]
+        return node["value"]
 
-def predict_ensemble(brain, X):
-    # Initialize with the constant value
-    y = np.full(X.shape[0], brain['init_estimator_value'])
-    for tree in brain['trees']:
-        for i in range(X.shape[0]):
-            y[i] += brain['learning_rate'] * predict_tree(tree, X[i])
-    return y
-
-try:
-    # 1. Load the Universal Research Brain (JSON)
+    # 1. Load Unified Brain
     with open("research_model.json", "r") as f:
         brain = json.load(f)
     
     # 2. Read & Clean Data (Resilient Python-only Parser)
-    # Forced 'python' engine avoids C-buffer overflow on malformed files
     try:
         df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip', quotechar='"', escapechar='\\\\')
     except Exception:
-        # Final fallback: Clean the string and use a simple comma-split
         cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\\n\\r\\t,")
         df = pd.read_csv(io.StringIO(cleaned), sep=',', engine='python', on_bad_lines='skip')
     
-    # Map common variations to match clinical model feature names
     MAPPING = {
-        'rhr': 'resting_hr', 
-        'hrv': 'rmssd_mean', 
-        'rmssd': 'rmssd_mean',
-        'stress_level': 'stress_score',
-        'stress': 'stress_score',
-        'temp_diff': 'temperature_diff_from_baseline',
-        'day_in_cycle': 'cycle_day',
-        'day': 'cycle_day'
+        'rhr': 'resting_hr', 'hrv': 'rmssd_mean', 'rmssd': 'rmssd_mean',
+        'stress_level': 'stress_score', 'stress': 'stress_score',
+        'temp_diff': 'temperature_diff_from_baseline', 'day_in_cycle': 'cycle_day',
+        'hr_mean': 'hr_mean'
     }
     df = df.rename(columns=MAPPING)
-    
-    # Deduplicate columns to avoid reindexing errors
     df = df.loc[:, ~df.columns.duplicated()]
-    
-    # 3. Universal Inference (Zero-Dependency)
-    # Align features to model expectations
-    X_raw = df.reindex(columns=brain['features']).values
-    
-    # Manual Imputation & Scaling
-    X = X_raw.copy()
-    if 'cycle_day' in brain['features']:
-        idx = brain['features'].index('cycle_day')
-        X[:, idx] = np.clip(X[:, idx], None, 45)
 
-    for i in range(X.shape[1]):
-        mask = np.isnan(X[:, i])
-        X[mask, i] = brain['imputer_medians'][i]
+    # 3. PHASE PREDICTION (7-Day Sliding Window RF)
+    phase_cfg = brain["phase_model"]
+    window_size = phase_cfg["window_size"]
+    base_features = phase_cfg["base_features"]
     
-    X = (X - np.array(brain['scaler_mean'])) / np.array(brain['scaler_scale'])
+    # Sort and ensure we have enough history (pad if needed)
+    df = df.sort_values(df.columns[0]).reset_index(drop=True) 
+    if len(df) < window_size:
+        pad = pd.DataFrame([df.iloc[0]] * (window_size - len(df)))
+        padded_df = pd.concat([pad, df]).reset_index(drop=True)
+    else:
+        padded_df = df.tail(window_size).reset_index(drop=True)
+
+    # Calculate Windowed Features (Means, Slopes, Std, Last)
+    window_X = padded_df[base_features].values.astype(float)
+    window_X = np.nan_to_num(window_X, nan=np.nanmean(window_X) if not np.all(np.isnan(window_X)) else 0)
     
-    predicted_gaps = predict_ensemble(brain, X)
+    sample = []
+    # a. Means
+    sample.extend(np.nanmean(window_X, axis=0))
+    # b. Slopes
+    x_axis = np.arange(window_size)
+    for j in range(window_X.shape[1]):
+        col = window_X[:, j]
+        valid = ~np.isnan(col)
+        sample.append(np.polyfit(x_axis[valid], col[valid], 1)[0] if valid.sum() >= 2 else 0.0)
+    # c. Std
+    sample.extend(np.nan_to_num(np.nanstd(window_X, axis=0), nan=0.0))
+    # d. Last
+    sample.extend(np.nan_to_num(window_X[-1], nan=0.0))
+
+    # Phase Vote (RF Averaging)
+    votes = [walk_tree(tree, sample) for tree in phase_cfg["trees"]]
+    final_phase_idx = int(max(set(votes), key=votes.count))
+    predicted_phase = phase_cfg["classes"][final_phase_idx]
+
+    # 4. GAP PREDICTION (Static GB)
+    gap_cfg = brain["gap_model"]
+    # Single row features for gap
+    X_gap = df.reindex(columns=gap_cfg["features"]).iloc[-1].values.astype(float)
+    X_gap = np.nan_to_num(X_gap, nan=0)
+    X_gap = (X_gap - np.array(gap_cfg["scaler_mean"])) / np.array(gap_cfg["scaler_scale"])
     
-    # 4. Result Formatting & Synthetic Baseline
+    # GB uses sum of residuals
+    gap_residual = sum(walk_tree(tree, X_gap) for tree in gap_cfg["trees"])
+    predicted_gap = gap_cfg["init_value"] + (gap_cfg["learning_rate"] * gap_residual)
+
+    # 5. Final Result Formatting
     score_candidates = ['stress_score', 'overall_score', 'stress', 'readiness', 'wellness', 'score']
     base_col = next((c for c in score_candidates if c in df.columns), None)
+    current_score = df[base_col].iloc[-1] if (base_col and not pd.isna(df[base_col].iloc[-1])) else 65
     
-    current_score = None
-    if base_col and not pd.isna(df[base_col].iloc[-1]):
-        current_score = df[base_col].iloc[-1]
-    
-    if current_score is None:
-        # Derive synthetic base if no score found
+    if base_col is None:
         latest_rhr = df['resting_hr'].iloc[-1] if 'resting_hr' in df.columns else 70
-        latest_hrv = df['rmssd'].iloc[-1] if 'rmssd' in df.columns else 65
+        latest_hrv = df['rmssd_mean'].iloc[-1] if 'rmssd_mean' in df.columns else 65
         rhr_n = np.clip((latest_rhr - 40) / 60, 0, 1)
         hrv_n = np.clip((latest_hrv - 20) / 100, 0, 1)
         current_score = 70 - (rhr_n * 30) + (hrv_n * 20)
 
-    predicted_gap = float(predicted_gaps[-1])
+    final_score = np.clip(current_score + predicted_gap, 0, 100)
+    
     results = {
-        "score": round(float(np.clip(current_score + predicted_gap, 0, 100)), 1),
-        "gap": round(predicted_gap, 1),
+        "score": round(float(final_score), 1),
+        "gap": round(float(predicted_gap), 1),
         "base_score": round(float(current_score), 1),
-        "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown",
-        "status": "Balanced" if (current_score + predicted_gap) < 70 else "High Performance"
+        "phase": predicted_phase,
+        "status": "Balanced" if final_score < 70 else "High Performance"
     }
     final_output = json.dumps(results)
 except Exception as e:
