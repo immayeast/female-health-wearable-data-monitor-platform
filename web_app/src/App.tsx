@@ -15,7 +15,7 @@ import Logo from './components/Logo';
 import ResearchAcknowledgement from './components/ResearchAcknowledgement';
 import MethodologyWalkthrough from './components/MethodologyWalkthrough';
 import ResearchReferences from './components/ResearchReferences';
-import { calculateAlignment, predictPhase, predictPhaseGB, predictStressClassification, predictStressScore, predictStressScoreGB } from './utils/modelEngine';
+import { calculateAlignment, predictPhase, predictPhaseGB, predictStressClassification, predictStressScore, predictGapGB, recalibrateStress } from './utils/modelEngine';
 import { useEffect } from 'react';
 
 export type UserData = {
@@ -92,10 +92,23 @@ const App = () => {
       temperature_diff_from_baseline: data?.temp_diff ?? 0.2,
     };
 
-    let score, phase;
+    let score, phase, predictedGap = 0;
+    const baseline = {
+      resting_hr: 67,
+      rmssd: 58,
+      temperature_diff_from_baseline: 0,
+      lh: 8,
+      estrogen: 108,
+      pdg: 6
+    };
+
     if (gbModel) {
-      score = predictStressScoreGB(state, gbModel);
-      phase = predictPhaseGB(state, gbModel);
+      predictedGap = predictGapGB(state, baseline, gbModel);
+      phase = predictPhaseGB(state, baseline, gbModel);
+      // We need a "Raw Wearable" value to adjust. 
+      // In this demo, we'll use a baseline of 65 (the model intercept) as the wearable's 'guess'
+      const rawWearableGuess = 65; 
+      score = recalibrateStress(rawWearableGuess, predictedGap);
     } else {
       score = predictStressScore(state, fallbackMetadata as any);
       phase = predictPhase(state.day_in_cycle);
@@ -107,6 +120,7 @@ const App = () => {
     setModelResults({
       state,
       score,
+      predictedGap,
       classification,
       phase,
       alignment,
@@ -157,6 +171,7 @@ const App = () => {
               classification={modelResults?.classification}
               phase={modelResults?.phase}
               recalibratedValue={modelResults ? modelResults.score : undefined}
+              predictedGap={modelResults?.predictedGap}
             />
           )}
           {step === 'log' && (

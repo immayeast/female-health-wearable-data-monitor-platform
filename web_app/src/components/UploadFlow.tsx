@@ -75,17 +75,23 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
             day_in_cycle: cycleDay
           };
 
-          let predictedScore, phase;
+          let predictedScore, phase, predictedGap = 0;
+          const baseline = { resting_hr: 67, rmssd: 58, temperature_diff_from_baseline: 0, lh: 8, estrogen: 108, pdg: 6 };
+
           if (isGB) {
             import('../utils/modelEngine').then(engine => {
-               predictedScore = engine.predictStressScoreGB(state, metadata);
-               phase = engine.predictPhaseGB(state, metadata);
-               finishProcess(state, predictedScore, phase, rawData);
+               predictedGap = engine.predictGapGB(state, baseline, metadata);
+               phase = engine.predictPhaseGB(state, baseline, metadata);
+               
+               const rawWearable = rawData.stress_score || 65;
+               predictedScore = engine.recalibrateStress(rawWearable, predictedGap);
+               
+               finishProcess(state, predictedScore, phase, rawData, predictedGap);
             });
           } else {
              predictedScore = predictStressScore(state, metadata);
              phase = predictPhase(state.day_in_cycle);
-             finishProcess(state, predictedScore, phase, rawData);
+             finishProcess(state, predictedScore, phase, rawData, 0);
           }
 
         } catch (err) {
@@ -100,7 +106,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     }
   };
 
-  const finishProcess = (state: any, predictedScore: number, phase: string, rawData: any) => {
+  const finishProcess = (state: any, predictedScore: number, phase: string, rawData: any, predictedGap: number) => {
     const classification = predictStressClassification(predictedScore);
     setTimeout(() => {
       onComplete({
@@ -108,6 +114,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
         classification,
         phase,
         score: predictedScore,
+        predictedGap,
         rawData,
         timestamp: new Date().toISOString()
       });

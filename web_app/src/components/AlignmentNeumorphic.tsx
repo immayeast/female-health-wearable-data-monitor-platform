@@ -14,16 +14,17 @@ interface AlignmentProps {
   };
   phase?: string;
   recalibratedValue?: number;
+  predictedGap?: number;
 }
 
-const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, classification, phase, recalibratedValue }) => {
+const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, classification, phase, recalibratedValue, predictedGap = 0 }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
     <div className="container fade-in" style={{ paddingBottom: '100px' }}>
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <h1 className="screen-title">P4 Analysis Dashboard</h1>
-        <p className="screen-subtitle">Personalized. Predictive. Preventive. Participatory.</p>
+        <h1 className="screen-title">P4 Recalibration Dashboard</h1>
+        <p className="screen-subtitle">Correcting the truth gap with research-grade AI.</p>
       </div>
 
       {/* 1. Main Gauge Section */}
@@ -39,12 +40,12 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
               <span style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--primary-lavender)' }}>
                 {Math.round(recalibratedValue || value)}%
               </span>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Alignment Score</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Recalibrated Score</p>
             </div>
             {classification && (
               <div style={{ position: 'absolute', bottom: '-45px', width: '100%', textAlign: 'center' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '4px 12px', borderRadius: '12px', background: 'var(--primary-lavender)', color: '#fff' }}>
-                  {classification.group} Group
+                  {classification.group} Mode
                 </span>
               </div>
             )}
@@ -75,9 +76,9 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <Info size={20} color="var(--primary-lavender)" style={{ marginTop: '2px' }} />
                 <div>
-                  <p style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>Model Decision Logic</p>
+                  <p style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>Recalibration Logic</p>
                   <p style={{ fontSize: '0.85rem', lineHeight: 1.5, color: 'var(--text-secondary)' }}>
-                    Your classification as <strong>{classification?.group}</strong> is driven by a {classification?.level} deviation in your HRV and Resting Heart Rate Z-scores for the last 24 hours.
+                    Your classification as <strong>{classification?.group}</strong> is driven by your unique physiological baseline and the predicted <strong>{Math.round(predictedGap)}pt</strong> adjustment needed to align the wearable with your perception.
                   </p>
                 </div>
               </div>
@@ -98,30 +99,30 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
       <section className="soft-raised" style={{ marginTop: '2rem', padding: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
           <BrainCircuit size={24} color="var(--primary-lavender)" />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Feature Importance (Live)</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>AI Recalibration (Live)</h3>
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <div className="soft-inset" style={{ padding: '1.5rem', textAlign: 'center' }}>
-            <Activity size={20} color="var(--error)" style={{ margin: '0 auto 10px' }} />
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Gap Impact</p>
-            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{Math.round(100 - value)}%</p>
+            <Activity size={20} color={predictedGap >= 0 ? "var(--error)" : "var(--success)"} style={{ margin: '0 auto 10px' }} />
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>AI Correction</p>
+            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{predictedGap >= 0 ? '+' : ''}{Math.round(predictedGap)} pts</p>
           </div>
           <div className="soft-inset" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <Target size={20} color="var(--primary-lavender)" style={{ margin: '0 auto 10px' }} />
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Physio Score</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Aligned Score</p>
             <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{Math.round(recalibratedValue || 0)}</p>
           </div>
         </div>
         
         <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
           <p>
-            The model identified a <strong>{Math.round(100 - value)}%</strong> discrepancy between your subjective report and physiological baseline. This <strong>"Truth Gap"</strong> is being used to recalibrate your wellness drivers.
+            The model applied a <strong>{Math.round(predictedGap)} point</strong> correction to the raw wearable data to account for the truth gap identified in your current physiological state.
           </p>
         </div>
       </section>
 
-      {/* 3. Original Sections (Drivers, Insight, Ritual) */}
+      {/* 3. Original Sections (Drivers, Insight) */}
       <section style={{ marginTop: '6rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 className="screen-title" style={{ fontSize: '1.4rem' }}>Gap Drivers</h2>

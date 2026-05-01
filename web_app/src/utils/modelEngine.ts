@@ -1,6 +1,6 @@
 /**
  * mcPHASES Research Model Engine (Production)
- * High-Fidelity Gradient Boosting Version
+ * Gap-Centric Recalibration Version
  */
 
 export interface GBNode {
@@ -16,14 +16,15 @@ export interface GBNode {
 export interface GBModelMetadata {
   metadata: {
     features: string[];
-    means: Record<string, number>;
-    stds: Record<string, number>;
+    z_features: string[];
+    global_means: Record<string, number>;
+    global_stds: Record<string, number>;
     phase_labels: string[];
     learning_rate: number;
-    intercept_stress: number;
+    intercept_gap: number;
     intercept_phase: number[];
   };
-  stress_trees: GBNode[];
+  gap_trees: GBNode[];
   phase_trees: GBNode[][];
 }
 
@@ -38,7 +39,15 @@ export interface UserState {
   subjectiveStress?: number;
 }
 
-// Tree Traversal Engine
+export interface UserBaseline {
+  resting_hr: number;
+  rmssd: number;
+  temperature_diff_from_baseline: number;
+  lh?: number;
+  estrogen?: number;
+  pdg?: number;
+}
+
 const walkTree = (node: GBNode, featureValues: number[]): number => {
   if (node.is_leaf) return node.value || 0;
   const val = featureValues[node.feature_idx!];
@@ -46,50 +55,61 @@ const walkTree = (node: GBNode, featureValues: number[]): number => {
   return walkTree(node.right!, featureValues);
 };
 
-// 1. Stress Prediction (GB Regressor)
-export const predictStressScoreGB = (state: UserState, model: GBModelMetadata) => {
-  const { features, means, stds, learning_rate, intercept_stress } = model.metadata;
+/**
+ * Within-Person Z-Score Calculation
+ * This is the heart of the research: comparing you to YOUR normal.
+ */
+const calculateZScores = (state: UserState, baseline: UserBaseline, model: GBModelMetadata) => {
+  const { features, global_means, global_stds } = model.metadata;
   
-  // Normalize features
-  const featureValues = features.map(f => {
-    const rawValue = (state as any)[f] || means[f];
-    return (rawValue - means[f]) / (stds[f] || 1);
+  return features.map(f => {
+    const rawValue = (state as any)[f] || (baseline as any)[f] || global_means[f];
+    const userMean = (baseline as any)[f] || global_means[f];
+    const userStd = (global_stds[f] || 1); // We use global std as a proxy for variability if unknown
+    
+    return (rawValue - userMean) / userStd;
+  });
+};
+
+// 1. Gap Prediction (GB Regressor)
+export const predictGapGB = (state: UserState, baseline: UserBaseline, model: GBModelMetadata) => {
+  const { learning_rate, intercept_gap } = model.metadata;
+  const zScores = calculateZScores(state, baseline, model);
+
+  let predictedGap = intercept_gap;
+  model.gap_trees.forEach(tree => {
+    predictedGap += learning_rate * walkTree(tree, zScores);
   });
 
-  // Calculate GB sum
-  let prediction = intercept_stress;
-  model.stress_trees.forEach(tree => {
-    prediction += learning_rate * walkTree(tree, featureValues);
-  });
-
-  return Math.max(0, Math.min(100, prediction));
+  return predictedGap;
 };
 
 // 2. Phase Prediction (GB Classifier)
-export const predictPhaseGB = (state: UserState, model: GBModelMetadata) => {
-  const { features, means, stds, learning_rate, intercept_phase, phase_labels } = model.metadata;
-  
-  // Normalize features
-  const featureValues = features.map(f => {
-    const rawValue = (state as any)[f] || means[f];
-    return (rawValue - means[f]) / (stds[f] || 1);
-  });
+export const predictPhaseGB = (state: UserState, baseline: UserBaseline, model: GBModelMetadata) => {
+  const { learning_rate, intercept_phase, phase_labels } = model.metadata;
+  const zScores = calculateZScores(state, baseline, model);
 
-  // Multiclass GB uses One-vs-Rest raw scores
   const scores = [...intercept_phase];
-  
   model.phase_trees.forEach(iteration => {
     iteration.forEach((tree, classIdx) => {
-      scores[classIdx] += learning_rate * walkTree(tree, featureValues);
+      scores[classIdx] += learning_rate * walkTree(tree, zScores);
     });
   });
 
-  // Softmax to find highest probability class
   const maxIdx = scores.indexOf(Math.max(...scores));
   return phase_labels[maxIdx];
 };
 
-// Legacy mappings and helpers
+/**
+ * RECALIBRATION LOGIC
+ * Final Score = Raw Wearable + Predicted AI Gap
+ */
+export const recalibrateStress = (rawWearableScore: number, predictedGap: number) => {
+  const recalibrated = rawWearableScore + predictedGap;
+  return Math.max(0, Math.min(100, recalibrated));
+};
+
+// Legacy Helpers
 export const predictStressClassification = (score: number) => {
   if (score > 80) return { group: 'Acute Stress', level: 'High' };
   if (score > 68) return { group: 'Elevated Gap', level: 'Moderate' };
@@ -116,14 +136,16 @@ export const parseResearchCSV = (csvText: string) => {
   return data;
 };
 
-// Backwards compatibility for components not yet using GB
-export const predictStressScore = (state: UserState, metadata: any) => {
-  let score = metadata.intercept;
-  metadata.feature_names.forEach((feature: string) => {
-    const rawValue = (state as any)[feature] || metadata.means[feature];
-    const zScore = (rawValue - metadata.means[feature]) / metadata.stds[feature];
-    score += zScore * metadata.weights[feature];
-  });
+// Backwards compatibility
+export const predictStressScore = (state: any, metadata: any) => {
+  let score = metadata.intercept || 65;
+  if (metadata.weights && metadata.feature_names) {
+    metadata.feature_names.forEach((feature: string) => {
+      const rawValue = (state as any)[feature] || metadata.means[feature];
+      const zScore = (rawValue - metadata.means[feature]) / metadata.stds[feature];
+      score += zScore * metadata.weights[feature];
+    });
+  }
   return Math.max(0, Math.min(100, score));
 };
 
