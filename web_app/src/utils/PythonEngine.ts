@@ -77,6 +77,9 @@ try:
     df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
     
     print(f"📊 CSV Loaded. Rows: {len(df)}, Columns: {list(df.columns)}")
+    
+    if len(df) == 0:
+        raise ValueError("The uploaded CSV file is empty or contains no data rows.")
 
     # 3. Preprocess user data
     LIKERT_MAP = {"Not at all": 0, "Very Low/Little": 1, "Low": 2, "Moderate": 3, "High": 4, "Very High": 5}

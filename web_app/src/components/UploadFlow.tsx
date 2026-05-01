@@ -89,8 +89,8 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
             }, 2000);
           }
           setIsUploading(false);
-        } catch (err) {
-          setError('Processing failed. Check column headers.');
+        } catch (err: any) {
+          setError(err.message || 'Processing failed. Check column headers.');
           setIsUploading(false);
         }
       };
