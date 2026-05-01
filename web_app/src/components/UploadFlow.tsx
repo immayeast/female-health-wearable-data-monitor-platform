@@ -254,6 +254,21 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
               {isUploading ? 'Executing Gradient Boosting model' : 'Individual user data for stress & cycle mapping'}
             </p>
           </div>
+          
+          {!isUploading && fileName && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setFileName(null);
+                setError(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+              }}
+              className="soft-btn"
+              style={{ padding: '8px 16px', fontSize: '0.8rem', marginTop: '10px', borderRadius: '15px' }}
+            >
+              Clear & Re-upload
+            </button>
+          )}
         </div>
       </div>
 

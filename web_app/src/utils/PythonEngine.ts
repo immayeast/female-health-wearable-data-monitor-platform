@@ -108,9 +108,17 @@ try:
         cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\\n\\r\\t,")
         df = pd.read_csv(io.StringIO(cleaned), sep=',', engine='python', on_bad_lines='skip')
     
-    # Map common variations
-    MAPPING = {'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
-               'temp_diff': 'temperature_diff_from_baseline'}
+    # Map common variations to match clinical model feature names
+    MAPPING = {
+        'rhr': 'resting_hr', 
+        'hrv': 'rmssd_mean', 
+        'rmssd': 'rmssd_mean',
+        'stress_level': 'stress_score',
+        'stress': 'stress_score',
+        'temp_diff': 'temperature_diff_from_baseline',
+        'day_in_cycle': 'cycle_day',
+        'day': 'cycle_day'
+    }
     df = df.rename(columns=MAPPING)
     
     # 3. Universal Inference (Zero-Dependency)

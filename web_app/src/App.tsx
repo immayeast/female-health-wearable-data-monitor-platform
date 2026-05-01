@@ -138,6 +138,32 @@ const App = () => {
 
   return (
     <div style={{ paddingBottom: '90px', position: 'relative' }}>
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000, display: 'flex', gap: '10px' }}>
+        {step !== 'login' && (
+          <button 
+            onClick={() => {
+              setHasAcceptedResearch(false);
+              setStep('login');
+              setModelResults(null);
+            }}
+            className="soft-raised"
+            style={{ 
+              padding: '10px 20px', 
+              borderRadius: '20px', 
+              fontSize: '0.8rem', 
+              fontWeight: 700, 
+              color: 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <HomeIcon size={16} /> Logout
+          </button>
+        )}
+      </div>
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
