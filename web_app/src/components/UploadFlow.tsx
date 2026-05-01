@@ -31,22 +31,30 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     setError(null);
     
     try {
-      let metadata;
+      let metadata: any;
+      let isGB = false;
       try {
-        // 1. Try to fetch real model weights from Netlify/Public
-        const metaResponse = await fetch('/model_metadata.json');
-        if (!metaResponse.ok) throw new Error('Fetch failed');
+        // 1. Try to fetch high-fidelity GB model
+        const metaResponse = await fetch('/model_metadata_gb.json');
+        if (!metaResponse.ok) throw new Error('GB Fetch failed');
         metadata = await metaResponse.json();
+        isGB = true;
       } catch (e) {
-        console.warn("Using fallback metadata");
-        // Fallback to the real research weights extracted from script3_modeling.py
-        metadata = {
-          means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
-          stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
-          weights: { resting_hr: 8.5, rmssd: -5.0, lh: 4.0, estrogen: 1.0, pdg: 3.0 },
-          intercept: 64.96,
-          feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
-        };
+        try {
+          // 2. Fallback to Lasso weights
+          const metaResponse = await fetch('/model_metadata.json');
+          if (!metaResponse.ok) throw new Error('Lasso Fetch failed');
+          metadata = await metaResponse.json();
+        } catch (e2) {
+          console.warn("Using fallback metadata");
+          metadata = {
+            means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
+            stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
+            weights: { resting_hr: 8.5, rmssd: -5.0, lh: 4.0, estrogen: 1.0, pdg: 3.0 },
+            intercept: 64.96,
+            feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
+          };
+        }
       }
 
       const reader = new FileReader();
@@ -55,7 +63,6 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
           const text = e.target?.result as string;
           const rawData = parseResearchCSV(text);
           
-          // Map CSV headers to Model Features
           const cycleDay = Math.max(1, Math.min(28, rawData.day_in_cycle || rawData.day || 14));
 
           const state = {
@@ -64,24 +71,22 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
             lh: rawData.lh || 0,
             estrogen: rawData.estrogen || 0,
             pdg: rawData.pdg || 0,
+            temperature_diff_from_baseline: rawData.temperature_diff_from_baseline || rawData.temp_diff || 0.2,
             day_in_cycle: cycleDay
           };
 
-          const predictedScore = predictStressScore(state, metadata);
-          const classification = predictStressClassification(predictedScore);
-          const phase = predictPhase(state.day_in_cycle);
-
-          setTimeout(() => {
-            onComplete({
-              state,
-              classification,
-              phase,
-              score: predictedScore,
-              rawData,
-              timestamp: new Date().toISOString()
+          let predictedScore, phase;
+          if (isGB) {
+            import('../utils/modelEngine').then(engine => {
+               predictedScore = engine.predictStressScoreGB(state, metadata);
+               phase = engine.predictPhaseGB(state, metadata);
+               finishProcess(state, predictedScore, phase, rawData);
             });
-            setIsUploading(false);
-          }, 2000);
+          } else {
+             predictedScore = predictStressScore(state, metadata);
+             phase = predictPhase(state.day_in_cycle);
+             finishProcess(state, predictedScore, phase, rawData);
+          }
 
         } catch (err) {
           setError('CSV processing failed. Check column headers.');
@@ -93,6 +98,21 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
       setError('Model Inference Error. Please try again.');
       setIsUploading(false);
     }
+  };
+
+  const finishProcess = (state: any, predictedScore: number, phase: string, rawData: any) => {
+    const classification = predictStressClassification(predictedScore);
+    setTimeout(() => {
+      onComplete({
+        state,
+        classification,
+        phase,
+        score: predictedScore,
+        rawData,
+        timestamp: new Date().toISOString()
+      });
+      setIsUploading(false);
+    }, 2000);
   };
 
   return (

@@ -133,10 +133,6 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
       <section style={{ marginTop: '6rem' }}>
         <InsightNeumorphic />
       </section>
-
-      <section style={{ marginTop: '6rem' }}>
-        <RitualNeumorphic />
-      </section>
     </div>
   );
 };

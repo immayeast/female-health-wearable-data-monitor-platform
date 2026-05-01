@@ -15,7 +15,8 @@ import Logo from './components/Logo';
 import ResearchAcknowledgement from './components/ResearchAcknowledgement';
 import MethodologyWalkthrough from './components/MethodologyWalkthrough';
 import ResearchReferences from './components/ResearchReferences';
-import { calculateAlignment, predictPhase, predictStressClassification, predictStressScore } from './utils/modelEngine';
+import { calculateAlignment, predictPhase, predictPhaseGB, predictStressClassification, predictStressScore, predictStressScoreGB } from './utils/modelEngine';
+import { useEffect } from 'react';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -34,6 +35,14 @@ const App = () => {
   const [isWatchPromptOpen, setIsWatchPromptOpen] = useState(false);
   const [modelResults, setModelResults] = useState<any>(null);
   const [hasAcceptedResearch, setHasAcceptedResearch] = useState(false);
+  const [gbModel, setGbModel] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/model_metadata_gb.json')
+      .then(res => res.json())
+      .then(data => setGbModel(data))
+      .catch(err => console.warn('High-fidelity GB model not found, using fallbacks.'));
+  }, []);
 
   const navItems = [
     { id: 'home', label: 'Home', icon: HomeIcon },
@@ -74,18 +83,25 @@ const App = () => {
     const state = {
       resting_hr: data?.rhr ?? 65,
       rmssd: data?.hrv ?? 50,
-      lh: 0,
-      estrogen: 0,
-      pdg: 0,
+      lh: data?.lh ?? 0,
+      estrogen: data?.estrogen ?? 0,
+      pdg: data?.pdg ?? 0,
       day_in_cycle: cycleDay,
       subjectiveStress: data?.subjective_stress ?? 5,
       steps: data?.steps,
-      temp_diff: data?.temp_diff,
+      temperature_diff_from_baseline: data?.temp_diff ?? 0.2,
     };
 
-    const score = predictStressScore(state, fallbackMetadata as any);
+    let score, phase;
+    if (gbModel) {
+      score = predictStressScoreGB(state, gbModel);
+      phase = predictPhaseGB(state, gbModel);
+    } else {
+      score = predictStressScore(state, fallbackMetadata as any);
+      phase = predictPhase(state.day_in_cycle);
+    }
+
     const classification = predictStressClassification(score);
-    const phase = predictPhase(state.day_in_cycle);
     const alignment = calculateAlignment(score, state.subjectiveStress);
 
     setModelResults({
