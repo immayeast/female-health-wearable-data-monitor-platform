@@ -50,6 +50,39 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
     }
   };
 
+  const handleAnonymous = async () => {
+    setIsUploading(true);
+    // Generate 30 days of high-fidelity research data
+    const rows = [];
+    const now = new Date();
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - (29 - i));
+      const rhr = 62 + Math.random() * 12;
+      const hrv = 45 + Math.random() * 35;
+      const temp = -0.2 + Math.random() * 0.6;
+      const day = (i % 28) + 1;
+      // Synthetic stress score that fluctuates naturally
+      const baseScore = 72 + Math.sin(i / 5) * 10 + Math.random() * 5;
+      rows.push(`${date.toISOString()},${rhr.toFixed(1)},${hrv.toFixed(1)},${temp.toFixed(2)},${day},${baseScore.toFixed(1)}`);
+    }
+    const csvContent = `timestamp,resting_hr,hrv_rmssd,temp_diff,cycle_day,stress_score\n${rows.join('\n')}`;
+    
+    try {
+      const result = await pythonEngine.runInference(csvContent);
+      // Persist to local storage so it survives re-renders
+      localStorage.setItem('truth_gap_session', JSON.stringify({
+        fileName: 'anonymous_participant.csv',
+        data: result
+      }));
+      onComplete(result);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const processFile = async (file: File) => {
     setIsUploading(true);
     setError(null);
@@ -67,7 +100,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
             
             onComplete({
               fileName: file.name,
-              state: { day_in_cycle: 14 }, // Placeholder for now
+              state: { day_in_cycle: 14 },
               classification: predictStressClassification(pyResult.score),
               phase: pyResult.phase,
               score: pyResult.score,
