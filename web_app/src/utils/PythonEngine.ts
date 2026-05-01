@@ -99,14 +99,17 @@ try:
     with open("research_model.json", "r") as f:
         brain = json.load(f)
     
-    # 2. Process & Clean Input Data
-    df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
+    # 2. Read & Clean Data
+    # Use 'on_bad_lines' to skip corrupted rows and 'engine="python"' for better robustness
+    try:
+        df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip')
+    except Exception:
+        # Fallback for extreme cases
+        df = pd.read_csv(io.StringIO(input_csv_content), engine='c')
     
-    # Column Normalization
-    MAPPING = {
-        'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
-        'temp_diff': 'temperature_diff_from_baseline'
-    }
+    # Map common variations
+    MAPPING = {'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
+               'temp_diff': 'temperature_diff_from_baseline'}
     df = df.rename(columns=MAPPING)
     
     # 3. Universal Inference (Zero-Dependency)
