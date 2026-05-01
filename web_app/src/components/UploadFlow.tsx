@@ -69,7 +69,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
     const csvContent = `timestamp,resting_hr,hrv_rmssd,temp_diff,cycle_day,stress_score\n${rows.join('\n')}`;
     
     try {
-      const result = await pythonEngine.runInference(csvContent);
+      const result = await pythonEngine.runRecalibration(csvContent);
       // Persist to local storage so it survives re-renders
       localStorage.setItem('truth_gap_session', JSON.stringify({
         fileName: 'anonymous_participant.csv',
@@ -310,11 +310,25 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
       )}
 
       {!isUploading && !fileName && (
-        <div style={{ marginTop: '3rem', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center', padding: '1rem', background: 'rgba(185, 167, 245, 0.05)', borderRadius: '20px' }}>
-          <FileText size={18} color="var(--primary-lavender)" />
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Requires headers: rmssd, resting_hr, day_in_cycle
-          </p>
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAnonymous();
+            }}
+            className="soft-btn"
+            style={{ width: '100%', maxWidth: '300px', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}
+          >
+            <Cpu size={18} />
+            <span>Generate Anonymous Participant</span>
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center', padding: '1rem', background: 'rgba(185, 167, 245, 0.05)', borderRadius: '20px', width: '100%' }}>
+            <FileText size={18} color="var(--primary-lavender)" />
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>
+              Requires headers: rmssd, resting_hr, day_in_cycle
+            </p>
+          </div>
         </div>
       )}
     </div>
