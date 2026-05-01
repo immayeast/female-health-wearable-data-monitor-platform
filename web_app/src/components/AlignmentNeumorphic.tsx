@@ -104,19 +104,19 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <div className="soft-inset" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <Activity size={20} color="var(--error)" style={{ margin: '0 auto 10px' }} />
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>RHR Weight</p>
-            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>42%</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Gap Impact</p>
+            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{Math.round(100 - value)}%</p>
           </div>
           <div className="soft-inset" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <Target size={20} color="var(--primary-lavender)" style={{ margin: '0 auto 10px' }} />
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Recalibrated</p>
-            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{recalibratedValue || '--'}%</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Physio Score</p>
+            <p style={{ fontSize: '1.2rem', fontWeight: 800 }}>{Math.round(recalibratedValue || 0)}</p>
           </div>
         </div>
         
         <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
           <p>
-            The model has adjusted your baseline by <strong>12.4%</strong> to account for the truth gap between your subjective logs and the Fitbit responsiveness points.
+            The model identified a <strong>{Math.round(100 - value)}%</strong> discrepancy between your subjective report and physiological baseline. This <strong>"Truth Gap"</strong> is being used to recalibrate your wellness drivers.
           </p>
         </div>
       </section>
