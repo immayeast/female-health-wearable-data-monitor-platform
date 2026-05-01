@@ -52,30 +52,43 @@ const ClinicalGlossary: React.FC<GlossaryProps> = ({ isOpen, onClose, term }) =>
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             className="soft-raised"
-            style={{ width: '100%', maxWidth: '400px', padding: '2rem', position: 'relative', zIndex: 1001, background: 'var(--bg-color)' }}
+            style={{ 
+              width: '100%', 
+              maxWidth: '440px', 
+              padding: '2.5rem', 
+              position: 'relative', 
+              zIndex: 1001, 
+              background: 'rgba(255, 255, 255, 0.95)', 
+              backdropFilter: 'blur(20px)',
+              borderRadius: '32px',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
+            }}
           >
-            <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-              <X size={20} />
+            <button onClick={onClose} style={{ position: 'absolute', top: '20px', right: '20px', border: 'none', background: 'rgba(0,0,0,0.05)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#444' }}>
+              <X size={18} />
             </button>
 
             {term ? (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem', color: 'var(--primary-lavender)' }}>
-                  <Info size={24} />
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{CLINICAL_TERMS[term].full}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem', color: 'var(--primary-lavender)' }}>
+                  <div style={{ background: 'var(--primary-lavender)', color: '#fff', borderRadius: '10px', padding: '8px' }}>
+                    <Info size={24} />
+                  </div>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2D3748', letterSpacing: '-0.02em' }}>{CLINICAL_TERMS[term].full}</h3>
                 </div>
-                <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                <p style={{ fontSize: '1.05rem', lineHeight: 1.6, color: '#4A5568', fontWeight: 500 }}>
                   {CLINICAL_TERMS[term].description}
                 </p>
               </div>
             ) : (
               <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.5rem' }}>Clinical Glossary</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '2rem', color: '#2D3748' }}>Clinical Glossary</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
                   {Object.entries(CLINICAL_TERMS).map(([key, data]) => (
                     <div key={key}>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary-lavender)', marginBottom: '4px' }}>{data.full} ({key})</p>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>{data.description}</p>
+                      <p style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--primary-lavender)', marginBottom: '6px' }}>{data.full} ({key})</p>
+                      <p style={{ fontSize: '0.9rem', color: '#4A5568', lineHeight: 1.5, fontWeight: 500 }}>{data.description}</p>
                     </div>
                   ))}
                 </div>
