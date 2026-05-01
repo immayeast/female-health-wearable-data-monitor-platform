@@ -113,44 +113,37 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
         padding: '1.2rem 1.5rem', 
         borderRadius: '24px', 
         display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
+        flexDirection: 'column',
+        gap: '1.5rem',
         marginBottom: '2rem', 
         maxWidth: '440px', 
-        margin: '0 auto 2rem',
-        minHeight: '80px' // Lock height to prevent jumpiness
+        margin: '0 auto 2rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-          <div style={{ flexShrink: 0 }}>
-            <Cpu size={22} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
+        {/* Toggle 1: Deep Research Mode */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+            <div style={{ flexShrink: 0 }}>
+              <Cpu size={22} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
+            </div>
+            <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Deep Research Mode</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Native Python Recalibration</p>
+            </div>
           </div>
-          <div style={{ textAlign: 'left', overflow: 'hidden' }}>
-            <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Deep Research Mode</p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {pyStatus.isLoading ? 'Initializing Engine...' : pyStatus.isLoaded ? 'Python Engine Ready' : 'Native recalibration active'}
-            </p>
-          </div>
-        </div>
-        
-        <div style={{ flexShrink: 0, marginLeft: '12px' }}>
           <button 
             onClick={() => {
               setUseResearchMode(!useResearchMode);
               if (!pyStatus.isLoaded) pythonEngine.init();
             }}
             style={{ 
-              width: '54px', 
-              height: '28px', 
-              borderRadius: '14px', 
-              padding: '3px',
+              width: '50px', 
+              height: '26px', 
+              borderRadius: '13px', 
+              padding: '2px',
               background: useResearchMode ? 'var(--primary-lavender)' : 'var(--card-surface)',
               border: 'none',
               cursor: 'pointer',
-              transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: useResearchMode ? '0 0 15px rgba(167, 139, 250, 0.4)' : 'none'
+              position: 'relative'
             }}
           >
             <div style={{ 
@@ -158,9 +151,43 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
               height: '22px', 
               borderRadius: '50%', 
               background: '#fff', 
-              transform: useResearchMode ? 'translateX(26px)' : 'translateX(0)',
-              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+              transform: useResearchMode ? 'translateX(24px)' : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+            }} />
+          </button>
+        </div>
+
+        {/* Toggle 2: Research Opt-in (Anonymization logic) */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+            <div style={{ flexShrink: 0 }}>
+              <FileText size={22} color={researchConsent ? "var(--primary-teal)" : "var(--text-muted)"} />
+            </div>
+            <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Contribute to Research</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>Anonymize & Sync Data</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setResearchConsent(!researchConsent)}
+            style={{ 
+              width: '50px', 
+              height: '26px', 
+              borderRadius: '13px', 
+              padding: '2px',
+              background: researchConsent ? 'var(--primary-teal)' : 'var(--card-surface)',
+              border: 'none',
+              cursor: 'pointer',
+              position: 'relative'
+            }}
+          >
+            <div style={{ 
+              width: '22px', 
+              height: '22px', 
+              borderRadius: '50%', 
+              background: '#fff', 
+              transform: researchConsent ? 'translateX(24px)' : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
             }} />
           </button>
         </div>

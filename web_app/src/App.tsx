@@ -38,6 +38,8 @@ const App = () => {
   const [gbModel, setGbModel] = useState<any>(null);
   const [cycleLength, setCycleLength] = useState(28);
   const [showGlossary, setShowGlossary] = useState(false);
+  const [researchConsent, setResearchConsent] = useState(false);
+  const [sessionId] = useState(() => crypto.randomUUID());
 
   useEffect(() => {
     fetch('/model_metadata_gb.json')
