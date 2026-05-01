@@ -46,15 +46,21 @@ const App = () => {
       .then(data => setGbModel(data))
       .catch(() => console.warn('High-fidelity GB model not found, using fallbacks.'));
 
-    // 2. Hydrate session from localStorage
+    // 2. Hydrate session from localStorage (with robust validation)
     const savedSession = localStorage.getItem('truth_gap_session');
     if (savedSession) {
       try {
-        const { data, fileName } = JSON.parse(savedSession);
-        setModelResults({ ...data, fileName });
-        setStep('alignment');
+        const parsed = JSON.parse(savedSession);
+        if (parsed && parsed.data && typeof parsed.data === 'object' && parsed.data.score !== undefined) {
+          setModelResults({ ...parsed.data, fileName: parsed.fileName || 'recovered_session.csv' });
+          setStep('alignment');
+        } else {
+          console.warn("Invalid session data detected, clearing storage.");
+          localStorage.removeItem('truth_gap_session');
+        }
       } catch (e) {
         console.error("Failed to hydrate session", e);
+        localStorage.removeItem('truth_gap_session');
       }
     }
   }, []);
@@ -191,7 +197,11 @@ const App = () => {
         >
           {step === 'login' && (
             <LoginNeumorphic 
-              onLogin={() => setStep('home')} 
+              onLogin={(email, consent) => {
+                console.log(`Research login for ${email} (Consent: ${consent})`);
+                setHasAcceptedResearch(consent);
+                setStep('home');
+              }} 
             />
           )}
           {step === 'home' && (
