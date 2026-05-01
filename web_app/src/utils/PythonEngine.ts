@@ -161,11 +161,17 @@ try:
     current_score = df[base_col].iloc[-1] if (base_col and not pd.isna(df[base_col].iloc[-1])) else 65
     
     if base_col is None:
+        # High-sensitivity synthetic baseline for simulation
         latest_rhr = df['resting_hr'].iloc[-1] if 'resting_hr' in df.columns else 70
-        latest_hrv = df['rmssd_mean'].iloc[-1] if 'rmssd_mean' in df.columns else 65
-        rhr_n = np.clip((latest_rhr - 40) / 60, 0, 1)
-        hrv_n = np.clip((latest_hrv - 20) / 100, 0, 1)
-        current_score = 70 - (rhr_n * 30) + (hrv_n * 20)
+        latest_hrv = df['hrv_rmssd'].iloc[-1] if 'hrv_rmssd' in df.columns else 65
+        
+        # RHR sensitivity (40-100 range)
+        rhr_weight = np.clip((latest_rhr - 45) / 55, 0, 1)
+        # HRV sensitivity (20-120 range)
+        hrv_weight = np.clip((latest_hrv - 20) / 100, 0, 1)
+        
+        # Base starts at 60, varies significantly with sliders
+        current_score = 60 - (rhr_weight * 40) + (hrv_weight * 40)
 
     final_score = np.clip(current_score + predicted_gap, 0, 100)
     
