@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Activity, Thermometer, Heart, Calendar, Send, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Activity, Thermometer, Heart, Calendar, Send, Info, Zap, Droplet, Waves, Microscope } from 'lucide-react';
+import { pythonEngine } from '../utils/PythonEngine';
 
 interface RecalibrationProps {
   onComplete: (data: any) => void;
@@ -13,80 +14,66 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
     temp_diff: 0.2,
     steps: 8000,
     cycle_day: 14,
-    subjective_stress: 5
+    subjective_stress: 5,
+    lh: 10,
+    estrogen: 120,
+    pdg: 5
   });
 
+  const [simulation, setSimulation] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Live Simulation Trigger
+  useEffect(() => {
+    const runSim = async () => {
+      // Create a dummy CSV row for the engine
+      const dummyCsv = `resting_hr,rmssd_mean,temperature_diff_from_baseline,cycle_day,lh,estrogen,pdg,hr_mean\n${data.rhr},${data.hrv},${data.temp_diff},${data.cycle_day},${data.lh},${data.estrogen},${data.pdg},${data.rhr}`;
+      try {
+        const result = await pythonEngine.runRecalibration(dummyCsv);
+        setSimulation(result);
+      } catch (e) {
+        console.warn("Simulation pending engine init...");
+      }
+    };
+    const timer = setTimeout(runSim, 300);
+    return () => clearTimeout(timer);
+  }, [data]);
 
   const handleSubmit = () => {
     setIsProcessing(true);
     setTimeout(() => {
       onComplete(data);
       setIsProcessing(false);
-    }, 2000);
+    }, 1500);
   };
 
   const WindowPaneSlider = ({ label, icon, value, min, max, step, unit, field, color = "var(--primary-lavender)" }: any) => {
     const percentage = ((value - min) / (max - min)) * 100;
     
     return (
-      <div className="soft-raised" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
+      <div className="soft-raised" style={{ padding: '1.25rem', marginBottom: '1.25rem', borderRadius: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div className="soft-inset" style={{ padding: '8px', borderRadius: '12px' }}>
+            <div className="soft-inset" style={{ padding: '8px', borderRadius: '10px', background: 'rgba(255,255,255,0.5)' }}>
               {icon}
             </div>
-            <span style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{label}</span>
+            <span style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{label}</span>
           </div>
-          <span style={{ fontWeight: 700, color: color }}>{value}{unit}</span>
+          <span style={{ fontWeight: 800, color: color, fontSize: '0.9rem' }}>{value}{unit}</span>
         </div>
         
-        <div style={{ position: 'relative', width: '100%', height: '48px' }}>
-          {/* The Deep Rectangular Trench */}
+        <div style={{ position: 'relative', width: '100%', height: '36px' }}>
           <div className="soft-inset" style={{ 
-            width: '100%', 
-            height: '100%', 
-            borderRadius: '4px', // Sharp, technical rectangle
-            position: 'relative',
-            overflow: 'hidden',
-            background: 'var(--bg-main)',
-            boxShadow: 'inset 6px 6px 12px var(--dark-shadow), inset -6px -6px 12px var(--light-shadow)'
+            width: '100%', height: '100%', borderRadius: '18px', overflow: 'hidden', position: 'relative', background: 'var(--bg-main)'
           }}>
-            {/* The Opaque Block Fill */}
             <div style={{ 
-              position: 'absolute', left: 0, top: 0, bottom: 0, 
-              width: `${percentage}%`, 
-              background: color, 
-              opacity: 1, 
-              transition: 'width 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)'
+              position: 'absolute', left: 0, top: 0, bottom: 0, width: `${percentage}%`, background: color, transition: 'width 0.2s ease'
             }} />
           </div>
-
-          {/* The Transparent Input Control */}
           <input 
-            type="range" 
-            min={min} 
-            max={max} 
-            step={step} 
-            value={value} 
+            type="range" min={min} max={max} step={step} value={value} 
             onChange={(e) => setData({...data, [field]: parseFloat(e.target.value)})}
-            className="pane-slider-input"
-            style={{ height: '48px' }}
-          />
-          
-          {/* Visual Overlay: Subtle Refraction Edge */}
-          <div 
-            style={{ 
-              position: 'absolute', 
-              left: `calc(${percentage}% - 1px)`, 
-              top: 0,
-              bottom: 0,
-              width: '2px', 
-              background: 'rgba(255, 255, 255, 0.4)', // Subtle light edge instead of obvious line
-              pointerEvents: 'none',
-              zIndex: 10,
-              transition: 'left 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)'
-            }}
+            className="pane-slider-input" style={{ height: '36px' }}
           />
         </div>
       </div>
@@ -95,101 +82,82 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
 
   return (
     <div className="container fade-in" style={{ paddingBottom: '120px' }}>
-      <h1 className="screen-title">Physiological Recalibration</h1>
-      <p className="screen-subtitle">Adjust the sharp window panes to align your physiological truth.</p>
+      <h1 className="screen-title">Research Sandbox</h1>
+      <p className="screen-subtitle">Simulate physiological shifts to observe model recalibration in real-time.</p>
 
-      <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Physiological Markers</h3>
-        
-        <WindowPaneSlider 
-          label="HRV (RMSSD)" 
-          icon={<Heart size={18} color="#B9A7F5" />}
-          value={data.hrv}
-          min={20} max={120} step={1} unit="ms"
-          field="hrv"
-          color="#B9A7F5" // Muted Lavender
-        />
+      {/* Live Simulation Preview Card */}
+      <AnimatePresence>
+        {simulation && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="soft-raised"
+            style={{ 
+              padding: '2rem', 
+              marginBottom: '2.5rem', 
+              borderRadius: '32px', 
+              background: 'linear-gradient(135deg, #fff 0%, #f8f9ff 100%)',
+              border: '1px solid #fff'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Inferred State</p>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2D3748', margin: 0 }}>{simulation.phase}</h2>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>AI Correction</p>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: simulation.gap >= 0 ? 'var(--error)' : 'var(--success)', margin: 0 }}>
+                  {simulation.gap > 0 ? '+' : ''}{simulation.gap} pts
+                </h2>
+              </div>
+            </div>
+            <div style={{ marginTop: '1.5rem', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+              <motion.div 
+                animate={{ width: `${simulation.score}%` }} 
+                style={{ height: '100%', background: 'var(--primary-lavender)' }}
+              />
+            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '12px', textAlign: 'center', fontWeight: 600 }}>
+              Resulting Aligned Score: <span style={{ color: 'var(--primary-lavender)', fontWeight: 800 }}>{simulation.score}%</span>
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <WindowPaneSlider 
-          label="Resting Heart Rate" 
-          icon={<Activity size={18} color="#BFD8C8" />}
-          value={data.rhr}
-          min={40} max={100} step={1} unit="bpm"
-          field="rhr"
-          color="#BFD8C8" // Research Mint
-        />
-
-        <WindowPaneSlider 
-          label="Body Temp Diff" 
-          icon={<Thermometer size={18} color="#E8D8C3" />}
-          value={data.temp_diff}
-          min={-1} max={1} step={0.1} unit="°C"
-          field="temp_diff"
-          color="#E8D8C3" // Warm Beige
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '2.5rem' }}>
+        <div>
+          <h3 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '1.5rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Microscope size={16} /> PHYSIOLOGY
+          </h3>
+          <WindowPaneSlider label="HRV" icon={<Heart size={16} color="#B9A7F5" />} value={data.hrv} min={20} max={120} step={1} unit="ms" field="hrv" color="#B9A7F5" />
+          <WindowPaneSlider label="RHR" icon={<Activity size={16} color="#BFD8C8" />} value={data.rhr} min={40} max={100} step={1} unit="bpm" field="rhr" color="#BFD8C8" />
+          <WindowPaneSlider label="Temp" icon={<Thermometer size={16} color="#E8D8C3" />} value={data.temp_diff} min={-1} max={1} step={0.1} unit="°C" field="temp_diff" color="#E8D8C3" />
+        </div>
+        <div>
+          <h3 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '1.5rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Zap size={16} /> SIGNATURES
+          </h3>
+          <WindowPaneSlider label="LH" icon={<Droplet size={16} color="#F5A7B9" />} value={data.lh} min={0} max={50} step={1} unit="mIU" field="lh" color="#F5A7B9" />
+          <WindowPaneSlider label="Estrogen" icon={<Waves size={16} color="#A7D6F5" />} value={data.estrogen} min={50} max={400} step={10} unit="pg" field="estrogen" color="#A7D6F5" />
+          <WindowPaneSlider label="PdG" icon={<Waves size={16} color="#D6A7F5" />} value={data.pdg} min={0} max={30} step={1} unit="ug" field="pdg" color="#D6A7F5" />
+        </div>
       </div>
 
       <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Menstrual Context</h3>
-        <WindowPaneSlider 
-          label="Cycle Day" 
-          icon={<Calendar size={18} color="#A7BED3" />}
-          value={data.cycle_day}
-          min={1} max={45} step={1} unit=""
-          field="cycle_day"
-          color="#A7BED3" // Distinct Slate Blue
-        />
-
-        <div style={{ marginTop: '2.5rem' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.2rem', color: 'var(--text-muted)' }}>Subjective Log</h3>
-          <WindowPaneSlider 
-            label="Stress Level" 
-            icon={<Info size={18} color="#A6B0A0" />}
-            value={data.subjective_stress}
-            min={1} max={10} step={1} unit="/10"
-            field="subjective_stress"
-            color="#A6B0A0" // Distinct Muted Sage
-          />
+        <h3 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '1.5rem', color: 'var(--text-muted)' }}>CONTEXTUAL DATA</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <WindowPaneSlider label="Cycle Day" icon={<Calendar size={16} color="#A7BED3" />} value={data.cycle_day} min={1} max={45} step={1} unit="" field="cycle_day" color="#A7BED3" />
+          <WindowPaneSlider label="Stress Log" icon={<Info size={16} color="#A6B0A0" />} value={data.subjective_stress} min={1} max={10} step={1} unit="/10" field="subjective_stress" color="#A6B0A0" />
         </div>
       </div>
       
       <button 
-        className="soft-btn soft-btn-primary" 
-        onClick={handleSubmit}
-        disabled={isProcessing}
-        style={{ 
-          width: '100%', 
-          padding: '20px', 
-          marginTop: '3rem', 
-          height: '72px', 
-          borderRadius: '36px', 
-          fontSize: '1rem',
-          fontWeight: 700,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '12px',
-          boxShadow: '10px 10px 20px var(--dark-shadow), -10px -10px 20px var(--light-shadow)'
-        }}
+        className="soft-btn soft-btn-primary" onClick={handleSubmit} disabled={isProcessing}
+        style={{ width: '100%', padding: '20px', height: '72px', borderRadius: '36px', fontSize: '1rem', fontWeight: 800, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}
       >
-        {isProcessing ? (
-          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }}>
-            <Activity size={24} />
-          </motion.div>
-        ) : (
-          <>
-            <Send size={20} />
-            <span>Verify Model Calibration</span>
-          </>
-        )}
+        {isProcessing ? <Activity size={24} className="spin" /> : <> <Send size={20} /> <span>Lock Calibration</span> </>}
       </button>
-
-      <div className="soft-raised" style={{ marginTop: '2.5rem', padding: '1.2rem', display: 'flex', gap: '12px', alignItems: 'center', borderRadius: '24px' }}>
-        <Info size={20} color="var(--primary-lavender)" />
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          Applying these changes recalibrates your population Z-score distribution.
-        </p>
-      </div>
     </div>
   );
 };
