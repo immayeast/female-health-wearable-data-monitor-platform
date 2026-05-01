@@ -83,6 +83,16 @@ import pickle
 import io
 import json
 import traceback
+import sys
+
+# COMPATIBILITY PATCH: Scikit-learn 1.4+ renamed _gb_losses to _loss
+# We alias them here so models trained on new versions work in Pyodide (1.3.2)
+try:
+    import sklearn.ensemble._gb_losses as _gb_losses
+    sys.modules['sklearn.ensemble._loss'] = _gb_losses
+except ImportError:
+    pass
+
 from recalibration_scores import RecalibrationArtifacts
 
 try:
