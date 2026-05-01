@@ -60,7 +60,8 @@ def export_full_research_model():
         )
         
         # 3. Save the Artifacts
-        joblib.dump(artifacts, OUTPUT_PATH)
+        with open(OUTPUT_PATH, "wb") as f:
+            pickle.dump(artifacts, f)
         print(f"✅ Success! Full research brain saved to {OUTPUT_PATH}")
         print(f"Model R²: {artifacts.gb_val_r2:.4f}")
     except Exception as e:
