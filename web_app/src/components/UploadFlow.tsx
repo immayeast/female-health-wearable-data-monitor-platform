@@ -109,45 +109,61 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
       </div>
 
       {/* Research Mode Toggle */}
-      <div className="soft-raised" style={{ padding: '1.2rem', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', maxWidth: '420px', margin: '0 auto 2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-          <Cpu size={20} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
-          <div style={{ textAlign: 'left' }}>
-            <p style={{ fontSize: '0.85rem', fontWeight: 700 }}>Deep Research Mode</p>
-            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-              {pyStatus.isLoading ? 'Installing Python Engine...' : pyStatus.isLoaded ? 'Python Engine Ready' : 'Uses native Python recalibration_scores.py'}
+      <div className="soft-raised" style={{ 
+        padding: '1.2rem 1.5rem', 
+        borderRadius: '24px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: '2rem', 
+        maxWidth: '440px', 
+        margin: '0 auto 2rem',
+        minHeight: '80px' // Lock height to prevent jumpiness
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+          <div style={{ flexShrink: 0 }}>
+            <Cpu size={22} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
+          </div>
+          <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Deep Research Mode</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {pyStatus.isLoading ? 'Initializing Engine...' : pyStatus.isLoaded ? 'Python Engine Ready' : 'Native recalibration active'}
             </p>
           </div>
         </div>
-        <button 
-          onClick={() => {
-            setUseResearchMode(!useResearchMode);
-            if (!pyStatus.isLoaded) pythonEngine.init();
-          }}
-          style={{ 
-            width: '50px', 
-            height: '26px', 
-            borderRadius: '13px', 
-            padding: '2px',
-            background: useResearchMode ? 'var(--primary-lavender)' : 'var(--card-surface)',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background 0.3s ease',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <div style={{ 
-            width: '22px', 
-            height: '22px', 
-            borderRadius: '50%', 
-            background: '#fff', 
-            transform: useResearchMode ? 'translateX(24px)' : 'translateX(0)',
-            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-          }} />
-        </button>
+        
+        <div style={{ flexShrink: 0, marginLeft: '12px' }}>
+          <button 
+            onClick={() => {
+              setUseResearchMode(!useResearchMode);
+              if (!pyStatus.isLoaded) pythonEngine.init();
+            }}
+            style={{ 
+              width: '54px', 
+              height: '28px', 
+              borderRadius: '14px', 
+              padding: '3px',
+              background: useResearchMode ? 'var(--primary-lavender)' : 'var(--card-surface)',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: useResearchMode ? '0 0 15px rgba(167, 139, 250, 0.4)' : 'none'
+            }}
+          >
+            <div style={{ 
+              width: '22px', 
+              height: '22px', 
+              borderRadius: '50%', 
+              background: '#fff', 
+              transform: useResearchMode ? 'translateX(26px)' : 'translateX(0)',
+              transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+            }} />
+          </button>
+        </div>
       </div>
 
       <div 
