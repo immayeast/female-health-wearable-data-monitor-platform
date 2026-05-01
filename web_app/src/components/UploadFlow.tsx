@@ -13,6 +13,8 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [useResearchMode, setUseResearchMode] = useState(false);
+  const [researchConsent, setResearchConsent] = useState(false);
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [pyStatus, setPyStatus] = useState({ isLoaded: false, isLoading: false });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
