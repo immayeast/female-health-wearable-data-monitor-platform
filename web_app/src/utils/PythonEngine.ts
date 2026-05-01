@@ -64,11 +64,18 @@ class PythonEngine {
     }
   }
 
-  async runRecalibration(csvData: string) {
-    if (!this.isLoaded) await this.init();
+  async runRecalibration(inputCsvData: string) {
+    if (!this.isLoaded) throw new Error("Python Research Engine not initialized.");
+
+    // SAFETY CHECK: Ensure the model exists before running Python
+    try {
+      this.pyodide.FS.stat('research_model.pkl');
+    } catch (e) {
+      throw new Error("❌ Missing Research Model: Please run 'python3 save_research_model.py' locally and push 'research_model.pkl' to your repository to activate Deep Research Mode.");
+    }
 
     // Pass the CSV to Python
-    this.pyodide.globals.set("input_csv_content", csvData);
+    this.pyodide.globals.set("input_csv_content", inputCsvData);
 
     const pythonCode = `
 import pandas as pd
