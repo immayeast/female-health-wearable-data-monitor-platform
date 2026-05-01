@@ -95,13 +95,18 @@ try:
         df = pd.read_csv(io.StringIO(cleaned), sep=',', engine='python', on_bad_lines='skip')
     
     MAPPING = {
-        'rhr': 'resting_hr', 'hrv': 'rmssd_mean', 'rmssd': 'rmssd_mean',
+        'rhr': 'resting_hr', 'hrv': 'hrv_rmssd', 'rmssd': 'hrv_rmssd',
         'stress_level': 'stress_score', 'stress': 'stress_score',
-        'temp_diff': 'temperature_diff_from_baseline', 'day_in_cycle': 'cycle_day',
+        'temp_diff': 'temp_diff', 'day_in_cycle': 'cycle_day',
         'hr_mean': 'hr_mean'
     }
     df = df.rename(columns=MAPPING)
     df = df.loc[:, ~df.columns.duplicated()]
+
+    # Ensure required features exist (fill with NaN if missing)
+    for feat in phase_cfg["base_features"]:
+        if feat not in df.columns:
+            df[feat] = np.nan
 
     # 3. PHASE PREDICTION (7-Day Sliding Window RF)
     phase_cfg = brain["phase_model"]

@@ -26,8 +26,8 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
   // Live Simulation Trigger
   useEffect(() => {
     const runSim = async () => {
-      // Create a dummy CSV row for the engine
-      const dummyCsv = `resting_hr,rmssd_mean,temperature_diff_from_baseline,cycle_day,lh,estrogen,pdg,hr_mean\n${data.rhr},${data.hrv},${data.temp_diff},${data.cycle_day},${data.lh},${data.estrogen},${data.pdg},${data.rhr}`;
+      // Create a dummy CSV row for the engine matching model features
+      const dummyCsv = `resting_hr,hrv_rmssd,temp_diff,cycle_day,lh,estrogen,pdg,hr_mean\n${data.rhr},${data.hrv},${data.temp_diff},${data.cycle_day},${data.lh},${data.estrogen},${data.pdg},${data.rhr}`;
       try {
         const result = await pythonEngine.runRecalibration(dummyCsv);
         setSimulation(result);
