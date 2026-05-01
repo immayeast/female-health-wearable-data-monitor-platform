@@ -41,6 +41,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
   const processFile = async (file: File) => {
     setIsUploading(true);
     setError(null);
+    console.log(`Starting anonymized upload session: ${sessionId}`);
     
     try {
       const reader = new FileReader();
