@@ -176,9 +176,9 @@ try:
     final_score = np.clip(current_score + predicted_gap, 0, 100)
     
     results = {
-        "score": round(float(final_score), 1),
-        "gap": round(float(predicted_gap), 1),
-        "base_score": round(float(current_score), 1),
+        "score": round(float(final_score), 1) if not np.isnan(final_score) else 0,
+        "gap": round(float(predicted_gap), 1) if not np.isnan(predicted_gap) else 0,
+        "base_score": round(float(current_score), 1) if not np.isnan(current_score) else 0,
         "phase": predicted_phase,
         "status": "Balanced" if final_score < 70 else "High Performance"
     }
