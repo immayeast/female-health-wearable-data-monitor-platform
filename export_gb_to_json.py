@@ -35,7 +35,7 @@ def gb_to_dict(model, feature_names):
     return [tree_to_dict(est[0], feature_names) for est in model.estimators_]
 
 def export_gb_models():
-    print("🚀 Training and Exporting High-Fidelity GB Models...")
+    print("🚀 Re-exporting High-Fidelity GB Models with Corrected Intercepts...")
     
     # 1. Load Data
     stress = pd.read_csv(os.path.join(DATA_DIR, "stress_score.csv"))
@@ -76,15 +76,19 @@ def export_gb_models():
     X_sc = sc.transform(X_imp)
     X_phase_sc = sc.transform(X_phase_imp)
 
-    print(f"  Training Stress GB (n=100)...")
+    print(f"  Training Stress GB...")
     gb_stress = GradientBoostingRegressor(n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42)
     gb_stress.fit(X_sc, y_stress)
 
-    print(f"  Training Phase GB (n=100)...")
+    print(f"  Training Phase GB...")
     gb_phase = GradientBoostingClassifier(n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42)
     gb_phase.fit(X_phase_sc, y_phase)
 
-    # 4. Export
+    # 4. Export with Log-Probabilities for Classification Intercept
+    # For multiclass deviance, initial scores F_k are log(class_prior)
+    priors = gb_phase.init_.class_prior_
+    log_priors = np.log(priors).tolist()
+
     output = {
         "metadata": {
             "features": features,
@@ -93,6 +97,7 @@ def export_gb_models():
             "phase_labels": ["Menstrual", "Follicular", "Fertility", "Luteal"],
             "learning_rate": 0.1,
             "intercept_stress": float(gb_stress.init_.constant_[0][0]),
+            "intercept_phase": log_priors,
         },
         "stress_trees": gb_to_dict(gb_stress, features),
         "phase_trees": [] 
@@ -106,12 +111,11 @@ def export_gb_models():
         phase_trees.append(iteration_trees)
     
     output["phase_trees"] = phase_trees
-    output["intercept_phase"] = gb_phase.init_.class_prior_.tolist()
 
     with open(WEB_OUTPUT, 'w') as f:
         json.dump(output, f)
     
-    print(f"✅ Success! High-fidelity models exported to {WEB_OUTPUT}")
+    print(f"✅ Success! Calibrated models exported to {WEB_OUTPUT}")
 
 if __name__ == "__main__":
     export_gb_models()
