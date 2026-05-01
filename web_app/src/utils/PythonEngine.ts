@@ -100,17 +100,15 @@ try:
         brain = json.load(f)
     
     # 2. Read & Clean Data (Super-Resilient Parser)
-    # 1st try: Python engine with auto-delimiter detection and bad line skipping
-    # 2nd try: Default C engine (fast)
-    # 3rd try: Low-level string cleaning then read
     try:
-        df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip', quotechar='"', escapechar='\\')
+        # Use quadruple backslashes to ensure a single backslash survives JS template interpolation
+        df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip', quotechar='"', escapechar='\\\\')
     except Exception:
         try:
             df = pd.read_csv(io.StringIO(input_csv_content), on_bad_lines='skip')
         except Exception:
             # Last resort: Clean the string of unusual characters first
-            cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\n\r\t,")
+            cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\\n\\r\\t,")
             df = pd.read_csv(io.StringIO(cleaned), sep=',', on_bad_lines='skip')
     
     # Map common variations
