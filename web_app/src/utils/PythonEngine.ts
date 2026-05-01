@@ -185,17 +185,31 @@ try:
         hrv_norm = np.clip((latest_hrv - 20) / 100, 0, 1)
         current_score = 65 - (rhr_norm * 30) + (hrv_norm * 30)
 
+    # 5. Physiological Column Normalization (Fuzzy Matching)
+    def find_and_map(target, candidates):
+        found = next((c for c in df.columns if any(cand in c.lower() for cand in candidates)), None)
+        if found:
+            df[target] = df[found]
+            return df[found].iloc[-1]
+        df[target] = 50.0 if target == 'rmssd' else 65.0
+        return df[target].iloc[-1]
+
+    latest_hrv = find_and_map('rmssd', ['rmssd', 'hrv', 'variability'])
+    latest_rhr = find_and_map('resting_hr', ['resting_hr', 'rhr', 'heart_rate', 'hr'])
+    
+    # Ensure current_raw is detected
+    score_candidates = ['stress_score', 'overall_score', 'stress', 'readiness', 'wellness', 'score']
+    base_col = next((c for c in df.columns if any(cand in c.lower() for cand in score_candidates)), None)
+    current_raw = df[base_col].iloc[-1] if base_col else 65.0
+
     # 1. Prepare Features (Within-Person Z-Scoring logic)
-    # We use the full history to establish the person's baseline (Truth)
     person_mean = df[base_col].mean() if base_col else 65.0
     person_std = df[base_col].std() if base_col else 10.0
     if np.isnan(person_std) or person_std == 0: person_std = 10.0
     
-    current_raw = df[base_col].iloc[-1] if base_col else 65.0
     z_wearable = (current_raw - person_mean) / person_std
     
     # 2. Predicted Gap Logic (Gradient Boosting Proxy)
-    # Based on interpret_gb.py: gap is driven by HRV (rmssd) and RHR trends
     hrv_z = (latest_hrv - df['rmssd'].mean()) / (df['rmssd'].std() + 1e-6)
     rhr_z = (latest_rhr - df['resting_hr'].mean()) / (df['resting_hr'].std() + 1e-6)
     
