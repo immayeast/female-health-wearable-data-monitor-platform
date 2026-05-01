@@ -1,29 +1,21 @@
 import os
-import pickle
+import json
+import numpy as np
 import pandas as pd
 from recalibration_scores import run_recalibration_pipeline
 
-# Paths
-DATA_DIR = "/Users/kikkiliu/physionet.org/files/mcphases/data"
-OUTPUT_PATH = "web_app/public/research_model.pkl"
-
-def export_research_brain():
-    print("🧠 Building Research Brain (Pickle Format with Compat Patch)...")
+def export_to_json():
+    print("🧠 Deconstructing Research Brain into JSON trees...")
     
-    # 1. Load Data
+    # 1. Train/Get the model as usual
+    DATA_DIR = "/Users/kikkiliu/physionet.org/files/mcphases/data"
     stress = pd.read_csv(os.path.join(DATA_DIR, "stress_score.csv"))
     hrv = pd.read_csv(os.path.join(DATA_DIR, "heart_rate_variability_details.csv"))
     rhr = pd.read_csv(os.path.join(DATA_DIR, "resting_heart_rate.csv"))
     hormones = pd.read_csv(os.path.join(DATA_DIR, "hormones_and_selfreport.csv"))
     
-    # Pre-cleaning: filter for READY status as in script 3
     stress = stress[stress["status"] == "READY"]
-    
-    # Map Likert stress to numeric 0-100 for the gap calculation
-    LIKERT_MAP = {
-        "Not at all": 0, "Very Low/Little": 1, "Low": 2,
-        "Moderate": 3, "High": 4, "Very High": 5,
-    }
+    LIKERT_MAP = {"Not at all": 0, "Very Low/Little": 1, "Low": 2, "Moderate": 3, "High": 4, "Very High": 5}
     hormones["stress"] = hormones["stress"].map(LIKERT_MAP) * 20
     hormones = hormones.dropna(subset=["stress"])
     
@@ -39,23 +31,37 @@ def export_research_brain():
     master = master.merge(rhr_daily, on=JOIN_KEYS, how="inner")
     master = master.merge(hrv_daily, on=JOIN_KEYS, how="inner")
     
-    if len(master) == 0:
-        print("❌ ERROR: No rows remaining after merge.")
-        return
-
-    # 2. Train the Recalibration Pipeline
-    print("  Training Gradient Boosting Recalibrator...")
-    adjusted_df, artifacts = run_recalibration_pipeline(
-        master, 
-        score_col="stress_score", 
-        self_report_col="stress"
-    )
+    adjusted_df, artifacts = run_recalibration_pipeline(master, score_col="stress_score", self_report_col="stress")
     
-    # 3. Serialize to Pickle (Browser will use the compat patch)
-    with open(OUTPUT_PATH, "wb") as f:
-        pickle.dump(artifacts, f)
+    model = artifacts.gb_model
+    
+    # 2. Extract Trees
+    serialized_trees = []
+    for estimator in model.estimators_.flatten():
+        tree = estimator.tree_
+        serialized_trees.append({
+            "children_left": tree.children_left.tolist(),
+            "children_right": tree.children_right.tolist(),
+            "feature": tree.feature.tolist(),
+            "threshold": tree.threshold.tolist(),
+            "value": tree.value.flatten().tolist()
+        })
+    
+    brain_data = {
+        "init_estimator_value": float(model.init_.constant_.flatten()[0]),
+        "learning_rate": float(model.learning_rate),
+        "trees": serialized_trees,
+        "features": artifacts.gb_features,
+        "imputer_medians": artifacts.gb_imputer.statistics_.tolist(),
+        "scaler_mean": artifacts.gb_scaler.mean_.tolist(),
+        "scaler_scale": artifacts.gb_scaler.scale_.tolist()
+    }
+    
+    output_path = "web_app/public/research_model.json"
+    with open(output_path, "w") as f:
+        json.dump(brain_data, f)
         
-    print(f"✅ Research Brain serialized to {OUTPUT_PATH}")
+    print(f"✅ Research Brain (JSON) saved to {output_path}")
 
 if __name__ == "__main__":
-    export_research_brain()
+    export_to_json()

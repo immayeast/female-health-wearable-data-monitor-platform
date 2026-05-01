@@ -32,26 +32,18 @@ class PythonEngine {
       await this.pyodide.runPythonAsync("import micropip; await micropip.install('joblib')");
       
       // 2. Load your Research Scripts into the Virtual Filesystem
-      const scripts = ['recalibration_scores.py', 'interpret_gb.py', 'research_model.pkl'];
+      const scripts = ['recalibration_scores.py', 'interpret_gb.py', 'research_model.json'];
       for (const script of scripts) {
         const response = await fetch(`/${script}`);
         if (response.ok) {
           const contentType = response.headers.get('content-type');
-          
-          // CRITICAL: Check if we got HTML (404 page) instead of binary/python
           if (contentType && contentType.includes('text/html')) {
-            console.error(`❌ Asset load failed for ${script}: Received HTML instead of data. Ensure the file is in public/`);
+            console.error(`❌ Asset load failed for ${script}: Received HTML instead of data.`);
             continue; 
           }
-
-          const content = script.endsWith('.pkl') 
-            ? new Uint8Array(await response.arrayBuffer())
-            : await response.text();
-          
+          const content = await response.text();
           this.pyodide.FS.writeFile(script, content);
           console.log(`📄 Loaded research asset: ${script}`);
-        } else {
-          console.warn(`⚠️ Could not find research asset: ${script}. Deep Research mode may fail.`);
         }
       }
 
@@ -64,14 +56,14 @@ class PythonEngine {
     }
   }
 
-  async runRecalibration(inputCsvData: string) {
+  async runRecalibration(inputCsvD  async runRecalibration(inputCsvData: string) {
     if (!this.isLoaded) throw new Error("Python Research Engine not initialized.");
 
     // SAFETY CHECK: Ensure the model exists before running Python
     try {
-      this.pyodide.FS.stat('research_model.pkl');
+      this.pyodide.FS.stat('research_model.json');
     } catch (e) {
-      throw new Error("❌ Missing Research Model: Please run 'python3 save_research_model.py' locally and push 'research_model.pkl' to your repository to activate Deep Research Mode.");
+      throw new Error("❌ Missing Research Model: Please run 'python3 save_research_model.py' locally and push 'research_model.json' to activate Deep Research Mode.");
     }
 
     // Pass the CSV to Python
@@ -79,97 +71,73 @@ class PythonEngine {
 
     const pythonCode = `
 import pandas as pd
-import pickle
+import numpy as np
 import io
 import json
 import traceback
-import sys
 
-# COMPATIBILITY PATCH: Scikit-learn 1.4+ renamed _gb_losses to _loss
-# We alias them here so models trained on new versions work in Pyodide (1.3.2)
+def predict_tree(tree, x):
+    node = 0
+    # While not a leaf
+    while tree['children_left'][node] != -1:
+        if x[tree['feature'][node]] <= tree['threshold'][node]:
+            node = tree['children_left'][node]
+        else:
+            node = tree['children_right'][node]
+    return tree['value'][node]
+
+def predict_ensemble(brain, X):
+    # Initialize with the constant value
+    y = np.full(X.shape[0], brain['init_estimator_value'])
+    for tree in brain['trees']:
+        for i in range(X.shape[0]):
+            y[i] += brain['learning_rate'] * predict_tree(tree, X[i])
+    return y
+
 try:
-    import sklearn.ensemble._gb_losses as _gb_losses
-    sys.modules['sklearn.ensemble._loss'] = _gb_losses
-except ImportError:
-    pass
-
-from recalibration_scores import RecalibrationArtifacts
-
-try:
-    # 1. Load the Research Brain
-    with open("research_model.pkl", "rb") as f:
-        artifacts = pickle.load(f)
+    # 1. Load the Universal Research Brain (JSON)
+    with open("research_model.json", "r") as f:
+        brain = json.load(f)
     
-    # 2. Read the user's uploaded data
-    # Use 'sep=None, engine=python' to autodetect delimiters (comma, semicolon, etc.)
+    # 2. Process & Clean Input Data
     df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
-    print(f"📊 Raw Data Received: {len(df)} rows")
-
-    # 3. 🔥 EMBEDDED RESEARCH CLEANING PIPELINE 🔥
-    # A. Column Normalization (Mapping common variations)
+    
+    # Column Normalization
     MAPPING = {
-        'rhr': 'resting_hr', 'hrv': 'rmssd', 'temp_diff': 'temperature_diff_from_baseline',
-        'stress_level': 'stress', 'day': 'day_in_study'
+        'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
+        'temp_diff': 'temperature_diff_from_baseline'
     }
     df = df.rename(columns=MAPPING)
     
-    # B. Filter Status (If status column exists)
-    if 'status' in df.columns:
-        df = df[df['status'] == 'READY'].copy()
-        print(f"  - Filtered for READY status: {len(df)} rows remain")
-
-    # C. Map ALL Likert Scales (Generic handler for self-reports)
-    LIKERT_MAP = {
-        "Not at all": 0, "Very Low/Little": 1, "Low": 2, 
-        "Moderate": 3, "High": 4, "Very High": 5,
-        "None": 0, "Very Low": 1, "Normal": 3
-    }
-    for col in df.select_dtypes(include=['object']).columns:
-        # Check if column contains Likert values
-        if df[col].isin(LIKERT_MAP.keys()).any():
-            df[col] = df[col].map(LIKERT_MAP).fillna(3) * 20 # Fill unknown with 'Moderate'
-            print(f"  - Cleaned Likert column: {col}")
-
-    # D. Handle Row Count
-    if len(df) == 0:
-        raise ValueError("No valid 'READY' data rows found after cleaning.")
-
-    # 4. Feature Alignment & Inference
-    X = df.reindex(columns=artifacts.gb_features)
-    for i, feat in enumerate(artifacts.gb_features):
-        if X[feat].isnull().all():
-            X[feat] = artifacts.gb_imputer.statistics_[i]
+    # 3. Universal Inference (Zero-Dependency)
+    # Align features to model expectations
+    X_raw = df.reindex(columns=brain['features']).values
     
-    X_imp = artifacts.gb_imputer.transform(X)
-    X_sc = artifacts.gb_scaler.transform(X_imp)
-
-    predicted_gap = artifacts.gb_model.predict(X_sc)
+    # Manual Imputation & Scaling
+    X = X_raw.copy()
+    for i in range(X.shape[1]):
+        mask = np.isnan(X[:, i])
+        X[mask, i] = brain['imputer_medians'][i]
     
-    # Base score selection logic
+    X = (X - np.array(brain['scaler_mean'])) / np.array(brain['scaler_scale'])
+    
+    predicted_gaps = predict_ensemble(brain, X)
+    
+    # 4. Result Formatting
     base_col = "stress_score" if "stress_score" in df.columns else ("overall_score" if "overall_score" in df.columns else None)
-    if base_col:
-        adjusted_score = df[base_col] + predicted_gap
-    else:
-        adjusted_score = pd.Series([65] * len(df)) + predicted_gap
-
-    # 5. Result Formatting
+    current_score = df[base_col].iloc[-1] if (base_col and not pd.isna(df[base_col].iloc[-1])) else 65
+    
     results = {
-        "score": float(adjusted_score.iloc[-1]),
-        "gap": float(predicted_gap[-1]),
+        "score": float(current_score + predicted_gaps[-1]),
+        "gap": float(predicted_gaps[-1]),
         "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown"
     }
-    print(f"✅ Cleaning & Inference complete.")
     final_output = json.dumps(results)
-
 except Exception as e:
-    error_msg = f"""❌ Python Error: {str(e)}
-{traceback.format_exc()}"""
-    print(error_msg)
     final_output = json.dumps({"error": str(e), "traceback": traceback.format_exc()})
 
 final_output
 `;
-
     try {
       const jsonResult = await this.pyodide.runPythonAsync(pythonCode);
       const parsed = JSON.parse(jsonResult);
@@ -185,6 +153,7 @@ final_output
 
   status() {
     return { isLoaded: this.isLoaded, isLoading: this.isLoading };
+  } isLoading: this.isLoading };
   }
 }
 
