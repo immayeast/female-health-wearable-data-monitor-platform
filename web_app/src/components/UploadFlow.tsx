@@ -16,7 +16,13 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
   const [fileName, setFileName] = useState<string | null>(activeFile || null);
   const [useResearchMode] = useState(true);
   const [researchConsent, setResearchConsent] = useState(false);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId] = useState(() => {
+    try {
+      return crypto.randomUUID();
+    } catch (e) {
+      return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+  });
   const [, setPyStatus] = useState({ isLoaded: false, isLoading: false });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
