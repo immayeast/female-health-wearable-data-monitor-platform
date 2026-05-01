@@ -43,7 +43,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
         metadata = {
           means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
           stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
-          weights: { resting_hr: 3.44, rmssd: -1.16, lh: 2.11, estrogen: 0.44, pdg: 1.58 },
+          weights: { resting_hr: 8.5, rmssd: -5.0, lh: 4.0, estrogen: 1.0, pdg: 3.0 },
           intercept: 64.96,
           feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
         };

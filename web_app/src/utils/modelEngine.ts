@@ -44,9 +44,9 @@ export const predictPhase = (day: number) => {
 };
 
 export const predictStressClassification = (score: number) => {
-  if (score > 75) return { group: 'Acute Stress', level: 'High' };
-  if (score > 55) return { group: 'Elevated Gap', level: 'Moderate' };
-  if (score < 45) return { group: 'Aligned Baseline', level: 'Optimal' };
+  if (score > 80) return { group: 'Acute Stress', level: 'High' };
+  if (score > 68) return { group: 'Elevated Gap', level: 'Moderate' };
+  if (score < 58) return { group: 'Aligned Baseline', level: 'Optimal' };
   return { group: 'Balanced', level: 'Stable' };
 };
 
@@ -66,7 +66,9 @@ export const calculateTruthGap = (predicted: number, subjective: number, stdDev:
 };
 
 export const calculateAlignment = (predicted: number, subjective: number) => {
-  const gap = Math.abs(predicted - (subjective * 10)); 
+  // Map subjective 1-5 scale to 0-100 (e.g. 5 -> 100, 3 -> 60)
+  const subjectiveNormalized = Math.min(5, Math.max(1, subjective)) * 20;
+  const gap = Math.abs(predicted - subjectiveNormalized); 
   return Math.max(0, Math.min(100, 100 - gap));
 };
 
