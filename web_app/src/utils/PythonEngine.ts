@@ -133,7 +133,8 @@ try:
     final_output = json.dumps(results)
 
 except Exception as e:
-    error_msg = f"❌ Python Error: {str(e)}\n{traceback.format_exc()}"
+    error_msg = f"""❌ Python Error: {str(e)}
+{traceback.format_exc()}"""
     print(error_msg)
     final_output = json.dumps({"error": str(e), "traceback": traceback.format_exc()})
 
