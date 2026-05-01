@@ -79,6 +79,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
               phase: pyResult.phase,
               score: pyResult.score,
               predictedGap: pyResult.gap,
+              alignment: calculateAlignment(pyResult.score, 5), // Align to neutral baseline
               timestamp: new Date().toISOString()
             });
           } else {

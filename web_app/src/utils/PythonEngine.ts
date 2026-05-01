@@ -187,6 +187,10 @@ try:
 
     final_score = np.clip(current_score + predicted_gap, 0, 100)
     
+    # ZERO-PROTECTION: A score of exactly 0 usually indicates a data failure, not a clinical state.
+    if final_score < 1.0:
+        final_score = 65.0
+        
     results = {
         "score": round(float(final_score), 1) if not np.isnan(final_score) else 65.0,
         "gap": round(float(predicted_gap), 1) if not np.isnan(predicted_gap) else 0.0,
