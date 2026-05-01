@@ -79,15 +79,19 @@ try:
     # 1. Load the Actual Research Model
     with open("research_model.json", "r") as f:
         brain = json.load(f)
-    
-    # 2. Resilient Data Ingestion
-    df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip')
+    # 2. Resilient Data Ingestion (Sanitized for Universal Newlines)
+    # 1. Normalize line endings
+    sanitized_content = input_csv_content.replace('\\r\\n', '\\n').replace('\\r', '\\n')
+    # 2. Robust parsing with error handling
+    try:
+        df = pd.read_csv(io.StringIO(sanitized_content), sep=',', on_bad_lines='skip', engine='c')
+    except Exception:
+        df = pd.read_csv(io.StringIO(sanitized_content), sep=None, engine='python', on_bad_lines='skip')
     df.columns = [c.lower().strip() for c in df.columns]
     
     # 3. Dynamic Column Alignment (Fuzzy)
     def map_feature(candidates):
         return next((c for c in df.columns if any(cand in c for cand in candidates)), None)
-
     hrv_col = map_feature(['rmssd', 'hrv', 'variability'])
     rhr_col = map_feature(['resting_hr', 'rhr', 'heart_rate', 'hr'])
     cycle_col = map_feature(['cycle_day', 'day_in_cycle', 'day'])
