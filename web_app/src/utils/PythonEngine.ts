@@ -56,7 +56,7 @@ class PythonEngine {
     }
   }
 
-  async runRecalibration(inputCsvD  async runRecalibration(inputCsvData: string) {
+  async runRecalibration(inputCsvData: string) {
     if (!this.isLoaded) throw new Error("Python Research Engine not initialized.");
 
     // SAFETY CHECK: Ensure the model exists before running Python
@@ -153,7 +153,6 @@ final_output
 
   status() {
     return { isLoaded: this.isLoaded, isLoading: this.isLoading };
-  } isLoading: this.isLoading };
   }
 }
 
