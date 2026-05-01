@@ -109,8 +109,8 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
       </div>
 
       {/* Research Mode Toggle */}
-      <div className="soft-raised" style={{ padding: '1.2rem', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="soft-raised" style={{ padding: '1.2rem', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', maxWidth: '420px', margin: '0 auto 2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
           <Cpu size={20} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
           <div style={{ textAlign: 'left' }}>
             <p style={{ fontSize: '0.85rem', fontWeight: 700 }}>Deep Research Mode</p>
@@ -124,17 +124,28 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
             setUseResearchMode(!useResearchMode);
             if (!pyStatus.isLoaded) pythonEngine.init();
           }}
-          className={`soft-btn ${useResearchMode ? 'soft-btn-primary' : ''}`}
-          style={{ width: '60px', height: '30px', borderRadius: '15px', padding: 0 }}
+          style={{ 
+            width: '50px', 
+            height: '26px', 
+            borderRadius: '13px', 
+            padding: '2px',
+            background: useResearchMode ? 'var(--primary-lavender)' : 'var(--card-surface)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center'
+          }}
         >
           <div style={{ 
-            width: '24px', 
-            height: '24px', 
+            width: '22px', 
+            height: '22px', 
             borderRadius: '50%', 
             background: '#fff', 
-            margin: '3px',
-            transform: useResearchMode ? 'translateX(30px)' : 'translateX(0)',
-            transition: 'transform 0.3s ease'
+            transform: useResearchMode ? 'translateX(24px)' : 'translateX(0)',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
           }} />
         </button>
       </div>
