@@ -175,7 +175,9 @@ const App = () => {
               color: 'var(--text-secondary)'
             }}
           >
-            <LogOut size={18} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+              <LogOut size={18} strokeWidth={2.5} />
+            </div>
           </button>
         )}
       </div>
