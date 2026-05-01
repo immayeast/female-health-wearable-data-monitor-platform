@@ -15,8 +15,8 @@ import Logo from './components/Logo';
 import ResearchAcknowledgement from './components/ResearchAcknowledgement';
 import MethodologyWalkthrough from './components/MethodologyWalkthrough';
 import ResearchReferences from './components/ResearchReferences';
+import ClinicalGlossary from './components/ClinicalGlossary';
 import { calculateAlignment, predictPhase, predictPhaseGB, predictStressClassification, predictStressScore, predictGapGB, recalibrateStress } from './utils/modelEngine';
-import { useEffect } from 'react';
 
 export type UserData = {
   sex: 'male' | 'female' | '';
@@ -36,6 +36,8 @@ const App = () => {
   const [modelResults, setModelResults] = useState<any>(null);
   const [hasAcceptedResearch, setHasAcceptedResearch] = useState(false);
   const [gbModel, setGbModel] = useState<any>(null);
+  const [cycleLength, setCycleLength] = useState(28);
+  const [showGlossary, setShowGlossary] = useState(false);
 
   useEffect(() => {
     fetch('/model_metadata_gb.json')
@@ -69,7 +71,6 @@ const App = () => {
   };
 
   const handleRecalibrationComplete = (data: any) => {
-    // Mirror UploadFlow's output shape so downstream UI updates.
     const fallbackMetadata = {
       means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
       stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
@@ -105,8 +106,6 @@ const App = () => {
     if (gbModel) {
       predictedGap = predictGapGB(state, baseline, gbModel);
       phase = predictPhaseGB(state, baseline, gbModel);
-      // We need a "Raw Wearable" value to adjust. 
-      // In this demo, we'll use a baseline of 65 (the model intercept) as the wearable's 'guess'
       const rawWearableGuess = 65; 
       score = recalibrateStress(rawWearableGuess, predictedGap);
     } else {
@@ -154,6 +153,8 @@ const App = () => {
                 setStep('login');
               }} 
               status={modelResults ? modelResults.classification.group : "Elevated"} 
+              cycleLength={cycleLength}
+              onCycleLengthChange={setCycleLength}
             />
           )}
           {step === 'cycle' && (
@@ -161,6 +162,7 @@ const App = () => {
               day={modelResults ? (modelResults.state?.day_in_cycle ?? modelResults.state?.cycleDay ?? 14) : 14} 
               phase={modelResults ? modelResults.phase : "Fertility"} 
               hasData={!!modelResults}
+              cycleLength={cycleLength}
             />
           )}
           {step === 'alignment' && (
@@ -172,6 +174,7 @@ const App = () => {
               phase={modelResults?.phase}
               recalibratedValue={modelResults ? modelResults.score : undefined}
               predictedGap={modelResults?.predictedGap}
+              onShowGlossary={handleShowGlossary}
             />
           )}
           {step === 'log' && (

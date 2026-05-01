@@ -5,9 +5,10 @@ interface CycleProps {
   phase: string;
   day: number;
   hasData?: boolean;
+  cycleLength?: number;
 }
 
-const CycleStateNeumorphic: React.FC<CycleProps> = ({ phase = "Luteal", day = 22, hasData = true }) => {
+const CycleStateNeumorphic: React.FC<CycleProps> = ({ phase = "Luteal", day = 22, hasData = true, cycleLength = 28 }) => {
   return (
     <div className="container fade-in" style={{ justifyContent: 'center' }}>
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
@@ -32,7 +33,7 @@ const CycleStateNeumorphic: React.FC<CycleProps> = ({ phase = "Luteal", day = 22
             <Moon size={48} color="var(--primary-lavender)" fill="var(--primary-lavender)" opacity={0.6} />
           </div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{phase}</h2>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Day {day} of 28</span>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '4px' }}>Day {day} of {cycleLength}</span>
         </div>
       )}
 

@@ -4,9 +4,11 @@ import { Activity, BookOpen, Fingerprint, Sparkles } from 'lucide-react';
 
 interface HomeProps {
   onNext: () => void;
+  cycleLength: number;
+  onCycleLengthChange: (length: number) => void;
 }
 
-const Home: React.FC<HomeProps> = ({ onNext }) => {
+const Home: React.FC<HomeProps> = ({ onNext, cycleLength, onCycleLengthChange }) => {
   return (
     <div className="container" style={{ margin: 'auto', textAlign: 'center', padding: '4rem 1rem' }}>
       <motion.div
@@ -32,19 +34,36 @@ const Home: React.FC<HomeProps> = ({ onNext }) => {
           mcPHASES uses high-frequency physiological signal processing to bridge the gap between wearable algorithms and female subjective experience.
         </p>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '4rem' }}>
-          <button className="btn btn-primary" onClick={onNext} style={{ fontSize: '1.1rem', padding: '16px 40px', borderRadius: '50px' }}>
-            Enter Pipeline <Activity size={20} style={{ marginLeft: '8px' }} />
-          </button>
-          <a 
-            href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7141121/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="btn btn-secondary" 
-            style={{ fontSize: '1.1rem', padding: '16px 40px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            Research Paper <BookOpen size={20} />
-          </a>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', marginBottom: '4rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
+            <button className="btn btn-primary" onClick={onNext} style={{ fontSize: '1.1rem', padding: '16px 40px', borderRadius: '50px' }}>
+              Enter Pipeline <Activity size={20} style={{ marginLeft: '8px' }} />
+            </button>
+            <a 
+              href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7141121/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn btn-secondary" 
+              style={{ fontSize: '1.1rem', padding: '16px 40px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              Research Paper <BookOpen size={20} />
+            </a>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '1.5rem 2.5rem', borderRadius: '30px', display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(255,255,255,0.2)' }}>
+            <div style={{ textAlign: 'left' }}>
+              <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Personalized Baseline</p>
+              <p style={{ fontSize: '1rem', fontWeight: 600 }}>Cycle Length: {cycleLength} Days</p>
+            </div>
+            <input 
+              type="range" 
+              min="21" 
+              max="40" 
+              value={cycleLength} 
+              onChange={(e) => onCycleLengthChange(Number(e.target.value))}
+              style={{ width: '150px', accentColor: 'var(--primary-accent)' }}
+            />
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', textAlign: 'left' }}>

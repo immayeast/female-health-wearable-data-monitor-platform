@@ -7,9 +7,11 @@ interface HomeProps {
   onLogout: () => void;
   onWatchTrigger: (type: 'physiological_spike' | 'self_prompt') => void;
   status?: string;
+  cycleLength: number;
+  onCycleLengthChange: (length: number) => void;
 }
 
-const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigger, status = "Ready" }) => {
+const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigger, status = "Ready", cycleLength, onCycleLengthChange }) => {
   return (
     <div className="container fade-in">
       <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem' }}>
@@ -80,7 +82,22 @@ const HomeNeumorphic: React.FC<HomeProps> = ({ onAction, onLogout, onWatchTrigge
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto', textAlign: 'center', padding: '2rem 0' }}>
+      <div style={{ marginTop: 'auto', textAlign: 'center', padding: '2rem 0', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+        <div className="soft-raised" style={{ padding: '1rem 1.5rem', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cycle Length</p>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700 }}>{cycleLength} Days</p>
+          </div>
+          <input 
+            type="range" 
+            min="21" 
+            max="40" 
+            value={cycleLength} 
+            onChange={(e) => onCycleLengthChange(Number(e.target.value))}
+            style={{ width: '100px', accentColor: 'var(--primary-lavender)' }}
+          />
+        </div>
+
         <div className="soft-raised" style={{ padding: '1rem', borderRadius: '20px', display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
           <Activity size={16} color="var(--success)" />
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Biometric synchronization active</span>
