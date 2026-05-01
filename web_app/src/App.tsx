@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Home as HomeIcon, Compass, PlusCircle, FlaskConical, Moon } from 'lucide-react';
 
@@ -129,6 +129,13 @@ const App = () => {
     setStep('alignment');
   };
 
+  const [selectedTerm, setSelectedTerm] = useState<any>(undefined);
+
+  const handleShowGlossary = (term?: any) => {
+    setSelectedTerm(term);
+    setShowGlossary(true);
+  };
+
   return (
     <div style={{ paddingBottom: '90px', position: 'relative' }}>
       <AnimatePresence mode="wait">
@@ -256,8 +263,18 @@ const App = () => {
               <span>{item.label}</span>
             </button>
           ))}
+          <button className="nav-item" onClick={() => setShowGlossary(true)}>
+            <Compass size={22} />
+            <span>Info</span>
+          </button>
         </nav>
       )}
+
+      <ClinicalGlossary 
+        isOpen={showGlossary} 
+        onClose={() => setShowGlossary(false)} 
+        term={selectedTerm}
+      />
 
       {/* Watch Simulation Modal */}
       <AnimatePresence>
