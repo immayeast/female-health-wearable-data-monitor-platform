@@ -100,6 +100,84 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
               border: '1px solid #fff'
             }}
           >
+            {/* 3D State Visualization Card */}
+        <div 
+          className="soft-raised" 
+          style={{ 
+            gridColumn: 'span 2', 
+            padding: '2.5rem', 
+            borderRadius: '40px',
+            background: 'linear-gradient(145deg, #f0f2f8, #ffffff)',
+            position: 'relative',
+            overflow: 'hidden',
+            minHeight: '400px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <div style={{ position: 'absolute', top: '2rem', left: '2rem', zIndex: 10 }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>Latent Space Simulation</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>3D Hormonal Trajectory</p>
+          </div>
+
+          {/* Synthetic 3D Visualizer */}
+          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+            <motion.div
+              animate={{ 
+                rotateX: data.lh * 0.5, 
+                rotateY: data.estrogen * 0.5,
+                scale: 1 + (data.pdg / 200)
+              }}
+              style={{
+                width: '150px',
+                height: '150px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 30% 30%, var(--primary-lavender), var(--primary-teal))',
+                boxShadow: '20px 20px 60px rgba(0,0,0,0.1), -20px -20px 60px #fff',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                filter: 'blur(2px)',
+                opacity: 0.8
+              }}
+            />
+            <motion.div
+              animate={{ 
+                x: (data.hrv - 60) * 2,
+                y: (data.rhr - 70) * 2,
+                z: data.pdg
+              }}
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: '#fff',
+                boxShadow: '10px 10px 30px rgba(0,0,0,0.15)',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 20,
+                border: '4px solid var(--primary-lavender)'
+              }}
+            />
+            {/* Grid Lines */}
+            <div style={{ position: 'absolute', inset: 0, border: '1px dashed rgba(0,0,0,0.05)', borderRadius: '50%', transform: 'rotateX(60deg)' }} />
+            <div style={{ position: 'absolute', inset: '20%', border: '1px dashed rgba(0,0,0,0.05)', borderRadius: '50%', transform: 'rotateY(60deg)' }} />
+          </div>
+
+          <div className="soft-inset" style={{ padding: '1rem 2rem', borderRadius: '20px', marginTop: '2rem', zIndex: 10 }}>
+            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--primary-lavender)' }}>
+              Trajectory: {simulation?.phase || 'Analyzing...'}
+            </span>
+          </div>
+        </div>
+
+        {/* Input Controls */}
+        <div className="soft-raised" style={{ padding: '2.5rem', borderRadius: '40px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Inferred State</p>
