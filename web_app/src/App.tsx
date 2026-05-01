@@ -8,6 +8,7 @@ import UploadFlow from './components/UploadFlow';
 import ResearchNeumorphic from './components/ResearchNeumorphic';
 import CycleStateNeumorphic from './components/CycleStateNeumorphic';
 import RecalibrationNeumorphicReferenceNumericInput from './components/RecalibrationNeumorphicReferenceNumericInput';
+import RitualNeumorphic from './components/RitualNeumorphic';
 import LoginNeumorphic from './components/LoginNeumorphic';
 import AIAssistant from './components/AIAssistant';
 import Logo from './components/Logo';
@@ -153,6 +154,18 @@ const App = () => {
           {step === 'recalibrate' && (
             <RecalibrationNeumorphicReferenceNumericInput 
               onComplete={handleRecalibrationComplete} 
+            />
+          )}
+          {step === 'ritual' && (
+            <RitualNeumorphic 
+              onComplete={() => {
+                setModelResults((prev: any) => ({
+                  ...prev,
+                  classification: { ...prev?.classification, group: "Baseline" }
+                }));
+                setStep('home');
+              }}
+              onBack={() => setStep('home')}
             />
           )}
           {step === 'methodology' && (

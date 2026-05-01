@@ -1,0 +1,19 @@
+===============================================
+      USER DATA AUDIT & VERIFICATION REPORT
+===============================================
+
+Source File: /Users/kikkiliu/physionet.org/files/mcphases/anonymized_user_pipeline_ready.csv
+Total Logged Days: 55
+
+── ALIGNMENT CLASSIFICATION ──
+  - aligned        : 85.5%
+  - self_higher    : 12.7%
+  - wearable_higher: 1.8%
+
+── PHYSIOLOGICAL BASES (Medians) ──
+  resting_hr          : 60.0
+  rmssd_mean          : 43.2
+  steps               : 8943.0
+
+── PHASE-LEVEL TRENDS ──
+  No phase data detected.
