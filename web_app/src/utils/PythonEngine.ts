@@ -99,17 +99,14 @@ try:
     with open("research_model.json", "r") as f:
         brain = json.load(f)
     
-    # 2. Read & Clean Data (Super-Resilient Parser)
+    # 2. Read & Clean Data (Resilient Python-only Parser)
+    # Forced 'python' engine avoids C-buffer overflow on malformed files
     try:
-        # Use quadruple backslashes to ensure a single backslash survives JS template interpolation
         df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python', on_bad_lines='skip', quotechar='"', escapechar='\\\\')
     except Exception:
-        try:
-            df = pd.read_csv(io.StringIO(input_csv_content), on_bad_lines='skip')
-        except Exception:
-            # Last resort: Clean the string of unusual characters first
-            cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\\n\\r\\t,")
-            df = pd.read_csv(io.StringIO(cleaned), sep=',', on_bad_lines='skip')
+        # Final fallback: Clean the string and use a simple comma-split
+        cleaned = "".join(ch for ch in input_csv_content if ch.isprintable() or ch in "\\n\\r\\t,")
+        df = pd.read_csv(io.StringIO(cleaned), sep=',', engine='python', on_bad_lines='skip')
     
     # Map common variations
     MAPPING = {'rhr': 'resting_hr', 'hrv': 'rmssd', 'stress_level': 'stress',
