@@ -68,53 +68,30 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
         try {
           const text = e.target?.result as string;
 
-          if (useResearchMode) {
-            console.log("🧬 Running Deep Research Mode (Pyodide)...");
-            const pyResult = await pythonEngine.runRecalibration(text);
-            
-            onComplete({
-              fileName: file.name,
-              state: { day_in_cycle: 14 },
-              classification: predictStressClassification(pyResult.score),
-              phase: pyResult.phase,
-              score: pyResult.score,
-              predictedGap: pyResult.gap,
-              alignment: calculateAlignment(pyResult.score, 5), // Align to neutral baseline
-              timestamp: new Date().toISOString()
-            });
-          } else {
-            // Standard JS-based inference
-            const rawData = parseResearchCSV(text);
-            const cycleDay = Math.max(1, Math.min(28, rawData.day_in_cycle || rawData.day || 14));
-            const state = {
-              resting_hr: rawData.resting_hr || rawData.rhr || 65,
-              rmssd: rawData.rmssd || rawData.hrv || 50,
-              lh: rawData.lh || 0,
-              estrogen: rawData.estrogen || 0,
-              pdg: rawData.pdg || 0,
-              temperature_diff_from_baseline: rawData.temperature_diff_from_baseline || rawData.temp_diff || 0.2,
-              day_in_cycle: cycleDay
-            };
-
-            // Simplified fallback logic
-            const predictedScore = 65; 
-            const classification = predictStressClassification(predictedScore);
-            const phase = predictPhase(state.day_in_cycle);
-
-            setTimeout(() => {
-              onComplete({
-                state,
-                classification,
-                phase,
-                score: predictedScore,
-                rawData,
-                timestamp: new Date().toISOString()
-              });
-            }, 2000);
+          console.log("🧬 Running Deep Research Mode (Pyodide)...");
+          const pyResult = await pythonEngine.runRecalibration(text);
+          
+          if (pyResult.error) {
+            setError(`Inference Failure: ${pyResult.error}`);
+            setIsUploading(false);
+            return;
           }
+
+          onComplete({
+            fileName: file.name,
+            state: { day_in_cycle: 14 },
+            classification: predictStressClassification(pyResult.score),
+            phase: pyResult.phase,
+            score: pyResult.score,
+            predictedGap: pyResult.gap,
+            alignment: calculateAlignment(pyResult.score, 5),
+            signatures: pyResult.signatures,
+            accuracy: pyResult.accuracy,
+            timestamp: new Date().toISOString()
+          });
           setIsUploading(false);
         } catch (err: any) {
-          setError(err.message || 'Processing failed. Check column headers.');
+          setError(err.message || "Engine is warming up. Please try again in 5 seconds.");
           setIsUploading(false);
         }
       };
