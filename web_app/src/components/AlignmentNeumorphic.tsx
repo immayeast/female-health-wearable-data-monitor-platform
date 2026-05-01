@@ -15,9 +15,10 @@ interface AlignmentProps {
   recalibratedValue?: number;
   predictedGap?: number;
   onShowGlossary: (term?: any) => void;
+  modelResults?: any;
 }
 
-const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, classification, phase, recalibratedValue, predictedGap = 0, onShowGlossary }) => {
+const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel, classification, phase, recalibratedValue, predictedGap = 0, onShowGlossary, modelResults }) => {
   const [showInfo, setShowInfo] = useState(false);
 
   return (

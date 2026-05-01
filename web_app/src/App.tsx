@@ -235,6 +235,7 @@ const App = () => {
               recalibratedValue={modelResults ? modelResults.score : undefined}
               predictedGap={modelResults?.predictedGap}
               onShowGlossary={handleShowGlossary}
+              modelResults={modelResults}
             />
           )}
           {step === 'log' && (
