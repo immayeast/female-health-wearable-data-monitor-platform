@@ -40,10 +40,23 @@ const App = () => {
   const [showGlossary, setShowGlossary] = useState(false);
 
   useEffect(() => {
+    // 1. Load GB model metadata
     fetch('/model_metadata_gb.json')
       .then(res => res.json())
       .then(data => setGbModel(data))
       .catch(() => console.warn('High-fidelity GB model not found, using fallbacks.'));
+
+    // 2. Hydrate session from localStorage
+    const savedSession = localStorage.getItem('truth_gap_session');
+    if (savedSession) {
+      try {
+        const { data, fileName } = JSON.parse(savedSession);
+        setModelResults({ ...data, fileName });
+        setStep('alignment');
+      } catch (e) {
+        console.error("Failed to hydrate session", e);
+      }
+    }
   }, []);
 
   const navItems = [
@@ -145,6 +158,7 @@ const App = () => {
               setHasAcceptedResearch(false);
               setStep('login');
               setModelResults(null);
+              localStorage.removeItem('truth_gap_session');
             }}
             className="soft-raised"
             title="Log Out"
