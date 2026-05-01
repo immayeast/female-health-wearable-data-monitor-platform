@@ -176,32 +176,40 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
           </div>
         </div>
 
-        {/* Input Controls */}
-        <div className="soft-raised" style={{ padding: '2.5rem', borderRadius: '40px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Inferred State</p>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2D3748', margin: 0 }}>{simulation.phase}</h2>
+        {/* Simulation Results Panel */}
+        <AnimatePresence>
+          {simulation && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="soft-raised" 
+              style={{ padding: '2.5rem', borderRadius: '40px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Inferred State</p>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#2D3748', margin: 0 }}>{simulation.phase}</h2>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>AI Correction</p>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: simulation.gap >= 0 ? 'var(--error)' : 'var(--success)', margin: 0 }}>
+                    {simulation.gap > 0 ? '+' : ''}{simulation.gap} pts
+                  </h2>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>AI Correction</p>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: simulation.gap >= 0 ? 'var(--error)' : 'var(--success)', margin: 0 }}>
-                  {simulation.gap > 0 ? '+' : ''}{simulation.gap} pts
-                </h2>
+              <div style={{ marginTop: '1.5rem', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                <motion.div 
+                  animate={{ width: `${simulation.score}%` }} 
+                  style={{ height: '100%', background: 'var(--primary-lavender)' }}
+                />
               </div>
-            </div>
-            <div style={{ marginTop: '1.5rem', height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-              <motion.div 
-                animate={{ width: `${simulation.score}%` }} 
-                style={{ height: '100%', background: 'var(--primary-lavender)' }}
-              />
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '12px', textAlign: 'center', fontWeight: 600 }}>
-              Resulting Aligned Score: <span style={{ color: 'var(--primary-lavender)', fontWeight: 800 }}>{simulation.score}%</span>
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '12px', textAlign: 'center', fontWeight: 600 }}>
+                Resulting Aligned Score: <span style={{ color: 'var(--primary-lavender)', fontWeight: 800 }}>{simulation.score}%</span>
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '2.5rem' }}>
         <div>
