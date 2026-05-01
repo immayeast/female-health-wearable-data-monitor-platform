@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, ChevronDown, Activity, Zap, BrainCircuit, Target } from 'lucide-react';
 import DriversNeumorphic from './DriversNeumorphic';
-import InsightNeumorphic from './InsightNeumorphic';
 
 interface AlignmentProps {
   value: number;
