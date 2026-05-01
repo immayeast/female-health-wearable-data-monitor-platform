@@ -95,7 +95,7 @@ const RecalibrationNeumorphic: React.FC<RecalibrationProps> = ({ onComplete }) =
 
   return (
     <div className="container fade-in" style={{ paddingBottom: '120px' }}>
-      <h1 className="screen-title">P4 Recalibration</h1>
+      <h1 className="screen-title">Physiological Recalibration</h1>
       <p className="screen-subtitle">Adjust the sharp window panes to align your physiological truth.</p>
 
       <div style={{ marginBottom: '2rem' }}>

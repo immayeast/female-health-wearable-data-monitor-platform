@@ -59,7 +59,7 @@ const App = () => {
     setIsWatchPromptOpen(true);
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification("mcPHASES Watch Action", {
-        body: "Time to log your physiological state. Tap to open the P4 Recalibration tool.",
+        body: "Time to log your physiological state. Tap to open the Recalibration tool.",
         icon: "/favicon.svg"
       });
     }

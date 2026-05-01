@@ -302,7 +302,7 @@ const RecalibrationNeumorphicNumericInput: React.FC<RecalibrationProps> = ({ onC
           }
         `}
       </style>
-      <h1 className="screen-title">P4 Recalibration</h1>
+      <h1 className="screen-title">Personalized Recalibration</h1>
       <p className="screen-subtitle">Adjust the sharp window panes to align your physiological truth.</p>
 
       <div style={{ marginBottom: '2rem' }}>

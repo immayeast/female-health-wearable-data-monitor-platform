@@ -60,7 +60,7 @@ const MethodologyWalkthrough: React.FC<WalkthroughProps> = ({ onBack }) => {
             className="soft-inset" 
             style={{ padding: '1.5rem', borderRadius: '16px', background: 'rgba(185, 167, 245, 0.05)', marginBottom: '1.5rem' }}
           >
-            <p style={{ fontWeight: 600, color: 'var(--primary-lavender)', marginBottom: '8px' }}>The "P4" Pivot:</p>
+            <p style={{ fontWeight: 600, color: 'var(--primary-lavender)', marginBottom: '8px' }}>The Personalized Pivot:</p>
             <p style={{ fontSize: '0.85rem' }}>
               We transitioned to a <strong>Phase-Stratified Gradient Boosted Regressor (GBT)</strong>. This model treats the menstrual cycle as a primary feature, effectively decoupling hormonal shifts from autonomic stress responses.
             </p>

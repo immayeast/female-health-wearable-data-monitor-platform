@@ -75,9 +75,9 @@ const Home: React.FC<HomeProps> = ({ onNext, cycleLength, onCycleLengthChange })
             <div style={{ background: 'var(--primary-accent)', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: '#fff' }}>
               <Fingerprint size={24} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>The P4 Hypothesis</h3>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', fontWeight: 600 }}>The mcPHASES Hypothesis</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
-              Progesterone (P4) naturally suppresses HRV baselines. Most wearables misinterpret this as "stress," leading to a significant perception-physiology gap in female users.
+              Menstrual phase shifts naturally impact HRV baselines. Most wearables misinterpret this as "stress," leading to a significant perception-physiology gap in female users.
             </p>
           </motion.div>
 

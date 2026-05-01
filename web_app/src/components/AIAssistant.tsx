@@ -199,14 +199,14 @@ const AIAssistant: React.FC = () => {
                 <FileJson size={14} /> Analyze CSV
               </button>
               <button 
-                onClick={() => handleSend("Tell me about the P4 hypothesis.")}
+                onClick={() => handleSend("Tell me about the hormonal baseline hypothesis.")}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', padding: '6px 12px', 
                   borderRadius: '20px', border: '1px solid var(--glass-border)', background: 'rgba(255,255,255,0.5)',
                   cursor: 'pointer', color: 'var(--text-primary)'
                 }}
               >
-                <Layers size={14} /> P4 Hypothesis
+                <Layers size={14} /> Baseline Hypothesis
               </button>
             </div>
 

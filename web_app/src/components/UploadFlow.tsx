@@ -108,7 +108,7 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     <div className="container fade-in" style={{ justifyContent: 'center', textAlign: 'center' }}>
       <div style={{ marginBottom: '2.5rem' }}>
         <h1 className="screen-title">Import Individual Data</h1>
-        <p className="screen-subtitle">Run your participant data through the P4 modeling pipeline.</p>
+        <p className="screen-subtitle">Run your participant data through the Deep Research modeling pipeline.</p>
       </div>
 
       {/* Research Mode Toggle */}

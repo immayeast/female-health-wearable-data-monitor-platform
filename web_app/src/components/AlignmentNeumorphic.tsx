@@ -24,7 +24,7 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
   return (
     <div className="container fade-in" style={{ paddingBottom: '100px' }}>
       <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-        <h1 className="screen-title">P4 Recalibration Dashboard</h1>
+        <h1 className="screen-title">Personalized Recalibration Dashboard</h1>
         <p className="screen-subtitle">Correcting the truth gap with research-grade AI.</p>
       </div>
 
