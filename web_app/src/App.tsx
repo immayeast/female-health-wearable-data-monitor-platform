@@ -41,7 +41,7 @@ const App = () => {
     fetch('/model_metadata_gb.json')
       .then(res => res.json())
       .then(data => setGbModel(data))
-      .catch(err => console.warn('High-fidelity GB model not found, using fallbacks.'));
+      .catch(() => console.warn('High-fidelity GB model not found, using fallbacks.'));
   }, []);
 
   const navItems = [
