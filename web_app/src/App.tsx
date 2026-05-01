@@ -212,7 +212,7 @@ const App = () => {
                 setHasAcceptedResearch(false);
                 setStep('login');
               }} 
-              status={modelResults ? modelResults.classification.group : "Elevated"} 
+              status={modelResults ? modelResults.classification.group : "Awaiting Data"} 
               cycleLength={cycleLength}
               onCycleLengthChange={setCycleLength}
             />
@@ -227,12 +227,12 @@ const App = () => {
           )}
           {step === 'alignment' && (
             <AlignmentNeumorphic 
-              value={modelResults?.alignment ?? 40} 
-              label={modelResults ? modelResults.classification.group : "Slight Gap"} 
-              sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
+              value={modelResults?.alignment ?? 0} 
+              label={modelResults ? modelResults.classification.group : "Awaiting Data"} 
+              sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Upload wearable CSV to begin research inference."} 
               classification={modelResults?.classification}
               phase={modelResults?.phase}
-              recalibratedValue={modelResults ? modelResults.score : undefined}
+              recalibratedValue={modelResults ? modelResults.score : 0}
               predictedGap={modelResults?.predictedGap}
               onShowGlossary={handleShowGlossary}
               modelResults={modelResults}
