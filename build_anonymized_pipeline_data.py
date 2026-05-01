@@ -108,16 +108,30 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
         # Breathing
         record['full_sleep_breathing_rate'] = safe_get('HKQuantityTypeIdentifierRespiratoryRate', 'mean')
         
-        # Sleep
+        # 4. Synthetic Scoring (Filling the gaps for missing wearable metrics)
+        # Sleep Score: Based on a 7.5 hour (450 min) benchmark for 100
+        # First calculate total sleep duration for the day
         sleep_sub = group[group['type'] == 'HKCategoryTypeIdentifierSleepAnalysis']
-        if not sleep_sub.empty:
-            total_mins = sleep_sub['sleep_duration_mins'].sum()
-            # Convert 8 hours (480 mins) to 100 benchmark score roughly matching Oura scaling
-            score = (total_mins / 480.0) * 100
-            score = min(100.0, score)
-            record['overall_score'] = score
+        record['sleep_duration_mins'] = sleep_sub['sleep_duration_mins'].sum() if not sleep_sub.empty else np.nan
+        
+        if not np.isnan(record.get('sleep_duration_mins', np.nan)):
+            record['overall_score'] = np.clip((record['sleep_duration_mins'] / 450.0) * 100, 0, 100)
         else:
-            record['overall_score'] = np.nan
+            # Fallback to a neutral 70 if no sleep data is found
+            record['overall_score'] = 70.0
+
+        # Stress Score: Synthetic Wearable Score (Autonomic Balance)
+        # Mapping RHR (40-100) and HRV (20-120) to a 0-100 scale
+        if not np.isnan(record.get('resting_hr', np.nan)) and not np.isnan(record.get('rmssd_mean', np.nan)):
+            rhr_n = np.clip((record['resting_hr'] - 40) / 60, 0, 1)
+            hrv_n = np.clip((record['rmssd_mean'] - 20) / 100, 0, 1)
+            # Wearable Score starts at 70, penalized by high RHR and rewarded by high HRV
+            # Note: This is the 'Wearable Truth' that we will then recalibrate
+            record['stress_score'] = 70 - (rhr_n * 30) + (hrv_n * 20)
+        else:
+            record['stress_score'] = 65.0 # Neutral fallback
+            
+        record['stress'] = record['stress_score'] # Duplicate for naming flexibility
 
         # Menstrual tag (anchor for basic inference later)
         flow = group[group['type'] == 'HKCategoryTypeIdentifierMenstrualFlow']
@@ -127,7 +141,7 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
         
     daily_df = pd.DataFrame(daily_records)
     
-    # 3. Phase Inferencing
+    # 5. Phase Inferencing
     print("Building Phase approximations...")
     # If the user has menstrual flow logs, we'll infer 
     # Menstrual (Days 1-5), Follicular (Days 6-13), Fertility (14-16), Luteal (17-28)
@@ -154,12 +168,9 @@ def clean_and_anonymize_health_data(target_csv: str, out_csv: str):
                 # Cycle length past 28, just stay in luteal until next bleed
                 daily_df.loc[i, 'phase'] = 'luteal'
                 
-    # 4. Fill required uncaptured columns with NaNs
-    daily_df['stress'] = np.nan 
-    daily_df['stress_score'] = np.nan # Apple Health doesn't natively do a global stress score
-    
-    # Cleanup dropping intermediate helpers
-    daily_df = daily_df.drop(columns=['menstrual_flow_day'])
+    # Cleanup
+    if 'menstrual_flow_day' in daily_df.columns:
+        daily_df = daily_df.drop(columns=['menstrual_flow_day'])
     
     print(f"Data constructed. Final shape: {daily_df.shape}")
     daily_df.to_csv(out_csv, index=False)
