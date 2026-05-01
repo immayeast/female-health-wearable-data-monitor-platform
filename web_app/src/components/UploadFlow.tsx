@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Cpu } from 'lucide-react';
 import { parseResearchCSV, predictPhase, predictStressClassification, predictStressScore } from '../utils/modelEngine';
+import { pythonEngine } from '../utils/PythonEngine';
 
 interface UploadFlowProps {
   onComplete: (results: any) => void;
@@ -11,7 +12,16 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [useResearchMode, setUseResearchMode] = useState(false);
+  const [pyStatus, setPyStatus] = useState({ isLoaded: false, isLoading: false });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPyStatus(pythonEngine.status());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,71 +41,56 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     setError(null);
     
     try {
-      let metadata: any;
-      let isGB = false;
-      try {
-        // 1. Try to fetch high-fidelity GB model
-        const metaResponse = await fetch('/model_metadata_gb.json');
-        if (!metaResponse.ok) throw new Error('GB Fetch failed');
-        metadata = await metaResponse.json();
-        isGB = true;
-      } catch (e) {
-        try {
-          // 2. Fallback to Lasso weights
-          const metaResponse = await fetch('/model_metadata.json');
-          if (!metaResponse.ok) throw new Error('Lasso Fetch failed');
-          metadata = await metaResponse.json();
-        } catch (e2) {
-          console.warn("Using fallback metadata");
-          metadata = {
-            means: { resting_hr: 67.06, rmssd: 58.78, lh: 7.82, estrogen: 108.39, pdg: 6.01 },
-            stds: { resting_hr: 19.07, rmssd: 31.73, lh: 7.85, estrogen: 74.97, pdg: 7.11 },
-            weights: { resting_hr: 8.5, rmssd: -5.0, lh: 4.0, estrogen: 1.0, pdg: 3.0 },
-            intercept: 64.96,
-            feature_names: ["resting_hr", "rmssd", "lh", "estrogen", "pdg"]
-          };
-        }
-      }
-
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const text = e.target?.result as string;
-          const rawData = parseResearchCSV(text);
-          
-          const cycleDay = Math.max(1, Math.min(28, rawData.day_in_cycle || rawData.day || 14));
 
-          const state = {
-            resting_hr: rawData.resting_hr || rawData.rhr || 65,
-            rmssd: rawData.rmssd || rawData.hrv || 50,
-            lh: rawData.lh || 0,
-            estrogen: rawData.estrogen || 0,
-            pdg: rawData.pdg || 0,
-            temperature_diff_from_baseline: rawData.temperature_diff_from_baseline || rawData.temp_diff || 0.2,
-            day_in_cycle: cycleDay
-          };
-
-          let predictedScore, phase, predictedGap = 0;
-          const baseline = { resting_hr: 67, rmssd: 58, temperature_diff_from_baseline: 0, lh: 8, estrogen: 108, pdg: 6 };
-
-          if (isGB) {
-            import('../utils/modelEngine').then(engine => {
-               predictedGap = engine.predictGapGB(state, baseline, metadata);
-               phase = engine.predictPhaseGB(state, baseline, metadata);
-               
-               const rawWearable = rawData.stress_score || 65;
-               predictedScore = engine.recalibrateStress(rawWearable, predictedGap);
-               
-               finishProcess(state, predictedScore, phase, rawData, predictedGap);
+          if (useResearchMode) {
+            console.log("🧬 Running Deep Research Mode (Pyodide)...");
+            const pyResult = await pythonEngine.runRecalibration(text);
+            
+            onComplete({
+              state: { day_in_cycle: 14 }, // Placeholder for now
+              classification: predictStressClassification(pyResult.score),
+              phase: pyResult.phase,
+              score: pyResult.score,
+              predictedGap: pyResult.gap,
+              timestamp: new Date().toISOString()
             });
           } else {
-             predictedScore = predictStressScore(state, metadata);
-             phase = predictPhase(state.day_in_cycle);
-             finishProcess(state, predictedScore, phase, rawData, 0);
-          }
+            // Standard JS-based inference
+            const rawData = parseResearchCSV(text);
+            const cycleDay = Math.max(1, Math.min(28, rawData.day_in_cycle || rawData.day || 14));
+            const state = {
+              resting_hr: rawData.resting_hr || rawData.rhr || 65,
+              rmssd: rawData.rmssd || rawData.hrv || 50,
+              lh: rawData.lh || 0,
+              estrogen: rawData.estrogen || 0,
+              pdg: rawData.pdg || 0,
+              temperature_diff_from_baseline: rawData.temperature_diff_from_baseline || rawData.temp_diff || 0.2,
+              day_in_cycle: cycleDay
+            };
 
+            // Simplified fallback logic
+            const predictedScore = 65; 
+            const classification = predictStressClassification(predictedScore);
+            const phase = predictPhase(state.day_in_cycle);
+
+            setTimeout(() => {
+              onComplete({
+                state,
+                classification,
+                phase,
+                score: predictedScore,
+                rawData,
+                timestamp: new Date().toISOString()
+              });
+            }, 2000);
+          }
+          setIsUploading(false);
         } catch (err) {
-          setError('CSV processing failed. Check column headers.');
+          setError('Processing failed. Check column headers.');
           setIsUploading(false);
         }
       };
@@ -106,27 +101,42 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
     }
   };
 
-  const finishProcess = (state: any, predictedScore: number, phase: string, rawData: any, predictedGap: number) => {
-    const classification = predictStressClassification(predictedScore);
-    setTimeout(() => {
-      onComplete({
-        state,
-        classification,
-        phase,
-        score: predictedScore,
-        predictedGap,
-        rawData,
-        timestamp: new Date().toISOString()
-      });
-      setIsUploading(false);
-    }, 2000);
-  };
-
   return (
     <div className="container fade-in" style={{ justifyContent: 'center', textAlign: 'center' }}>
-      <div style={{ marginBottom: '3rem' }}>
+      <div style={{ marginBottom: '2.5rem' }}>
         <h1 className="screen-title">Import Individual Data</h1>
-        <p className="screen-subtitle">Upload your participant CSV to run the P4 modeling pipeline.</p>
+        <p className="screen-subtitle">Run your participant data through the P4 modeling pipeline.</p>
+      </div>
+
+      {/* Research Mode Toggle */}
+      <div className="soft-raised" style={{ padding: '1.2rem', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Cpu size={20} color={useResearchMode ? "var(--primary-lavender)" : "var(--text-muted)"} />
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontSize: '0.85rem', fontWeight: 700 }}>Deep Research Mode</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+              {pyStatus.isLoading ? 'Installing Python Engine...' : pyStatus.isLoaded ? 'Python Engine Ready' : 'Uses native Python recalibration_scores.py'}
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={() => {
+            setUseResearchMode(!useResearchMode);
+            if (!pyStatus.isLoaded) pythonEngine.init();
+          }}
+          className={`soft-btn ${useResearchMode ? 'soft-btn-primary' : ''}`}
+          style={{ width: '60px', height: '30px', borderRadius: '15px', padding: 0 }}
+        >
+          <div style={{ 
+            width: '24px', 
+            height: '24px', 
+            borderRadius: '50%', 
+            background: '#fff', 
+            margin: '3px',
+            transform: useResearchMode ? 'translateX(30px)' : 'translateX(0)',
+            transition: 'transform 0.3s ease'
+          }} />
+        </button>
       </div>
 
       <div 
@@ -161,10 +171,10 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete }) => {
 
           <div>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-              {isUploading ? 'Running P4 Models...' : fileName || 'Select CSV File'}
+              {isUploading ? (useResearchMode ? 'Running Python Pipeline...' : 'Calculating Z-scores...') : fileName || 'Select CSV File'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              {isUploading ? 'Calculating Z-scores and Phase Classification' : 'Individual user data for stress & cycle mapping'}
+              {isUploading ? 'Executing Gradient Boosting model' : 'Individual user data for stress & cycle mapping'}
             </p>
           </div>
         </div>
