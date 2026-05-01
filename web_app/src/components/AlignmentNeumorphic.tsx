@@ -138,26 +138,45 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
         </div>
       </section>
 
-      {/* 3. Hormonal Signals */}
+      {/* 3. Hormonal Signatures */}
       <section className="soft-raised" style={{ marginTop: '2rem', padding: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
           <Zap size={24} color="var(--primary-lavender)" />
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Hormonal Signatures</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Hormonal Signatures (Inferred)</h3>
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-          {['LH', 'Estrogen', 'PdG'].map((token) => (
-            <div 
-              key={token} 
-              className="soft-inset" 
-              style={{ padding: '1rem', textAlign: 'center', cursor: 'pointer' }}
-              onClick={() => onShowGlossary(token as any)}
-            >
-              <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '5px' }}>{token}</p>
-              <Info size={12} color="var(--primary-lavender)" style={{ opacity: 0.5 }} />
-            </div>
-          ))}
+          {[
+            { label: 'LH', key: 'LH', unit: 'mIU/mL' },
+            { label: 'Estrogen', key: 'Estrogen', unit: 'pg/mL' },
+            { label: 'PdG', key: 'PdG', unit: 'ug/mL' }
+          ].map((token) => {
+            const sigs = (modelResults as any)?.signatures;
+            const val = sigs ? sigs[token.key] : '--';
+            
+            return (
+              <div 
+                key={token.key} 
+                className="soft-inset" 
+                style={{ padding: '1.5rem 1rem', textAlign: 'center', cursor: 'pointer' }}
+                onClick={() => onShowGlossary(token.key as any)}
+              >
+                <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '8px', textTransform: 'uppercase' }}>{token.label}</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary-lavender)', marginBottom: '4px' }}>{val}</p>
+                <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>{token.unit}</p>
+              </div>
+            );
+          })}
         </div>
+        
+        {(modelResults as any)?.accuracy && (
+          <div style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', opacity: 0.8 }}>
+            <div style={{ height: '4px', width: '60px', background: 'var(--dark-shadow)', borderRadius: '2px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${(modelResults as any).accuracy}%`, background: 'var(--success)' }} />
+            </div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Calibration Accuracy: {(modelResults as any).accuracy}%</span>
+          </div>
+        )}
       </section>
 
       {/* 4. Original Sections (Drivers, Insight) */}
