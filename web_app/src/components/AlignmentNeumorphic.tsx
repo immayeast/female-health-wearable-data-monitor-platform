@@ -169,9 +169,6 @@ const AlignmentNeumorphic: React.FC<AlignmentProps> = ({ value, label, sublabel,
         <DriversNeumorphic />
       </section>
 
-      <section style={{ marginTop: '6rem' }}>
-        <InsightNeumorphic />
-      </section>
     </div>
   );
 };
