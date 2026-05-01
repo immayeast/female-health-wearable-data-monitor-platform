@@ -21,6 +21,16 @@ const UploadFlow: React.FC<UploadFlowProps> = ({ onComplete, activeFile, onClear
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // 1. Auto-initialize the engine on mount
+    const initEngine = async () => {
+      const status = pythonEngine.status();
+      if (!status.isLoaded && !status.isLoading) {
+        await pythonEngine.init();
+      }
+    };
+    initEngine();
+
+    // 2. Poll for status updates
     const timer = setInterval(() => {
       setPyStatus(pythonEngine.status());
     }, 1000);
