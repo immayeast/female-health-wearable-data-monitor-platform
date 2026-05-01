@@ -6,6 +6,7 @@
 !web_app/package.json
 !web_app/package-lock.json
 !web_app/tsconfig*.json
+!web_app/public/research_model.json
 data/
 export.xml
 apple_health_export/
