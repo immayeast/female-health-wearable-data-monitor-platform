@@ -72,51 +72,64 @@ try:
     # 1. Load the Research Brain
     artifacts = joblib.load("research_model.joblib")
     
-    # 2. Read the user's uploaded data
-    # Use 'sep=None, engine=python' to autodetect delimiters (comma, semicolon, etc.)
+    # 2. Read the user's uploaded data (Autodetect delimiters)
     df = pd.read_csv(io.StringIO(input_csv_content), sep=None, engine='python')
+    print(f"📊 Raw Data Received: {len(df)} rows")
+
+    # 3. 🔥 EMBEDDED RESEARCH CLEANING PIPELINE 🔥
+    # A. Column Normalization (Mapping common variations)
+    MAPPING = {
+        'rhr': 'resting_hr', 'hrv': 'rmssd', 'temp_diff': 'temperature_diff_from_baseline',
+        'stress_level': 'stress', 'day': 'day_in_study'
+    }
+    df = df.rename(columns=MAPPING)
     
-    print(f"📊 CSV Loaded. Rows: {len(df)}, Columns: {list(df.columns)}")
-    
+    # B. Filter Status (If status column exists)
+    if 'status' in df.columns:
+        df = df[df['status'] == 'READY'].copy()
+        print(f"  - Filtered for READY status: {len(df)} rows remain")
+
+    # C. Map ALL Likert Scales (Generic handler for self-reports)
+    LIKERT_MAP = {
+        "Not at all": 0, "Very Low/Little": 1, "Low": 2, 
+        "Moderate": 3, "High": 4, "Very High": 5,
+        "None": 0, "Very Low": 1, "Normal": 3
+    }
+    for col in df.select_dtypes(include=['object']).columns:
+        # Check if column contains Likert values
+        if df[col].isin(LIKERT_MAP.keys()).any():
+            df[col] = df[col].map(LIKERT_MAP).fillna(3) * 20 # Fill unknown with 'Moderate'
+            print(f"  - Cleaned Likert column: {col}")
+
+    # D. Handle Row Count
     if len(df) == 0:
-        raise ValueError("The uploaded CSV file is empty or contains no data rows.")
+        raise ValueError("No valid 'READY' data rows found after cleaning.")
 
-    # 3. Preprocess user data
-    LIKERT_MAP = {"Not at all": 0, "Very Low/Little": 1, "Low": 2, "Moderate": 3, "High": 4, "Very High": 5}
-    if "stress" in df.columns and df["stress"].dtype == object:
-        df["stress"] = df["stress"].map(LIKERT_MAP) * 20
-
-    # 4. Align Features (Robustly handle missing columns)
+    # 4. Feature Alignment & Inference
     X = df.reindex(columns=artifacts.gb_features)
-    missing = []
     for i, feat in enumerate(artifacts.gb_features):
         if X[feat].isnull().all():
             X[feat] = artifacts.gb_imputer.statistics_[i]
-            missing.append(feat)
     
-    if missing:
-        print(f"⚠️ Missing columns filled with research baselines: {missing}")
-
     X_imp = artifacts.gb_imputer.transform(X)
     X_sc = artifacts.gb_scaler.transform(X_imp)
 
     predicted_gap = artifacts.gb_model.predict(X_sc)
     
-    # Determine base score (use stress_score, or overall_score, or fallback to 65)
+    # Base score selection logic
     base_col = "stress_score" if "stress_score" in df.columns else ("overall_score" if "overall_score" in df.columns else None)
     if base_col:
         adjusted_score = df[base_col] + predicted_gap
     else:
-        print("⚠️ No stress_score found in CSV. Using model intercept (65) as baseline.")
         adjusted_score = pd.Series([65] * len(df)) + predicted_gap
 
-    # 5. Format results for React
+    # 5. Result Formatting
     results = {
         "score": float(adjusted_score.iloc[-1]),
         "gap": float(predicted_gap[-1]),
         "phase": str(df["phase"].iloc[-1]) if ("phase" in df.columns and not pd.isna(df["phase"].iloc[-1])) else "Unknown"
     }
-    print(f"✅ Recalibration Success: Score={results['score']:.2f}, Gap={results['gap']:.2f}")
+    print(f"✅ Cleaning & Inference complete.")
     final_output = json.dumps(results)
 
 except Exception as e:
