@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Cpu } from 'lucide-react';
-import { parseResearchCSV, predictPhase, predictStressClassification, calculateAlignment } from '../utils/modelEngine';
+import { predictStressClassification, calculateAlignment } from '../utils/modelEngine';
 import { pythonEngine } from '../utils/PythonEngine';
 
 interface UploadFlowProps {

@@ -227,12 +227,12 @@ const App = () => {
           )}
           {step === 'alignment' && (
             <AlignmentNeumorphic 
-              value={modelResults?.alignment ?? 0} 
-              label={modelResults ? modelResults.classification.group : "Awaiting Data"} 
-              sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Upload wearable CSV to begin research inference."} 
+              value={modelResults?.alignment ?? 40} 
+              label={modelResults ? modelResults.classification.group : "Slight Gap"} 
+              sublabel={modelResults ? `Stress is ${modelResults.classification.level}.` : "Your perception is slightly higher than physiology."} 
               classification={modelResults?.classification}
               phase={modelResults?.phase}
-              recalibratedValue={modelResults ? modelResults.score : 0}
+              recalibratedValue={modelResults ? modelResults.score : 40}
               predictedGap={modelResults?.predictedGap}
               onShowGlossary={handleShowGlossary}
               modelResults={modelResults}
