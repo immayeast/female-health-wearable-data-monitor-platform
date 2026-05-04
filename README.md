@@ -10,24 +10,24 @@ Wearable devices often provide a "black box" stress or readiness score that fail
 
 ---
 
-## 🧠 Model Architecture & Logic
+## 🧠 Model Inventory & Logic
 
-### 1. Within-Person Z-Scoring (Personalized Baselines)
-The engine does not rely on population-level means. Instead, it implements a **Within-Person Z-Scoring** protocol:
-- **Baseline Extraction**: The system calculates the `person_mean` and `person_std` from the user's historical data (HRV, RHR).
-- **Z-Normalization**: All incoming physiological metrics are converted to Z-scores relative to the user's unique baseline.
-- **Formula**: `adjusted_score = person_mean + (z_wearable + predicted_gap) * person_std`
+The mcPHASES ecosystem utilizes a multi-model ensemble to reconcile physiological state with user perception:
 
-### 2. Gradient Boosting (GB) Gap Prediction
-The core "Brain" of the platform is a **12-feature Gradient Boosting Regressor** (validated with an **R² of 0.892**). 
-- **Target**: Predicted Signed Gap (Subjective Stress - Physiological Score).
-- **Primary Features**: HRV (RMSSD), Resting Heart Rate (RHR), and Cycle Phase Dummies.
-- **Inference**: The model identifies "State Regimes" where physiology and perception diverge and applies a calculated shift to the wearable score.
+### 1. Research Recalibration Models (User-Built)
+These models form the core "Truth Gap" engine, trained on longitudinal participant data:
+- **Gradient Boosting (GB) Regressor**: The primary high-fidelity engine (R²=0.89) used to predict the **Signed Perception Gap**. It utilizes 12 physiological features including HRV deltas and RHR trends.
+- **Lasso (Linear) Baseline**: A secondary regularization model used to identify the most stable feature weights for baseline recalibration.
+- **Within-Person Z-Scoring**: A normalization strategy that centers all inferences on individual baselines rather than population means.
+
+### 2. Phase & State Detection (Support Models)
+Models used to provide context for the recalibration engine:
+- **Random Forest Phase Detector**: A 7-day sliding window model that classifies the current menstrual phase (Menstrual, Follicular, Fertility, Luteal) with high temporal resolution.
+- **HDBSCAN State Clustering**: An unsupervised learning layer used to discover perception subtypes and "state regimes" across the participant pool.
 
 ### 3. Hormonal Signature Inference
-The platform executes a secondary inference layer to predict hormonal signatures (LH, Estrogen, PdG) based on physiological intensity and cycle-day tracking:
-- **LH Surge**: Modeled with an intensity-weighted peak on Days 12–15.
-- **Progesterone (PdG)**: Modeled as a sustained thermal/RHR elevation during the Luteal phase.
+A bio-mathematical model that predicts hormonal markers:
+- **LH, Estrogen, & PdG Signatures**: Inferred using a combination of cycle-day tracking and physiological intensity (HRV/RHR interaction).
 
 ---
 
